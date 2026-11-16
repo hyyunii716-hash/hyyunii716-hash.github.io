@@ -206,63 +206,41 @@
 
   <script src="roll.js"></script>
   <script>
-    // 工具輪播：四張卡片排成一圈，每張卡片目前在哪個「槽位」記在 data-slot（0 最小／1 左／2 中間／3 右）。
-    // 桌機：滑鼠移到左／右感應區 → 該側卡片轉到中間（hover 觸發，不需點擊）；點中間那張前往工具頁。方向鍵 ← → 也能轉。
     (function () {
-      var carousel = document.querySelector('[data-carousel]');
-      if (!carousel) return;
+      var zones = document.querySelectorAll('.mag-zone');
+      if (!zones.length) return;
 
-      var slides = Array.prototype.slice.call(carousel.querySelectorAll('.slide'));
-      var n = slides.length;
-      var desktop = window.matchMedia('(min-width: 901px)');
-      var timer;
+      window.addEventListener('mousemove', function (e) {
+        zones.forEach(function (zone) {
+          var btn = zone.querySelector('.mag-btn');
+          var label = btn ? btn.querySelector('.label') : null;
+          if (!btn) return;
 
-      function slotOf(el) { return +el.getAttribute('data-slot'); }
+          var rect = zone.getBoundingClientRect();
+          var centerX = rect.left + rect.width / 2;
+          var centerY = rect.top + rect.height / 2;
+          var dx = e.clientX - centerX;
+          var dy = e.clientY - centerY;
+          var dist = Math.hypot(dx, dy);
 
-      function rotate(step) {            // step > 0：整圈往右；step < 0：往左
-        slides.forEach(function (el) {
-          var from = slotOf(el);
-          var to = ((from + step) % n + n) % n;
-          // 繞過頭的那張（最左 ↔ 最右）不要飛越整個畫面，改成淡入
-          el.classList.toggle('slide--jump', Math.abs(to - from) > 1);
-          el.setAttribute('data-slot', to);
-          var link = el.querySelector('.slide__link');
-          if (to === 2) link.setAttribute('aria-current', 'true');
-          else link.removeAttribute('aria-current');
+          if (dist < 70) {
+            zone.classList.add('is-hovering');
+            btn.style.setProperty('transform', 'translate(' + (dx * 0.4) + 'px, ' + (dy * 0.4) + 'px)', 'important');
+            if (label) {
+              label.style.setProperty('transform', 'translate(' + (dx * 0.2) + 'px, ' + (dy * 0.2) + 'px)', 'important');
+            }
+          } else if (zone.classList.contains('is-hovering')) {
+            zone.classList.remove('is-hovering');
+            btn.style.setProperty('transform', 'translate(0px, 0px)', 'important');
+            if (label) {
+              label.style.setProperty('transform', 'translate(0px, 0px)', 'important');
+            }
+          }
         });
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-          slides.forEach(function (el) { el.classList.remove('slide--jump'); });
-        }, 600);
-      }
-
-      // Figma 的透明按鈕：左右各一條固定的感應區（佔容器寬 9.3–22.4%、76–89.1%）。
-      // 滑鼠「移入」感應區就輪轉一次；必須先離開再移入才會再轉，避免轉完又連環觸發。
-      var zone = null;                       // 目前游標所在區：'l' / 'r' / null
-      function zoneAt(e) {
-        var r = carousel.getBoundingClientRect();
-        var x = (e.clientX - r.left) / r.width * 100;
-        if (x >= 9.3 && x <= 22.4) return 'l';
-        if (x >= 76 && x <= 89.1) return 'r';
-        return null;
-      }
-      carousel.addEventListener('pointermove', function (e) {
-        if (!desktop.matches || e.pointerType !== 'mouse') return;
-        var z = zoneAt(e);
-        if (z === zone) return;
-        zone = z;
-        if (z === 'l') rotate(1);            // 左側卡片移到中間
-        if (z === 'r') rotate(-1);           // 右側卡片移到中間
-      });
-      carousel.addEventListener('pointerleave', function () { zone = null; });
-
-      carousel.addEventListener('keydown', function (e) {
-        if (!desktop.matches) return;
-        if (e.key === 'ArrowRight') { e.preventDefault(); rotate(-1); }
-        if (e.key === 'ArrowLeft')  { e.preventDefault(); rotate(1); }
-      });
+      }, { passive: true });
     })();
   </script>
+</body>
   <script src="cursor-trail.js"></script>
 </body>
 </html>

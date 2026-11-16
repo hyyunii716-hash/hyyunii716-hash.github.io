@@ -259,42 +259,6 @@
   <!-- 品牌宣言動畫：純 JS，不需要網路 -->
   <script src="manifesto.js"></script>
   <script src="cursor-trail.js"></script>
-  <script>
-  window.addEventListener('DOMContentLoaded', function () {
-    var zones = document.querySelectorAll('.mag-zone');
-    if (!zones.length) return;
-
-    window.addEventListener('mousemove', function (e) {
-      zones.forEach(function (zone) {
-        var btn = zone.querySelector('.mag-btn');
-        var label = btn ? btn.querySelector('.label') : null;
-        if (!btn) return;
-
-        var rect = zone.getBoundingClientRect();
-        var centerX = rect.left + rect.width / 2;
-        var centerY = rect.top + rect.height / 2;
-        var dx = e.clientX - centerX;
-        var dy = e.clientY - centerY;
-        var dist = Math.hypot(dx, dy);
-
-        // 只要滑鼠距離按鈕中心 130px 以內，就啟動磁吸！
-        if (dist < 130) {
-          zone.classList.add('is-hovering');
-          btn.style.setProperty('transform', 'translate(' + (dx * 0.4) + 'px, ' + (dy * 0.4) + 'px)', 'important');
-          if (label) {
-            label.style.setProperty('transform', 'translate(' + (dx * 0.2) + 'px, ' + (dy * 0.2) + 'px)', 'important');
-          }
-        } else if (zone.classList.contains('is-hovering')) {
-          // 滑鼠離開 130px 範圍後，Q 彈回原位並恢復待機抖動
-          zone.classList.remove('is-hovering');
-          btn.style.setProperty('transform', 'translate(0px, 0px)', 'important');
-          if (label) {
-            label.style.setProperty('transform', 'translate(0px, 0px)', 'important');
-          }
-        }
-      });
-    }, { passive: true });
-  });
-</script>
+  
 </body>
 </html>
