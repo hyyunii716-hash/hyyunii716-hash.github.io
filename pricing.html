@@ -40,9 +40,15 @@
           <button class="pricing-tab" role="tab" type="button" data-plan="monthly">月度方案</button>
         </div>
         <div class="pricing-cards" id="pricing-cards" aria-live="polite"></div>
-        <div class="pricing-buy-wrap"><a class="pricing-buy" href="discount-25.html">立即購買</a></div>
+        <div class="pricing-buy-wrap"><button class="pricing-buy" id="pricing-buy" type="button">立即購買</button></div>
       </section>
     </div>
+
+    <dialog class="pricing-success" id="pricing-success" aria-labelledby="pricing-success-title">
+      <h2 id="pricing-success-title">購買成功</h2>
+      <p>感謝您的購買！</p>
+      <button class="pricing-success__close" type="button">確定</button>
+    </dialog>
 
       <!-- 贊助 -->
       <section class="donate" aria-labelledby="donate-title">

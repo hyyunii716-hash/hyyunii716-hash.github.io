@@ -97,7 +97,8 @@ const PLANS = {
 
 const cardsEl = document.getElementById("pricing-cards");
 const tabs = document.querySelectorAll(".pricing-tab");
-const buyLink = document.querySelector(".pricing-buy");
+const buyButton = document.getElementById("pricing-buy");
+const successDialog = document.getElementById("pricing-success");
 let current = null;
 
 function el(tag, cls, text) {
@@ -144,7 +145,6 @@ function render(key) {
 function select(key, animate = true) {
   if (key === current) return;
   tabs.forEach((t) => t.classList.toggle("is-active", t.dataset.plan === key));
-  if (buyLink) buyLink.href = "discount-25.html";
   if (!animate || current === null) {
     render(key);
     current = key;
@@ -156,6 +156,14 @@ function select(key, animate = true) {
     render(key);
     cardsEl.classList.remove("is-switching");
   }, 280);
+}
+
+if (buyButton && successDialog) {
+  buyButton.addEventListener("click", () => successDialog.showModal());
+  successDialog.querySelector(".pricing-success__close").addEventListener("click", () => successDialog.close());
+  successDialog.addEventListener("click", (event) => {
+    if (event.target === successDialog) successDialog.close();
+  });
 }
 
 tabs.forEach((t) => t.addEventListener("click", () => select(t.dataset.plan)));
