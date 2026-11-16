@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>贊助 — Abandon</title>
+  <meta name="description" content="贊助 Abandon（示範付款頁，不會送出任何資料）。">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+  <link rel="stylesheet" href="pay.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html">網頁工具</a></li>
+        <li><a href="apps.html">網頁程式</a></li>
+        <li><a href="pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="pay">
+    <div class="panel" id="panel">
+      <!-- 信用卡預覽 -->
+      <div class="card-stage" id="stage" aria-hidden="true">
+        <div class="card" id="card">
+          <div class="face front" id="front">
+            <div class="card-top">
+              <div class="chip"></div>
+              <div class="brand" id="brand"></div>
+            </div>
+            <div class="card-number" id="cardNumber"></div>
+            <div class="card-bottom">
+              <div>
+                <div class="meta-label">持卡者姓名</div>
+                <div class="card-name ph" id="cardName">FULL NAME</div>
+              </div>
+              <div>
+                <div class="meta-label">有效時間</div>
+                <div class="card-exp ph" id="cardExp">MM/YY</div>
+              </div>
+            </div>
+            <div class="focus-ring" id="ring"></div>
+          </div>
+          <div class="face back">
+            <div class="strip"></div>
+            <div class="sig">
+              <div class="sig-line"></div>
+              <div class="cvv-box" id="cardCvv">&nbsp;</div>
+            </div>
+            <div class="cvv-label">CVV</div>
+            <div class="back-note">僅限持卡人本人使用。<br /></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 表單：資料只在瀏覽器內處理，不會送出。接後端時請改 submit handler。 -->
+      <form id="payForm" novalidate autocomplete="on">
+        <div class="field">
+          <label for="number">信用卡卡號</label>
+          <input
+            class="control"
+            id="number"
+            name="cc-number"
+            type="text"
+            inputmode="numeric"
+            autocomplete="cc-number"
+            maxlength="23"
+            placeholder="0000 0000 0000 0000"
+            aria-describedby="numberErr"
+          />
+          <p class="err" id="numberErr" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="holder">持卡者姓名</label>
+          <input
+            class="control text"
+            id="holder"
+            name="cc-name"
+            type="text"
+            autocomplete="cc-name"
+            maxlength="40"
+            aria-describedby="holderErr"
+          />
+          <p class="err" id="holderErr" role="alert"></p>
+        </div>
+
+        <div class="row">
+          <div class="exp">
+            <span class="legend" id="expLegend">有效時間</span>
+            <div class="exp-selects" role="group" aria-labelledby="expLegend">
+              <div class="select-wrap">
+                <select
+                  class="control empty"
+                  id="month"
+                  name="cc-exp-month"
+                  autocomplete="cc-exp-month"
+                  aria-label="月份"
+                ></select>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="2.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 8l8 8 8-8" />
+                </svg>
+              </div>
+              <div class="select-wrap">
+                <select
+                  class="control empty"
+                  id="year"
+                  name="cc-exp-year"
+                  autocomplete="cc-exp-year"
+                  aria-label="年份"
+                ></select>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#fff"
+                  stroke-width="2.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 8l8 8 8-8" />
+                </svg>
+              </div>
+            </div>
+            <p class="err" id="expErr" role="alert"></p>
+          </div>
+          <div class="field">
+            <label for="cvv">CVV</label>
+            <input
+              class="control"
+              id="cvv"
+              name="cc-csc"
+              type="password"
+              inputmode="numeric"
+              autocomplete="cc-csc"
+              maxlength="4"
+              aria-describedby="cvvErr"
+            />
+            <p class="err" id="cvvErr" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="confirm" id="confirm" type="submit">確認</button>
+        </div>
+        <p class="status" id="status" role="status"></p>
+      </form>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+  <script src="pay.js"></script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

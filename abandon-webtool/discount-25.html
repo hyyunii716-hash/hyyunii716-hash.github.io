@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>折價 25% — Abandon</title>
+  <meta name="description" content="Abandon 折價券">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+  <link rel="stylesheet" href="coupon25.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html">網頁工具</a></li>
+        <li><a href="apps.html">網頁程式</a></li>
+        <li><a href="pricing.html" aria-current="page">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="cp">
+    <main class="cp-main">
+      <div class="stage" id="stage">
+        <div class="slide1">
+          <div class="slide2" id="unit">
+            <!-- q4 = 最右 1/4（固定不動，含下載頁籤）
+                 q3 = 第 2 次對折的翻面部分，掛在 q4 左邊
+                 q2 = 第 1 次對折的翻面部分，掛在 q3 左邊
+                 q1 = 最左 1/4，掛在 q2 左邊 -->
+            <div class="panel q4">
+              <div class="face front">
+                <div class="content">
+                  <div class="card" data-art aria-hidden="true"></div>
+                  <button
+                    class="tab"
+                    id="tab"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="儲存折價券"
+                  >
+                    <svg
+                      class="ic-down"
+                      viewBox="0 0 50 60"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="4.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M25 4v36M10 27l15 15 15-15M4 55h42" />
+                    </svg>
+                    <svg
+                      class="ic-done"
+                      viewBox="0 0 50 60"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="4.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 30l12 12L42 16M4 55h42" />
+                    </svg>
+                  </button>
+                </div>
+                <div class="shade"></div>
+              </div>
+
+              <div class="panel q3">
+                <div class="face front">
+                  <div class="content">
+                    <div class="card" data-art aria-hidden="true"></div>
+                  </div>
+                  <div class="shade"></div>
+                </div>
+                <div class="face back" aria-hidden="true">
+                  <div class="shade"></div>
+                </div>
+
+                <div class="panel q2">
+                  <div class="face front">
+                    <div class="content">
+                      <div class="card" data-art aria-hidden="true"></div>
+                    </div>
+                    <div class="shade"></div>
+                  </div>
+                  <div class="face back" aria-hidden="true">
+                    <div class="shade"></div>
+                  </div>
+
+                  <div class="panel q1">
+                    <div class="face front">
+                      <div class="content">
+                        <div class="card" data-art aria-hidden="true"></div>
+                      </div>
+                      <div class="shade"></div>
+                    </div>
+                    <div class="face back" aria-hidden="true">
+                      <div class="shade"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button class="hint" id="hint" type="button" aria-pressed="false">
+          點擊折價券，獲取折扣
+        </button>
+      </div>
+
+      <div class="actions">
+        <a class="back-btn" id="back" href="pricing.html">返回繼續購買</a>
+        <p class="status" id="status" role="status"></p>
+      </div>
+    </main>
+
+    <p class="note">
+      若折價金額有任何問題及疑慮，本公司概不負責，可撥打客服專線
+    </p>
+
+    <template id="art">
+      <div class="title">折扣優惠卷</div>
+      <div class="save">
+        <span class="lead">立即省下</span><span class="pct">25%</span>
+      </div>
+    </template>
+  </section>
+
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+
+  <script src="coupon25.js"></script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

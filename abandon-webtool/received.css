@@ -1,0 +1,82 @@
+/* 已收到信用卡資訊（received.html）：置中文字 + 3-2-1 倒數彈出廣告 */
+.received {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: clamp(28px, 4vw, 56px);
+  padding: 120px 24px 80px;
+  text-align: center;
+}
+.received__text {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(28px, 5.6vw, 80px);
+  line-height: 1.25;
+  letter-spacing: .02em;
+}
+.received__home { opacity: 0; transform: translateY(8px); transition: opacity .5s .1s, transform .5s .1s; pointer-events: none; }
+.received.is-clear .received__home { opacity: 1; transform: none; pointer-events: auto; }
+
+.ad {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center; padding: 24px;
+  background: rgb(0 0 0 / .62);
+  transition: opacity .25s ease;
+}
+.ad.is-out { opacity: 0; pointer-events: none; }
+.ad[hidden] { display: none; }
+.ad__wrap { position: relative; width: min(920px, 100%); animation: adIn .32s cubic-bezier(.16,1,.3,1) both; }
+.ad.is-out .ad__wrap { animation: adOut .25s ease both; }
+@keyframes adIn { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes adOut { to { opacity: 0; transform: scale(.95); } }
+
+.ad__close {
+  position: absolute; right: 0; top: -46px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 8px 6px 14px; border-radius: 999px;
+  background: rgb(23 23 23 / .92); color: #fff;
+  border: 1px solid rgb(255 255 255 / .25);
+  font: 500 14px/1 var(--font-sans, "Noto Sans TC", sans-serif);
+  cursor: not-allowed; transition: background .2s, transform .2s;
+}
+.ad__label { color: #e5e5e5; }
+.ad__badge {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgb(255 255 255 / .15); color: #fcd34d; font-weight: 900; font-size: 14px;
+}
+.ad__close:not(:disabled) { cursor: pointer; background: #171717; }
+.ad__close:not(:disabled) .ad__label { color: #fff; font-weight: 700; }
+.ad__close:not(:disabled) .ad__badge { background: #fff; color: #171717; }
+.ad__close:not(:disabled):hover { background: #dc2626; }
+.ad__close:not(:disabled):hover .ad__badge { color: #dc2626; }
+.ad__close:not(:disabled):active { transform: scale(.95); }
+.ad__badge span.tick { display: inline-block; animation: tick .28s cubic-bezier(.22,1,.36,1); }
+@keyframes tick { from { transform: scale(1.28); opacity: .7; } to { transform: none; opacity: 1; } }
+.ad__badge svg { width: 14px; height: 14px; }
+
+.ad__card {
+  position: relative; overflow: hidden; border-radius: 12px; background: #ffeb14;
+  box-shadow: 0 22px 50px -12px rgb(0 0 0 / .6), 0 0 0 1px rgb(0 0 0 / .08);
+}
+.ad__tag {
+  position: absolute; z-index: 2; top: 6px; left: 8px; padding: 2px 6px; border-radius: 4px;
+  background: rgb(0 0 0 / .55); color: rgb(255 255 255 / .9); font-size: 10px; letter-spacing: .08em; pointer-events: none;
+}
+.ad__img { display: block; width: 100%; height: auto; }
+
+/* 沒有放圖片時的備援版面（assets/ad-165.png 不存在就會顯示這個） */
+.ad__fallback { display: flex; align-items: center; gap: clamp(12px, 3vw, 32px); aspect-ratio: 870 / 212; padding: 8px clamp(14px, 3vw, 32px); color: #171717; }
+.ad__fallback[hidden] { display: none; }
+.ad__no { display: flex; flex-direction: column; align-items: center; line-height: 1; font-weight: 900; font-size: clamp(30px, 6vw, 64px); color: #fff; -webkit-text-stroke: 3px #1e293b; paint-order: stroke fill; }
+.ad__no span:first-child { transform: rotate(-6deg); }
+.ad__body { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; height: 100%; padding: 4px 0; }
+.ad__red { background: #d90a14; color: #fff; border-radius: 16px; padding: clamp(8px, 1.6vw, 16px) clamp(12px, 2.4vw, 24px); }
+.ad__red strong { display: block; font-size: clamp(15px, 3vw, 30px); font-weight: 900; }
+.ad__red p { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 4px 0 0; font-weight: 900; font-size: clamp(13px, 2.4vw, 24px); }
+.ad__red em { font-style: normal; background: #fff; color: #d90a14; padding: 0 8px; border-radius: 6px; }
+.ad__red span { color: #ffeb14; }
+.ad__steps { margin: 0; font-weight: 900; font-size: clamp(12px, 2vw, 20px); }
+.ad__steps b { color: #d90a14; }
+
+@media (max-width: 600px) { .ad__close { top: -42px; } }
+@media (prefers-reduced-motion: reduce) { .ad__wrap, .ad.is-out .ad__wrap { animation: none; } }

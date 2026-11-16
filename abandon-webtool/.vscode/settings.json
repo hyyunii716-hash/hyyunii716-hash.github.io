@@ -1,0 +1,13 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    "tools.html": "compress.html, remover.html, flip.html, group.html, styles.css, pages.css, flow.css, flow.js, help-modal.js, cursor-trail.js",
+    "index.html": "manifesto.js, wordmark.js",
+    "pricing.html": "pay.js, pay.css",
+    "received.html": "received.js, received.css",
+    "discount-25.html": "coupon25.js, coupon25.css",
+    "discount-50.html": "coupon50.js, coupon50.css",
+    "indesign.html": "idcard.js"
+  }
+}
