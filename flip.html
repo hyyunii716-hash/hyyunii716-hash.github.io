@@ -14,6 +14,7 @@
 
   <header class="site-header site-header--overlay">
     <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
       <ul class="site-nav__list">
         <li><a href="index.html">首頁</a></li>
         <li><a href="tools.html" aria-current="page">網頁工具</a></li>
@@ -23,15 +24,17 @@
     </nav>
   </header>
 
-  <main class="page page--sub">
+  <main class="page page--sub" data-tool="flip">
     <section class="flow-step" data-step="upload">
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">翻轉圖像</h1></div>
       <div class="container">
-        <button type="button" class="upload-box" data-goto="processing">
+        <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
           <span class="upload-box__desc">將您的圖片上傳，Abandon將會幫您智慧調整方向</span>
+          <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
+        <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="1" data-max-size-mb="50" tabindex="-1">
       </div>
       <div class="container info">
       <section class="how" aria-labelledby="how-title">
@@ -72,23 +75,24 @@
       </section>
       </div>
     </section>
-    <section class="flow-step" data-step="processing" hidden>
-      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">翻轉圖像</h1></div>
-      <div class="container result">
-        <div class="result__img result__img--tall" role="img" aria-label="待翻轉的圖片（預覽）"></div>
-        <div class="result__actions result__actions--center">
-          <button type="button" class="btn btn--outline pill-btn" data-goto="download">開始翻轉</button>
-        </div>
-      </div>
-    </section>
     <section class="flow-step" data-step="download" hidden>
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">翻轉圖像</h1></div>
       <div class="container result">
-        <div class="result__img result__img--tall" role="img" aria-label="處理後的圖片（預覽）"></div>
-        <p class="result__done">翻轉完成！</p>
-        <div class="result__actions">
-          <button type="button" class="btn btn--outline pill-btn" data-goto="upload"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11a5 5 0 0 1 0 10H8M4 9l4-4M4 9l4 4"/></svg><span>返回上頁</span></button>
-          <button type="button" class="btn btn--outline pill-btn" data-download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 20h16"/></svg><span>下載檔案</span></button>
+        <div class="flip-stage" data-flip-stage aria-label="圖片翻轉預覽">
+          <div class="flip-card">
+            <div class="flip-card__face flip-card__front" data-flip-front></div>
+            <div class="flip-card__face flip-card__back"><img src="assets/photoback.png" alt="Abandon 翻轉圖像背面"></div>
+          </div>
+        </div>
+        <div class="result__actions result__actions--center">
+          <button type="button" class="btn btn--outline pill-btn" data-flip-trigger>開始翻轉</button>
+          <div class="flip-complete" data-flip-complete hidden>
+            <p class="result__done">翻轉完成！</p>
+            <div class="result__actions">
+              <a class="btn btn--outline pill-btn" href="tools.html"><span>返回上頁</span></a>
+              <button type="button" class="btn btn--outline pill-btn" data-download><span>下載檔案</span></button>
+            </div>
+          </div>
         </div>
       </div>
     </section>
