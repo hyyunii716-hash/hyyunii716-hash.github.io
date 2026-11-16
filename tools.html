@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>網頁工具 — Abandon</title>
+  <meta name="description" content="探索 Abandon 網站工具：壓縮圖檔、去背工具、拼組圖檔、翻轉圖檔。">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html" aria-current="page">網頁工具</a></li>
+        <li><a href="apps.html">網頁程式</a></li>
+        <li><a href="pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="page page--sub">
+
+    <!-- 標題 -->
+    <div class="container page-head">
+      <h1 class="section-title">探索 Abandon網站工具</h1>
+      <p class="page-head__sub">WebsiteTools</p>
+    </div>
+
+    <!-- 工具輪播：桌機滑鼠移到左右兩側會輪轉（hover），點中間那張才前往工具頁 -->
+    <section aria-label="網頁工具">
+      <ul class="carousel" data-carousel aria-label="網頁工具輪播">
+        <li class="slide slide--flip" data-slot="0">
+          <a class="slide__link" href="flip.html">
+            <span class="slide__title">翻轉圖檔</span>
+            <span class="slide__desc">自由翻轉你的<br>圖檔，實現多<br>維度編輯。</span>
+            <span class="slide__en">Flip Image</span>
+            <svg class="slide__icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false">
+              <path d="M26 16c20-14 48-14 68 0M86 8l9 9-11 4"/>
+              <rect x="20" y="28" width="80" height="46" rx="6"/>
+              <circle cx="38" cy="43" r="4"/>
+              <path d="M22 68c14-22 28-22 40-8s26 6 36-6"/>
+              <path d="M94 84c-20 14-48 14-68 0M34 92l-9-9 11-4"/>
+            </svg>
+          </a>
+        </li>
+        <li class="slide slide--groups" data-slot="1">
+          <a class="slide__link" href="group.html">
+            <span class="slide__title">拼組圖檔</span>
+            <span class="slide__desc">組合你的圖檔，<br class="br-center">使作品之間更加和諧。</span>
+            <span class="slide__en">Image Groups</span>
+            <svg class="slide__icon" viewBox="0 0 120 90" aria-hidden="true" focusable="false">
+              <defs>
+                <g id="groups-tile">
+                  <rect x="2" y="2" width="52" height="38" rx="4"/>
+                  <circle cx="16" cy="14" r="4"/>
+                  <path d="M4 36c8-12 16-12 22-4s14 4 26-8"/>
+                </g>
+              </defs>
+              <use href="#groups-tile"/>
+              <use href="#groups-tile" x="62"/>
+              <use href="#groups-tile" y="48"/>
+              <use href="#groups-tile" x="62" y="48"/>
+            </svg>
+          </a>
+        </li>
+        <li class="slide slide--compress" data-slot="2">
+          <a class="slide__link" href="compress.html" aria-current="true">
+            <span class="slide__title">壓縮圖檔</span>
+            <span class="slide__desc">壓縮檔案大小，<br>節省電腦容量，<br>更好攜帶。</span>
+            <span class="slide__en">compression image</span>
+            <svg class="slide__icon" viewBox="0 0 120 150" aria-hidden="true" focusable="false">
+              <path d="M60 2v20M52 15l8 8 8-8"/>
+              <path d="M0 33h120"/>
+              <rect x="2" y="43" width="116" height="64" rx="7"/>
+              <circle cx="26" cy="63" r="6"/>
+              <path d="M5 101c20-34 38-34 54-12s34 10 57-18"/>
+              <path d="M0 119h120"/>
+              <path d="M60 148v-20M52 135l8-8 8 8"/>
+            </svg>
+          </a>
+        </li>
+        <li class="slide slide--backless" data-slot="3">
+          <a class="slide__link" href="remover.html">
+            <span class="slide__title">去背工具</span>
+            <span class="slide__desc">使用去背工具，<br>讓作品更簡潔，<br>清淨視野。</span>
+            <span class="slide__en">Backless Tool</span>
+            <svg class="slide__icon" viewBox="0 0 120 90" aria-hidden="true" focusable="false">
+              <rect x="2" y="2" width="116" height="86" rx="3" stroke-dasharray="9 6"/>
+              <circle cx="60" cy="31" r="11"/>
+              <path d="M40 87V66a20 20 0 0 1 40 0v21"/>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- CTA -->
+    <div class="container btn-row">
+      <a class="btn btn--primary" href="pricing.html">購買方案</a>
+      <a class="btn btn--outline" href="#more-features">查看更多</a>
+    </div>
+
+    <!-- 更多功能 -->
+    <section class="container" id="more-features" aria-labelledby="mf-title">
+      <div class="page-head" style="gap:16px">
+        <h2 id="mf-title" class="sub-title">更多功能</h2>
+        <p class="eyebrow">More Features</p>
+        <div class="pill-nav" role="group" aria-label="功能分類" style="margin-top:8px">
+          <button type="button" class="pill">螢幕保護</button>
+          <button type="button" class="pill">核心理念</button>
+          <button type="button" class="pill">量身定制</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="container features" aria-label="應用程式介紹">
+
+      <article class="feature">
+        <a class="media media--illustrator" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="前往 Abandon illustrator（新分頁開啟 ChatGPT）— 黑色底與藍色細線條組成的波浪紋理"></a>
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon app-icon--ai" aria-hidden="true">Ai</span>
+            <h3 class="feature__name">Abandon illustrator</h3>
+          </div>
+          <p class="feature__headline">降智創作，職涯救星</p>
+          <p class="feature__text">這個時代最被濫用的功能，用越多就越笨的工具。設計系訴求，快把 AI 還給以拉，給我正常的 AI 喔。究竟 AI 產業會不會泡沫化？我們無法得知未來，唯一能知道的，只有我被台股加權反了。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+      </article>
+
+      <article class="feature feature--reverse">
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon" aria-hidden="true">Ps</span>
+            <h3 class="feature__name">Photoshop</h3>
+          </div>
+          <p class="feature__headline">全球採購，相片商城</p>
+          <p class="feature__text">直接為你串聯全球高品質實體與數位相片零售商。無需動用任何圖層或遮罩，只要拿出信用卡即可快速結帳購入全世界的優質照片。最專業的相片購物體驗，輕鬆省下所有點陣圖編修時間。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+        <a class="media media--mushroom" href="photoshop.html" aria-label="前往Photoshop（雨中發光的紫色蘑菇與蝸牛）"></a>
+      </article>
+
+      <article class="roll" aria-label="Abandon">
+        <h3 class="roll__title" id="rollTitle" aria-label="Abandon">Abandon</h3>
+        <p class="roll__hint">點擊文字重播</p>
+      </article>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+
+
+  <script src="roll.js"></script>
+  <script>
+    // 工具輪播：四張卡片排成一圈，每張卡片目前在哪個「槽位」記在 data-slot（0 最小／1 左／2 中間／3 右）。
+    // 桌機：滑鼠移到左／右感應區 → 該側卡片轉到中間（hover 觸發，不需點擊）；點中間那張前往工具頁。方向鍵 ← → 也能轉。
+    (function () {
+      var carousel = document.querySelector('[data-carousel]');
+      if (!carousel) return;
+
+      var slides = Array.prototype.slice.call(carousel.querySelectorAll('.slide'));
+      var n = slides.length;
+      var desktop = window.matchMedia('(min-width: 901px)');
+      var timer;
+
+      function slotOf(el) { return +el.getAttribute('data-slot'); }
+
+      function rotate(step) {            // step > 0：整圈往右；step < 0：往左
+        slides.forEach(function (el) {
+          var from = slotOf(el);
+          var to = ((from + step) % n + n) % n;
+          // 繞過頭的那張（最左 ↔ 最右）不要飛越整個畫面，改成淡入
+          el.classList.toggle('slide--jump', Math.abs(to - from) > 1);
+          el.setAttribute('data-slot', to);
+          var link = el.querySelector('.slide__link');
+          if (to === 2) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
+        });
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          slides.forEach(function (el) { el.classList.remove('slide--jump'); });
+        }, 600);
+      }
+
+      // Figma 的透明按鈕：左右各一條固定的感應區（佔容器寬 9.3–22.4%、76–89.1%）。
+      // 滑鼠「移入」感應區就輪轉一次；必須先離開再移入才會再轉，避免轉完又連環觸發。
+      var zone = null;                       // 目前游標所在區：'l' / 'r' / null
+      function zoneAt(e) {
+        var r = carousel.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width * 100;
+        if (x >= 9.3 && x <= 22.4) return 'l';
+        if (x >= 76 && x <= 89.1) return 'r';
+        return null;
+      }
+      carousel.addEventListener('pointermove', function (e) {
+        if (!desktop.matches || e.pointerType !== 'mouse') return;
+        var z = zoneAt(e);
+        if (z === zone) return;
+        zone = z;
+        if (z === 'l') rotate(1);            // 左側卡片移到中間
+        if (z === 'r') rotate(-1);           // 右側卡片移到中間
+      });
+      carousel.addEventListener('pointerleave', function () { zone = null; });
+
+      carousel.addEventListener('keydown', function (e) {
+        if (!desktop.matches) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); rotate(-1); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); rotate(1); }
+      });
+    })();
+  </script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

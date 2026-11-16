@@ -1,0 +1,455 @@
+/* 贊助付款頁（donate.html）：由提供的 style.css 加上 .pay 範圍，避免和網站其他樣式衝突 */
+.pay {
+  --bg: #0c0c0c;
+  --panel-line: #2e2e2e;
+  --field-line: #333333;
+  --field-line-focus: #6a5cff;
+  --text: #f4f4f4;
+  --muted: #9a9a9a;
+  --card-face: #333333;
+  --card-face-2: #2a2a2a;
+  --accent: #1f0088;
+  --accent-line: #3b24c9;
+  --accent-hover: #2a10b5;
+  --error: #ff7a7a;
+  --ok: #7be0a6;
+  --font-ui:
+    "Noto Sans TC", system-ui, -apple-system, "PingFang TC",
+    "Microsoft JhengHei", sans-serif;
+  --font-num: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --card-tint: transparent;
+  color-scheme: dark;
+}
+.pay, .pay * {
+  box-sizing: border-box;
+}
+.pay {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+.pay {
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  padding-top: clamp(110px, 11.4vw, 160px); padding-bottom: 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.pay .panel {
+  --card-w: min(440px, 100%);
+  width: 100%;
+  max-width: 900px;
+  margin-top: calc(var(--card-h, 246px) / 2 + 16px);
+  border: 1px solid var(--panel-line);
+  border-radius: 20px;
+  padding: calc(var(--card-h, 246px) / 2 + 40px) clamp(20px, 6vw, 72px) 48px;
+  position: relative;
+}
+.pay .card-stage {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: var(--card-w);
+  aspect-ratio: 683 / 382;
+  transform: translate(-50%, -50%);
+  perspective: 1200px;
+  z-index: 2;
+}
+.pay .card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pay .card.flipped {
+  transform: rotateY(180deg);
+}
+.pay .face {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--card-tint) 22%, var(--card-face)) 0%,
+    color-mix(in srgb, var(--card-tint) 10%, var(--card-face-2)) 100%
+  );
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: background 0.5s;
+}
+.pay .front {
+  padding: clamp(14px, 5%, 26px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.pay .back {
+  transform: rotateY(180deg);
+  padding: 0;
+}
+.pay .card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 34px;
+}
+.pay .chip {
+  width: 44px;
+  height: 33px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #5a5a5a, #3d3d3d);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  position: relative;
+}
+.pay .chip::before, .pay .chip::after {
+  content: "";
+  position: absolute;
+  background: rgba(0, 0, 0, 0.35);
+}
+.pay .chip::before {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+.pay .chip::after {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+.pay .brand {
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 14px;
+  color: #fff;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.3s,
+    transform 0.3s;
+}
+.pay .brand.on {
+  opacity: 0.95;
+  transform: none;
+}
+.pay .brand.visa {
+  font-style: italic;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+.pay .card-number {
+  font-family: var(--font-num);
+  font-weight: 500;
+  font-size: clamp(16px, 4.4vw, 24px);
+  letter-spacing: 0.04em;
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+  width: fit-content;
+  padding: 2px 0;
+}
+.pay .card-number span {
+  display: inline-block;
+  min-width: 0.6em;
+  text-align: center;
+  color: #fff;
+}
+.pay .card-number span.ph {
+  color: rgba(255, 255, 255, 0.35);
+}
+.pay .card-number span.pop {
+  animation: pop 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+@keyframes pop {
+  from {
+    transform: translateY(-60%);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.pay .card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+.pay .meta-label {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.pay .card-name {
+  font-size: 15px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 22px;
+  width: fit-content;
+  padding: 1px 0;
+}
+.pay .card-name.ph, .pay .card-exp.ph {
+  color: rgba(255, 255, 255, 0.35);
+}
+.pay .card-exp {
+  font-family: var(--font-num);
+  font-size: 15px;
+  min-height: 22px;
+  width: fit-content;
+  padding: 1px 0;
+}
+.pay .focus-ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 10px;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    height 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.25s;
+  box-shadow: 0 0 0 1px rgba(106, 92, 255, 0.18);
+}
+.pay .focus-ring.on {
+  opacity: 1;
+}
+.pay .strip {
+  height: 18%;
+  margin-top: 9%;
+  background: #0b0b0b;
+}
+.pay .sig {
+  margin: 7% 6% 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pay .sig-line {
+  flex: 1;
+  height: 38px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(45deg, #444 0 6px, #3b3b3b 6px 12px);
+}
+.pay .cvv-box {
+  min-width: 64px;
+  height: 38px;
+  border-radius: 4px;
+  background: #f1f1f1;
+  color: #111;
+  font-family: var(--font-num);
+  font-weight: 500;
+  display: grid;
+  place-items: center;
+  letter-spacing: 0.2em;
+  padding: 0 8px;
+}
+.pay .back-note {
+  margin: 6% 6% 0;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.pay .cvv-label {
+  margin: 5% 6% 0;
+  text-align: right;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.pay form {
+  max-width: 920px;
+  margin-inline: auto;
+  display: grid;
+  gap: 28px;
+}
+.pay .field {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.pay label, .pay .legend {
+  font-size: 18px;
+  font-weight: 400;
+}
+.pay .control {
+  width: 100%;
+  height: 64px;
+  padding: 0 22px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--field-line);
+  border-radius: 16px;
+  font: inherit;
+  font-size: 18px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.pay input.control {
+  font-family: var(--font-num);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+}
+.pay input.control.text {
+  font-family: var(--font-ui);
+  letter-spacing: 0.02em;
+}
+.pay .control::placeholder {
+  color: #4d4d4d;
+}
+.pay .control:hover {
+  border-color: #4a4a4a;
+}
+.pay .control:focus-visible {
+  border-color: var(--field-line-focus);
+  box-shadow: 0 0 0 1px rgba(106, 92, 255, 0.22);
+}
+.pay .control[aria-invalid="true"] {
+  border-color: var(--error);
+}
+.pay .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: clamp(14px, 4vw, 54px);
+  align-items: start;
+}
+.pay .exp {
+  grid-column: span 2;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.pay .exp-selects {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(14px, 4vw, 54px);
+}
+.pay .select-wrap {
+  position: relative;
+  min-width: 0;
+}
+.pay .select-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 54px;
+  cursor: pointer;
+}
+.pay .select-wrap select:invalid, .pay .select-wrap select.empty {
+  color: var(--text);
+}
+.pay .select-wrap svg {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: transform 0.25s;
+}
+.pay .select-wrap:focus-within svg {
+  transform: translateY(-50%) rotate(180deg);
+}
+.pay select option {
+  background: #151515;
+  color: var(--text);
+}
+.pay .actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.pay button.confirm {
+  width: min(100%, 270px);
+  height: 64px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent-line);
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.15s,
+    box-shadow 0.2s;
+}
+.pay button.confirm:hover {
+  background: var(--accent-hover);
+}
+.pay button.confirm:active {
+  transform: scale(0.98);
+}
+.pay button.confirm:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.pay button.confirm.done {
+  background: #0f5c36;
+  border-color: #1f9d62;
+}
+.pay .status {
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+  min-height: 20px;
+  margin: 0;
+}
+.pay .status.ok {
+  color: var(--ok);
+}
+.pay .status.err {
+  color: #ff6b6b;
+}
+@media (max-width: 560px) {
+.pay label, .pay .legend {
+    font-size: 16px;
+  }
+.pay .control {
+    height: 56px;
+    font-size: 16px;
+    padding: 0 16px;
+  }
+.pay .row {
+    grid-template-columns: 1fr;
+  }
+.pay .exp {
+    grid-column: auto;
+  }
+.pay button.confirm {
+    height: 56px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+.pay .card, .pay .focus-ring, .pay .brand, .pay .face, .pay .control, .pay button.confirm {
+    transition: none;
+  }
+.pay .card-number span.pop {
+    animation: none;
+  }
+}

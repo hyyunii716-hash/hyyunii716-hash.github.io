@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>壓縮工具 — Abandon</title>
+  <meta name="description" content="Abandon 壓縮工具：壓縮檔案大小，節省電腦容量。">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html" aria-current="page">網頁工具</a></li>
+        <li><a href="apps.html">網頁程式</a></li>
+        <li><a href="pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="page page--sub">
+    <section class="flow-step" data-step="upload">
+      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
+      <div class="container">
+        <button type="button" class="upload-box" data-goto="processing">
+          <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          <span class="upload-box__title">上傳您的檔案</span>
+          <span class="upload-box__desc">Abandon會主動識別圖片內容，並智慧壓縮檔案大小</span>
+        </button>
+      </div>
+      <div class="container info">
+      <section class="how" aria-labelledby="how-title">
+        <ol class="step-list">
+          <li class="step-card"><span class="en">01</span><p>開啟壓縮圖像工具。</p></li>
+          <li class="step-card"><span class="en">02</span><p>上傳您欲壓縮的相片的檔案。（檔案格式須為JPEG，且大小不超過50MB）</p></li>
+          <li class="step-card"><span class="en">03</span><p>等待數秒進行壓縮。</p></li>
+          <li class="step-card"><span class="en">04</span><p>點按下載按鈕，下載圖像。</p></li>
+        </ol>
+        <div class="how__side">
+          <h2 id="how-title" class="flow-h2">如何使用壓縮工具</h2>
+          <a class="more-link" href="pricing.html">還是不會用？<u>更多資訊</u></a>
+        </div>
+      </section>
+      <section class="faq" aria-labelledby="faq-title">
+        <div class="faq__side">
+          <h2 id="faq-title" class="flow-h2">你可能會有的問題</h2>
+          <a class="more-link" href="pricing.html">更多問題？<u>詢問客服</u> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="2.5" y="14" width="4" height="6" rx="1.5"/><rect x="17.5" y="14" width="4" height="6" rx="1.5"/></svg></a>
+        </div>
+        <div class="qa__list">
+            <details class="qa__item" open>
+              <summary><span class="qa__q">壓縮工具怎麼使用？</span></summary>
+              <p class="qa__a">只需要把您想壓縮的圖片上傳即可！</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">壓縮工具是免費的嗎？</span></summary>
+              <p class="qa__a">可加入會員免費試用一週，接下來就要麻煩您購買。</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">壓縮工具是安全的嗎？</span></summary>
+              <p class="qa__a">不是喔！我們會調用您的帳號與信用卡資料，因為您已接受Cookie，謝謝您的支持！</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">我該如何使用壓縮工具？</span></summary>
+              <p class="qa__a">這個問題已經問過囉！</p>
+            </details>
+        </div>
+      </section>
+      </div>
+    </section>
+    <section class="flow-step" data-step="processing" data-auto="download" data-ms="3500" hidden>
+      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
+      <div class="container">
+        <div class="upload-box upload-box--busy" role="status" aria-live="polite">
+          <svg class="up-icon up-icon--solid" viewBox="0 0 150 110" aria-hidden="true" focusable="false"><rect x="4" y="4" width="142" height="102" rx="8" fill="none" stroke="currentColor" stroke-width="6"/><circle cx="75" cy="36" r="13" fill="none" stroke="currentColor" stroke-width="6"/><path d="M48 106V76a27 27 0 0 1 54 0v30" fill="none" stroke="currentColor" stroke-width="6"/></svg>
+          <span class="upload-box__title">壓縮製作中<span class="dots" aria-hidden="true"></span></span>
+          <span class="upload-box__desc">檔案上傳成功！正在進行壓縮，可能需花費數秒</span>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="download" hidden>
+      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
+      <div class="container result">
+        <div class="result__img" role="img" aria-label="處理後的圖片（預覽）"></div>
+        <p class="result__done">壓縮完成！</p>
+        <div class="result__actions">
+          <button type="button" class="btn btn--outline pill-btn" data-goto="upload"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11a5 5 0 0 1 0 10H8M4 9l4-4M4 9l4 4"/></svg><span>返回上頁</span></button>
+          <button type="button" class="btn btn--outline pill-btn" data-download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 20h16"/></svg><span>下載檔案</span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+  <script src="flow.js"></script>
+  <script src="help-modal.js"></script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>
