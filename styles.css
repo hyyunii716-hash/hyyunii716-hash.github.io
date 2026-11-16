@@ -447,3 +447,50 @@ svg { display: block; }
 /* 品牌宣言：每行一個遮罩容器（manifesto.js） */
 .manifesto .split-line { display: block; overflow: hidden; }
 .manifesto .split-char { display: inline-block; will-change: transform; }
+
+/* 磁吸按鈕感應範圍 */
+/* 磁吸按鈕感應範圍（加上 z-index 拉到最上層，避免被背景光暈遮擋） */
+.mag-zone {
+  position: relative;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  margin: -28px;
+  cursor: pointer;
+}
+
+/* 磁吸按鈕本體 */
+.mag-btn {
+  will-change: transform;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 按鈕內文字視差移動 */
+.mag-btn .label {
+  display: inline-block;
+  pointer-events: none;
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 滑鼠靠近吸住時取消延遲 */
+.mag-zone.is-hovering .mag-btn,
+.mag-zone.is-hovering .mag-btn .label {
+  transition: none;
+}
+
+/* 吸引注意的微幅抖動動畫 */
+@keyframes btn-wiggle {
+  0%, 72%, 100% { rotate: 0deg; }
+  76% { rotate: -3.5deg; }
+  80% { rotate: 3.5deg; }
+  84% { rotate: -2.5deg; }
+  88% { rotate: 2deg; }
+}
+.mag-btn.wiggle {
+  animation: btn-wiggle 2.8s ease-in-out infinite;
+}
+.mag-zone.is-hovering .mag-btn.wiggle {
+  animation: none;
+}
