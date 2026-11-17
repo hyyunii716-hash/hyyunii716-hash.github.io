@@ -109,6 +109,175 @@
  <script src="pricing.js"></script>
  <script src="wordmark.js"></script>
  <script src="cursor-trail.js"></script>
+ <script>
+(function () {
+  function initGlobalMagnetButtons() {
+    // 1. 自動抓出該頁面所有按鍵（排除頂部導覽列連結）
+    const candidateSelectors = [
+      'a.btn',
+      'button.btn',
+      'button:not(.nav-toggle):not(.menu-toggle)',
+      '.pill-nav a',
+      '.pill-nav button',
+      '.app-card__actions a',
+      '.app-card__actions button'
+    ].join(', ');
+
+    const allBtns = Array.from(document.querySelectorAll(candidateSelectors)).filter(function (btn) {
+      if (btn.closest('header, .site-header, .site-nav')) return false;
+      if (btn.dataset.magnetBound === 'true') return false;
+      btn.dataset.magnetBound = 'true';
+      return true;
+    });
+
+    if (!allBtns.length) return;
+
+    // 2. 抓出所有主按鈕（包含 .btn--primary、.btn-primary、表單送出鈕，或按鈕文字包含「購買」的主行動按鈕）
+    const primaryBtns = allBtns.filter(function (btn) {
+      const isPrimaryClass = btn.classList.contains('btn--primary') || btn.classList.contains('btn-primary');
+      const isSubmit = btn.getAttribute('type') === 'submit';
+      const isBuyBtn = btn.textContent.trim().includes('購買');
+      return isPrimaryClass || isSubmit || isBuyBtn;
+    });
+
+    primaryBtns.forEach(function (btn, index) {
+      // 強制設為 inline-flex，確保瀏覽器允許它做 rotation 旋轉
+      btn.style.setProperty('display', 'inline-flex', 'important');
+      btn.style.setProperty('align-items', 'center', 'important');
+      btn.style.setProperty('justify-content', 'center', 'important');
+
+      gsap.to(btn, {
+        keyframes: [
+          { rotation: 12, duration: 0.12 },
+          { rotation: -10, duration: 0.14 },
+          { rotation: 8, duration: 0.14 },
+          { rotation: -6, duration: 0.14 },
+          { rotation: 4, duration: 0.14 },
+          { rotation: -2.5, duration: 0.14 },
+          { rotation: 1.2, duration: 0.14 },
+          { rotation: 0, duration: 0.14 }
+        ],
+        ease: 'sine.inOut',
+        repeat: -1,
+        repeatDelay: 0.45,
+        delay: index * 0.15
+      });
+    });
+
+    // 3. 全頁按鍵建立「外框位移 + 內層文字視差」磁吸與 Q 彈回調
+    allBtns.forEach(function (btn) {
+      const isCompactGroup = btn.closest('.pill-nav, .app-card__actions, .btn-row') !== null;
+
+      const triggerPadding = isCompactGroup ? 32 : 75;
+      const btnStrength = isCompactGroup ? 0.36 : 0.45;
+      const textStrength = isCompactGroup ? 0.22 : 0.25;
+
+      let text = btn.querySelector('.btn-magnet-text');
+      if (!text) {
+        const hasComplexChild = btn.querySelector('svg, img, video, canvas');
+        if (!hasComplexChild) {
+          text = document.createElement('span');
+          text.className = 'btn-magnet-text';
+          text.textContent = btn.textContent.trim();
+          btn.textContent = '';
+          btn.appendChild(text);
+        }
+      }
+
+      btn.style.removeProperty('transform');
+      btn.style.setProperty('transition', 'background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease', 'important');
+      if (getComputedStyle(btn).display === 'inline') {
+        btn.style.setProperty('display', 'inline-flex', 'important');
+      }
+
+      if (text) {
+        text.style.setProperty('display', 'inline-block', 'important');
+        text.style.setProperty('pointer-events', 'none', 'important');
+      }
+
+      let isMagnetized = false;
+
+      window.addEventListener('mousemove', function (e) {
+        const rect = btn.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const curX = gsap.getProperty(btn, 'x') || 0;
+        const curY = gsap.getProperty(btn, 'y') || 0;
+        const left = rect.left - curX - triggerPadding;
+        const right = rect.right - curX + triggerPadding;
+        const top = rect.top - curY - triggerPadding;
+        const bottom = rect.bottom - curY + triggerPadding;
+
+        if (e.clientX >= left && e.clientX <= right && e.clientY >= top && e.clientY <= bottom) {
+          isMagnetized = true;
+          const x = gsap.utils.mapRange(left, right, -(right - left) / 2, (right - left) / 2, e.clientX);
+          const y = gsap.utils.mapRange(top, bottom, -(bottom - top) / 2, (bottom - top) / 2, e.clientY);
+
+          // 僅覆蓋 x / y 屬性（overwrite: 'auto' 只會覆蓋同樣動到 x/y 的動畫，完全不干擾 rotation 搖擺）
+          gsap.to(btn, {
+            x: x * btnStrength,
+            y: y * btnStrength,
+            duration: 0.4,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+
+          if (text) {
+            gsap.to(text, {
+              x: x * textStrength,
+              y: y * textStrength,
+              duration: 0.35,
+              ease: 'power2.out',
+              overwrite: 'auto'
+            });
+          }
+        } else if (isMagnetized) {
+          isMagnetized = false;
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.7,
+            ease: 'elastic.out(1, 0.4)',
+            overwrite: 'auto'
+          });
+
+          if (text) {
+            gsap.to(text, {
+              x: 0,
+              y: 0,
+              duration: 0.75,
+              ease: 'elastic.out(1, 0.35)',
+              overwrite: 'auto'
+            });
+          }
+        }
+      });
+
+      document.addEventListener('mouseleave', function () {
+        if (!isMagnetized) return;
+        isMagnetized = false;
+        const targets = text ? [btn, text] : [btn];
+        gsap.to(targets, {
+          x: 0,
+          y: 0,
+          duration: 0.7,
+          ease: 'elastic.out(1, 0.4)',
+          overwrite: 'auto'
+        });
+      });
+    });
+  }
+
+  if (window.gsap) {
+    initGlobalMagnetButtons();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js';
+    s.onload = initGlobalMagnetButtons;
+    document.head.appendChild(s);
+  }
+})();
+</script>
 </body>
 </html>
 

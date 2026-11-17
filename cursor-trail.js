@@ -9,7 +9,7 @@
   if (!fine || reduce || !Element.prototype.animate) return;
 
   var CHARS = Array.from('你不能成為設計師');
-  var THRESHOLD = 72;      // 每移動多少 px 產生一個字
+  var THRESHOLD = 40;      // 每移動多少 px 產生一個字
   var POOL = 18;           // 同時最多幾個字
   var IN = 300, HOLD = 250, OUT = 400;
   var layer = document.createElement('div');
@@ -30,7 +30,7 @@
     n.textContent = CHARS[(ci = (ci + 1) % CHARS.length)];
 
     // 1. 隨機旋轉方向（順時針或逆時針轉一圈）
-    var spin = (Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 180);
+    var spin = (Math.random() > 0.5 ? 1 : -1) * (95 + Math.random() * 45);
     // 2. 掉落距離（掉出螢幕底部）
     var dropY = window.innerHeight - y + 120;
     // 3. 隨機大小比例
@@ -45,7 +45,7 @@
       { transform: base + ' scale(' + (scale * 0.92) + ') rotate(' + (spin * 0.25) + 'deg)', opacity: 1, offset: 0.25, easing: 'ease-in-out' },
       { transform: base + ' scale(' + scale + ') rotate(' + (spin * 0.35) + 'deg)', opacity: 1, offset: 0.35, easing: 'cubic-bezier(0.6, -0.28, 0.735, 0.045)' },
       { transform: base + ' translateY(' + dropY + 'px) scale(' + (scale * 0.8) + ') rotate(' + spin + 'deg)', opacity: 0.9, offset: 1 }
-    ], { duration: 1100, fill: 'forwards' });
+    ], { duration: 1200, fill: 'forwards' });
   }
 
   // 有互動效果的元素（連結、按鈕、表單、輪播、卡片、游標為手指者）上不產生文字

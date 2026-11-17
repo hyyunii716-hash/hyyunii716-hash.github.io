@@ -72,10 +72,13 @@
 
     <!-- 工具入口與下拉選單 -->
     <div class="tools-control">
-      <div class="container btn-row">
-      <a class="btn btn--primary" href="pricing.html">購買方案</a>
-      <button type="button" class="btn btn--outline tools-more-link" id="tools-menu-trigger" aria-expanded="false" aria-controls="tools-dropdown">查看更多</button>
-    </div>
+  <div class="container btn-row">
+    <a class="btn btn--primary" href="pricing.html">
+      <span class="btn-magnet-text">購買方案</span>
+    </a>
+    <button type="button" class="btn btn--outline tools-more-link" id="tools-menu-trigger" aria-expanded="false" aria-controls="tools-dropdown">查看更多</button>
+  </div>
+</div>
 
     <section class="tools-dropdown" id="tools-dropdown" aria-label="所有網頁工具" aria-hidden="true" hidden>
       <a class="tool-option tool-option--flip" href="flip.html">
@@ -353,5 +356,140 @@
     })();
   </script>
   <script src="cursor-trail.js"></script>
+  <script>
+(function () {
+  function initGsapWiggleMagnet() {
+    const primaryBtn = document.querySelector('.tools-control .btn--primary');
+    const moreBtn = document.querySelector('.tools-control .tools-more-link');
+    // 抓出「螢幕保護」、「核心理念」、「量身定制」三個藥丸按鈕
+    const pillBtns = Array.from(document.querySelectorAll('.tools-more__nav a, .tools-more__nav button'));
+
+    const btns = [primaryBtn, moreBtn, ...pillBtns].filter(Boolean);
+    if (!btns.length) return;
+
+    // 1. 購買方案專屬：正宗 8 下衰減搖擺循環
+    if (primaryBtn) {
+      gsap.to(primaryBtn, {
+        keyframes: [
+          { rotation: 12, duration: 0.12 },
+          { rotation: -10, duration: 0.14 },
+          { rotation: 8, duration: 0.14 },
+          { rotation: -6, duration: 0.14 },
+          { rotation: 4, duration: 0.14 },
+          { rotation: -2.5, duration: 0.14 },
+          { rotation: 1.2, duration: 0.14 },
+          { rotation: 0, duration: 0.14 }
+        ],
+        ease: 'sine.inOut',
+        repeat: -1,
+        repeatDelay: 0.45
+      });
+    }
+
+    // 2. 所有目標按鈕共用：外框位移 + 內層文字雙層視差被吸走感
+    btns.forEach(function (btn) {
+      const isPill = btn.closest('.tools-more__nav') !== null;
+
+      // 藥丸按鈕排得比較緊密，感應範圍與位移稍微收斂，避免滑中間時兩顆打架
+      const triggerPadding = isPill ? 35 : 85;
+      const btnStrength = isPill ? 0.35 : 0.45;
+      const textStrength = isPill ? 0.2 : 0.25;
+
+      // 確保每顆按鈕內層都有獨立的 span 可以被單獨推移
+      let text = btn.querySelector('.btn-magnet-text');
+      if (!text) {
+        text = document.createElement('span');
+        text.className = 'btn-magnet-text';
+        text.textContent = btn.textContent.trim();
+        btn.textContent = '';
+        btn.appendChild(text);
+      }
+
+      btn.style.removeProperty('transform');
+      btn.style.setProperty('transition', 'background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease', 'important');
+      btn.style.setProperty('display', 'inline-flex', 'important');
+      btn.style.setProperty('align-items', 'center', 'important');
+      btn.style.setProperty('justify-content', 'center', 'important');
+
+      text.style.setProperty('display', 'inline-block', 'important');
+      text.style.setProperty('pointer-events', 'none', 'important');
+
+      let isMagnetized = false;
+
+      window.addEventListener('mousemove', function (e) {
+        const rect = btn.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const curX = gsap.getProperty(btn, 'x') || 0;
+        const curY = gsap.getProperty(btn, 'y') || 0;
+        const left = rect.left - curX - triggerPadding;
+        const right = rect.right - curX + triggerPadding;
+        const top = rect.top - curY - triggerPadding;
+        const bottom = rect.bottom - curY + triggerPadding;
+
+        if (e.clientX >= left && e.clientX <= right && e.clientY >= top && e.clientY <= bottom) {
+          isMagnetized = true;
+          const x = gsap.utils.mapRange(left, right, -(right - left) / 2, (right - left) / 2, e.clientX);
+          const y = gsap.utils.mapRange(top, bottom, -(bottom - top) / 2, (bottom - top) / 2, e.clientY);
+
+          gsap.to(btn, {
+            x: x * btnStrength,
+            y: y * btnStrength,
+            duration: 0.4,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+
+          gsap.to(text, {
+            x: x * textStrength,
+            y: y * textStrength,
+            duration: 0.35,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        } else if (isMagnetized) {
+          isMagnetized = false;
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.7,
+            ease: 'elastic.out(1, 0.4)',
+            overwrite: 'auto'
+          });
+          gsap.to(text, {
+            x: 0,
+            y: 0,
+            duration: 0.75,
+            ease: 'elastic.out(1, 0.35)',
+            overwrite: 'auto'
+          });
+        }
+      });
+
+      document.addEventListener('mouseleave', function () {
+        if (!isMagnetized) return;
+        isMagnetized = false;
+        gsap.to([btn, text], {
+          x: 0,
+          y: 0,
+          duration: 0.7,
+          ease: 'elastic.out(1, 0.4)',
+          overwrite: 'auto'
+        });
+      });
+    });
+  }
+
+  if (window.gsap) {
+    initGsapWiggleMagnet();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js';
+    s.onload = initGsapWiggleMagnet;
+    document.head.appendChild(s);
+  }
+})();
+</script>
+  
 </body>
 </html>

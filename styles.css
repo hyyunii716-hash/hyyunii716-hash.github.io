@@ -82,6 +82,7 @@ svg { display: block; }
   text-wrap: balance;
 }
 .section-title--left { text-align: left; }
+.qa > .section-title { white-space: nowrap; }
 
 /* ---------- Header / Nav ---------- */
 .site-header {
@@ -108,8 +109,11 @@ svg { display: block; }
   font-size: var(--fs-nav);
 }
 
+.site-nav__logo { display: block; width: 30%; height: auto; }
+
 .site-nav__list a {
   display: inline-block;
+  white-space: nowrap;
   padding-block: 4px;
   border-bottom: 1px solid transparent;
   transition: border-color 0.2s;
@@ -495,4 +499,20 @@ svg { display: block; }
 }
 .mag-zone.is-hovering .mag-btn.wiggle {
   animation: none;
+}
+/* GSAP 雙層磁吸按鈕設定 */
+.tools-control .btn--primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* 交給 GSAP 控制位移動畫，避免 CSS transition 搶控制權 */
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease !important;
+  will-change: transform;
+}
+
+.tools-control .btn--primary .btn-magnet-text {
+  display: inline-block;
+  pointer-events: none;
+  will-change: transform;
 }
