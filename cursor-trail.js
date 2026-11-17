@@ -25,26 +25,27 @@
   }
 
   function spawn(x, y, dx, dy) {
-    var n = nodes[idx = (idx + 1) % POOL];
+    var n = nodes[(idx = (idx + 1) % POOL)];
     if (n._anim) n._anim.cancel();
-    n.textContent = CHARS[ci = (ci + 1) % CHARS.length];
+    n.textContent = CHARS[(ci = (ci + 1) % CHARS.length)];
 
-    var d = Math.random();                        // 0 = 最遠、1 = 最近
-    var scale = 0.45 + d * 1.55;                  // 近大遠小
-    n.style.zIndex = Math.round(d * 100);         // 近的蓋住遠的
-    n.style.filter = 'blur(' + ((1 - d) * 2.2).toFixed(2) + 'px)';
-    var peak = 0.4 + d * 0.6;                     // 遠的較淡
-    var drift = 10 + d * 40;                      // 近的飄得遠（視差）
-    var ox = (Math.random() - 0.5) * 24 * (0.5 + d), oy = (Math.random() - 0.5) * 24 * (0.5 + d);
-    var rot = (Math.random() - 0.5) * 16;
-    var base = 'translate(' + (x + ox) + 'px,' + (y + oy) + 'px) translate(-50%,-50%) rotate(' + rot + 'deg)';
-    var total = IN + HOLD + OUT;
+    // 1. 隨機旋轉方向（順時針或逆時針轉一圈）
+    var spin = (Math.random() > 0.5 ? 1 : -1) * (180 + Math.random() * 180);
+    // 2. 掉落距離（掉出螢幕底部）
+    var dropY = window.innerHeight - y + 120;
+    // 3. 隨機大小比例
+    var scale = 0.8 + Math.random() * 0.6;
+
+    var base = "translate(" + x + "px," + y + "px) translate(-50%,-50%)";
+
+    // 模擬 GSAP 的 elastic.out 彈出 + back.in 重力下墜 + 旋轉
     n._anim = n.animate([
-      { transform: base + ' scale(' + scale * 0.3 + ')', opacity: 0, offset: 0, easing: 'cubic-bezier(.16,1,.3,1)' },
-      { transform: base + ' scale(' + scale + ')', opacity: peak, offset: IN / total },
-      { transform: base + ' scale(' + scale + ')', opacity: peak, offset: (IN + HOLD) / total, easing: 'cubic-bezier(.7,0,.84,0)' },
-      { transform: base + ' translateY(-' + drift + 'px) scale(' + scale * 0.6 + ')', opacity: 0, offset: 1 }
-    ], { duration: total, fill: 'forwards' });
+      { transform: base + ' scale(0) rotate(0deg)', opacity: 0, offset: 0 },
+      { transform: base + ' scale(' + (scale * 1.25) + ') rotate(' + (spin * 0.15) + 'deg)', opacity: 1, offset: 0.15, easing: 'ease-out' },
+      { transform: base + ' scale(' + (scale * 0.92) + ') rotate(' + (spin * 0.25) + 'deg)', opacity: 1, offset: 0.25, easing: 'ease-in-out' },
+      { transform: base + ' scale(' + scale + ') rotate(' + (spin * 0.35) + 'deg)', opacity: 1, offset: 0.35, easing: 'cubic-bezier(0.6, -0.28, 0.735, 0.045)' },
+      { transform: base + ' translateY(' + dropY + 'px) scale(' + (scale * 0.8) + ') rotate(' + spin + 'deg)', opacity: 0.9, offset: 1 }
+    ], { duration: 1100, fill: 'forwards' });
   }
 
   // 有互動效果的元素（連結、按鈕、表單、輪播、卡片、游標為手指者）上不產生文字
