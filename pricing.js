@@ -145,6 +145,7 @@ function render(key) {
 function select(key, animate = true) {
   if (key === current) return;
   tabs.forEach((t) => t.classList.toggle("is-active", t.dataset.plan === key));
+  
   if (!animate || current === null) {
     render(key);
     current = key;
@@ -160,7 +161,9 @@ function select(key, animate = true) {
 
 if (buyButton && successDialog) {
   buyButton.addEventListener("click", () => successDialog.showModal());
-  successDialog.querySelector(".pricing-success__close").addEventListener("click", () => successDialog.close());
+  successDialog
+    .querySelector(".pricing-success__close")
+    .addEventListener("click", () => successDialog.close());
   successDialog.addEventListener("click", (event) => {
     if (event.target === successDialog) successDialog.close();
   });
