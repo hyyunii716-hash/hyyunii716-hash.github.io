@@ -82,6 +82,7 @@ svg { display: block; }
   text-wrap: balance;
 }
 .section-title--left { text-align: left; }
+.qa > .section-title { white-space: nowrap; }
 
 /* ---------- Header / Nav ---------- */
 .site-header {
