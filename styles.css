@@ -516,3 +516,30 @@ svg { display: block; }
   pointer-events: none;
   will-change: transform;
 }
+
+/* ---------- Animated full-screen cover ---------- */
+:root { --cover-nav-h: 88px; --cover-pad-x: 8vw; }
+body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-action: pan-y; }
+.cover-track { height: 210vh; position: relative; }
+.cover-stage {
+  position: sticky; top: 0; height: 100vh; overflow: hidden;
+  background: linear-gradient(150deg, #090614 0%, #0e0830 42%, #3a1ccb 82%, #6a30ff 100%);
+}
+#mark { position: fixed; left: 0; top: 0; z-index: 30; overflow: visible; pointer-events: none; will-change: transform,width,height; transform-origin: center center; }
+#mark .k { fill: none; stroke: #fff; stroke-linecap: butt; stroke-linejoin: round; }
+#mark .dash { stroke-dasharray: 1 1; }
+.cover-nav { position: fixed; inset: 0 0 auto; z-index: 20; opacity: 0; transform: translateY(-105%); transition: transform .6s cubic-bezier(.2,.8,.2,1),opacity .4s; }
+.cover-nav.show { transform: none; opacity: 1; }
+.cover-nav .site-nav { min-height: var(--cover-nav-h); background: #0a0a0a; border-radius: 0 0 40px 0; }
+.cover-title { position: absolute; right: var(--cover-pad-x); top: 57%; transform: translateY(-50%) translateY(24px); text-align: right; opacity: 0; transition: opacity .7s .1s,transform .8s .1s cubic-bezier(.2,.8,.2,1); }
+.cover-title.show { opacity: 1; transform: translateY(-50%); }
+.cover-title h1 { font-family: "Poppins",sans-serif; font-weight: 700; font-size: clamp(56px,10vw,150px); line-height: 1; letter-spacing: -.02em; }
+.cover-title p { margin-top: .5em; font-family: "Poppins",sans-serif; font-size: clamp(16px,2.2vw,32px); letter-spacing: .08em; }
+.cover-hint { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); font-family: "Poppins",sans-serif; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .45s; }
+.cover-hint.ready { opacity: .75; } .cover-hint.hide { opacity: 0; }
+.cover-hint::after { content: ""; display: block; width: 1px; height: 36px; margin: 12px auto 0; background: #fff; transform-origin: top; animation: cover-drip 1.8s infinite ease-in-out; }
+@keyframes cover-drip { 0%{transform:scaleY(0)} 50%{transform:scaleY(1)} 100%{transform:scaleY(1);opacity:0} }
+@media(max-width:700px) { :root{--cover-nav-h:64px;--cover-pad-x:20px} .cover-nav .site-nav{padding-inline:20px;min-height:64px} .cover-nav .site-nav__brand{display:none} .cover-nav .site-nav__list{gap:14px} }
+@media(prefers-reduced-motion:reduce) { .cover-nav,.cover-title{transition:none} }
+/* The animated SVG takes the brand's place once it settles into the nav. */
+.cover-nav .site-nav__brand { visibility: hidden; }
