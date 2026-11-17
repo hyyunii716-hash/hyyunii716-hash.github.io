@@ -82,6 +82,7 @@ svg { display: block; }
   text-wrap: balance;
 }
 .section-title--left { text-align: left; }
+.qa > .section-title { white-space: nowrap; }
 
 /* ---------- Header / Nav ---------- */
 .site-header {
@@ -100,7 +101,7 @@ svg { display: block; }
   border-radius: var(--radius-card);
 }
 .site-nav__brand { display: inline-flex; align-items: center; margin-right: auto; flex: 0 0 10%; }
-.site-nav__logo { display: block; width: 100%; height: auto; }
+.site-nav__logo { display: block; width: 84%; height: auto; }
 
 .site-nav__list {
   display: flex;

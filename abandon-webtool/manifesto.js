@@ -1,6 +1,6 @@
 /* 品牌宣言文字動畫（不需要網路、不依賴 GSAP）
    效果同 GSAP「animate-text」：依行切字、每行加遮罩，字元由下往上依序滑出。
-   進入視窗時播放一次；視窗縮放換行時自動重切（不重播）。 */
+   每次進入視窗時重播；視窗縮放換行時自動重切。 */
 (function () {
   var root = document.documentElement;
   var targets = Array.prototype.slice.call(document.querySelectorAll('.manifesto p'));
@@ -8,7 +8,7 @@
   if (!targets.length || reduce || !Element.prototype.animate) { root.classList.remove('js'); return; }
 
   var EASE = 'cubic-bezier(0.23, 1, 0.32, 1)'; // ≈ GSAP power4.out
-  var DURATION = 900, STAGGER = 25, GROUP_DELAY = 150;
+  var DURATION = 900, STAGGER = 25;
 
   targets.forEach(function (p, idx) {
     var original = p.innerHTML;
@@ -55,11 +55,18 @@
 
     function play(chars) {
       played = true;
+      var firstLineDelay = idx === 1 && targets[0]
+        ? DURATION + Math.max(0, Array.from(targets[0].textContent).filter(function (ch) { return ch !== ' '; }).length - 1) * STAGGER + 3000
+        : 0;
       chars.forEach(function (c, i) {
-        c.animate(
+        if (c._manifestoAnimation) c._manifestoAnimation.cancel();
+        c.style.transform = 'translateY(110%)';
+        var animation = c.animate(
           [{ transform: 'translateY(110%)' }, { transform: 'translateY(0)' }],
-          { duration: DURATION, easing: EASE, delay: idx * GROUP_DELAY + i * STAGGER, fill: 'backwards' }
+          { duration: DURATION, easing: EASE, delay: firstLineDelay + i * STAGGER, fill: 'both' }
         );
+        c._manifestoAnimation = animation;
+        animation.onfinish = function () { c.style.transform = ''; };
       });
     }
 
@@ -67,11 +74,14 @@
       var chars = split();
       // 播放前先把字推到遮罩外，避免進入視窗前就可見
       var hold = chars.map(function (c) { c.style.transform = 'translateY(110%)'; return c; });
+      var wasIntersecting = false;
       var io = new IntersectionObserver(function (es) {
-        if (!es[0].isIntersecting) return;
-        io.disconnect();
-        hold.forEach(function (c) { c.style.transform = ''; });
-        play(chars);
+        var isIntersecting = es[0].isIntersecting;
+        if (isIntersecting && !wasIntersecting) {
+          hold.forEach(function (c) { c.style.transform = ''; });
+          play(chars);
+        }
+        wasIntersecting = isIntersecting;
       }, { rootMargin: '0px 0px -15% 0px' });
       io.observe(p);
 
