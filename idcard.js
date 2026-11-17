@@ -17,7 +17,7 @@
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   var scene = new T.Scene();
-  scene.background = new T.Color('#ffffff');
+  //scene.background = new T.Color('#ffffff');
   scene.environment = new T.PMREMGenerator(renderer).fromScene(new A.RoomEnvironment(), 0.04).texture;
   var key = new T.DirectionalLight(0xffffff, 1.2); key.position.set(-3, 8, 4); scene.add(key);
 
