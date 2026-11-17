@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>拼組圖檔 — Abandon</title>
+  <meta name="description" content="Abandon 拼組圖檔：組合你的圖檔，使作品之間更加和諧。">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="../index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
+      <ul class="site-nav__list">
+        <li><a href="../index.html">首頁</a></li>
+        <li><a href="../tools.html" aria-current="page">網頁工具</a></li>
+        <li><a href="../apps.html">網頁程式</a></li>
+        <li><a href="../pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="page page--sub" data-tool="group">
+    <section class="flow-step" data-step="upload">
+      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">拼組圖檔</h1></div>
+      <div class="container">
+        <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
+          <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
+          <span class="upload-box__title">上傳您的檔案</span>
+          <span class="upload-box__desc">點擊或拖曳圖片至此，以上傳您的檔案</span>
+          <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
+        </button>
+        <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="4" data-max-size-mb="50" multiple tabindex="-1">
+      </div>
+      <div class="container info">
+      <section class="how" aria-labelledby="how-title">
+        <ol class="step-list">
+          <li class="step-card"><span class="en">01</span><p>開啟拼組圖檔工具。</p></li>
+          <li class="step-card"><span class="en">02</span><p>上傳您欲拼組的多張相片。（檔案格式須為JPEG，且大小不超過50MB）</p></li>
+          <li class="step-card"><span class="en">03</span><p>等待數秒進行群組。</p></li>
+          <li class="step-card"><span class="en">04</span><p>加入Abandon圖片群組，開始視訊。</p></li>
+        </ol>
+        <div class="how__side">
+          <h2 id="how-title" class="flow-h2">如何使用拼組圖檔</h2>
+          <a class="more-link" href="pricing.html">還是不會用？<u>更多資訊</u></a>
+        </div>
+      </section>
+      <section class="faq" aria-labelledby="faq-title">
+        <div class="faq__side">
+          <h2 id="faq-title" class="flow-h2">你可能會有的問題</h2>
+          <a class="more-link" href="pricing.html">更多問題？<u>詢問客服</u> <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="2.5" y="14" width="4" height="6" rx="1.5"/><rect x="17.5" y="14" width="4" height="6" rx="1.5"/></svg></a>
+        </div>
+        <div class="qa__list">
+            <details class="qa__item" open>
+              <summary><span class="qa__q">拼組圖檔怎麼使用？</span></summary>
+              <p class="qa__a">只需要把您想拼組的圖片上傳即可！</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">拼組圖檔是免費的嗎？</span></summary>
+              <p class="qa__a">可加入會員免費試用一週，接下來就要麻煩您購買。</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">拼組圖檔是安全的嗎？</span></summary>
+              <p class="qa__a">不是喔！我們會調用您的帳號與信用卡資料，因為您已接受Cookie，謝謝您的支持！</p>
+            </details>
+            <details class="qa__item" open>
+              <summary><span class="qa__q">我該如何使用拼組圖檔？</span></summary>
+              <p class="qa__a">這個問題已經問過囉！</p>
+            </details>
+        </div>
+      </section>
+      </div>
+    </section>
+    <section class="flow-step" data-step="processing" data-auto="startchat" data-ms="3000" hidden>
+      <div class="container stage-head"><h1 class="flow-title" tabindex="-1">拼組圖檔</h1></div>
+      <div class="container">
+        <div class="processing-stage" role="status" aria-live="polite">
+          <img class="processing-animation" src="assets/processing-groups-transparent.png" alt="" aria-hidden="true">
+          <p class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></p>
+          <p class="upload-box__desc">檔案上傳成功！正在進行拼組，請稍候</p>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="startchat" data-auto="ringing" data-ms="3000" hidden>
+      <div class="container">
+        <div class="phone phone--chat" role="status" aria-live="polite">
+          <h2>你已加入Abandon圖片群組</h2>
+          <div class="avatars avatars--overlap" data-group-avatars aria-label="已加入群組的圖片"></div>
+          <p class="phone__names" data-group-names></p>
+          <p class="phone__msg" data-camera-feedback></p>
+          <div class="chat-meta"><span class="avatar avatar--self" data-group-self aria-label="個人狀態"></span><span class="typing-indicator" aria-label="正在輸入"><i></i><i></i><i></i></span></div>
+          <div class="chat-message"><span>Message...</span><button type="button" aria-label="傳送訊息"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.6-7.2L3 10.2 21 3Z"/><path d="m10.2 13.8 4.5-4.5"/></svg></button></div>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="ringing" hidden>
+      <div class="container">
+        <div class="phone phone--ring" aria-label="Abandon 圖片群組來電">
+          <h2>Abandon圖片群組</h2>
+          <p class="phone__msg">正在邀請您加入群組通話</p>
+          <div class="avatars avatars--ring" data-ringing-avatars aria-hidden="true"></div>
+          <div class="ring-actions">
+            <button type="button" class="call-action call-action--answer" data-goto="call" aria-label="接聽群組通話"><img src="assets/call-button.png" alt="" aria-hidden="true"></button>
+            <button type="button" class="call-action call-action--no" data-goto="removed" aria-label="拒接並退出群組"><img src="assets/no-button.png" alt="" aria-hidden="true"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="call" hidden>
+      <div class="container">
+        <div class="call-layout">
+          <div class="phone phone--call" aria-label="Abandon 圖片群組視訊通話">
+            <div class="call-tiles" data-call-tiles></div>
+            <div class="call-self" data-call-self aria-label="您的相機照片">
+              <div class="call-controls">
+                <button type="button" class="call-control" data-call-toggle="mic" aria-label="切換麥克風" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10M5 5l22 22"/></svg></button>
+                <button type="button" class="call-control call-control--hangup" data-call-hangup aria-label="掛斷並離開群組"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m9 9 14 14M23 9 9 23"/></svg></button>
+                <button type="button" class="call-control" data-call-toggle="camera" aria-label="切換攝影機" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4z"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4zM4 4l24 24"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <a class="call-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="removed" hidden>
+      <div class="container removed-layout">
+        <div class="phone phone--removed" role="status" aria-live="polite">
+          <h2 data-removed-title>你已被移出群組</h2>
+          <div class="avatars avatars--overlap" data-removed-avatars aria-label="群組圖片"></div>
+          <p class="phone__names" data-removed-names></p>
+          <div class="chat-meta"><span class="avatar avatar--self" data-removed-self></span><span class="typing-indicator"><i></i><i></i><i></i></span></div>
+          <div class="chat-message"><span>Message...</span><button type="button" aria-label="傳送訊息"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.6-7.2L3 10.2 21 3Z"/><path d="m10.2 13.8 4.5-4.5"/></svg></button></div>
+        </div>
+        <a class="removed-return" href="tools.html">返回上頁</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+  <script src="flow.js"></script>
+  <script src="help-modal.js"></script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

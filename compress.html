@@ -14,6 +14,7 @@
 
   <header class="site-header site-header--overlay">
     <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
       <ul class="site-nav__list">
         <li><a href="index.html">首頁</a></li>
         <li><a href="tools.html" aria-current="page">網頁工具</a></li>
@@ -23,15 +24,17 @@
     </nav>
   </header>
 
-  <main class="page page--sub">
+  <main class="page page--sub" data-tool="compress">
     <section class="flow-step" data-step="upload">
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
       <div class="container">
-        <button type="button" class="upload-box" data-goto="processing">
+        <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
           <span class="upload-box__desc">Abandon會主動識別圖片內容，並智慧壓縮檔案大小</span>
+          <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
+        <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="1" data-max-size-mb="50" tabindex="-1">
       </div>
       <div class="container info">
       <section class="how" aria-labelledby="how-title">
@@ -72,23 +75,23 @@
       </section>
       </div>
     </section>
-    <section class="flow-step" data-step="processing" data-auto="download" data-ms="3500" hidden>
+    <section class="flow-step" data-step="processing" data-auto="download" data-ms="3000" hidden>
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
       <div class="container">
-        <div class="upload-box upload-box--busy" role="status" aria-live="polite">
-          <svg class="up-icon up-icon--solid" viewBox="0 0 150 110" aria-hidden="true" focusable="false"><rect x="4" y="4" width="142" height="102" rx="8" fill="none" stroke="currentColor" stroke-width="6"/><circle cx="75" cy="36" r="13" fill="none" stroke="currentColor" stroke-width="6"/><path d="M48 106V76a27 27 0 0 1 54 0v30" fill="none" stroke="currentColor" stroke-width="6"/></svg>
-          <span class="upload-box__title">壓縮製作中<span class="dots" aria-hidden="true"></span></span>
-          <span class="upload-box__desc">檔案上傳成功！正在進行壓縮，可能需花費數秒</span>
+        <div class="processing-stage" role="status" aria-live="polite">
+          <img class="processing-animation" src="assets/processing-compress-transparent.png" alt="" aria-hidden="true">
+          <p class="upload-box__title">壓縮製作中<span class="dots" aria-hidden="true"></span></p>
+          <p class="upload-box__desc">檔案上傳成功！正在進行壓縮，請稍候</p>
         </div>
       </div>
     </section>
     <section class="flow-step" data-step="download" hidden>
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">壓縮工具</h1></div>
       <div class="container result">
-        <div class="result__img" role="img" aria-label="處理後的圖片（預覽）"></div>
+        <div class="result__img result__img--dynamic" data-result-preview aria-label="處理後的圖片預覽"></div>
         <p class="result__done">壓縮完成！</p>
         <div class="result__actions">
-          <button type="button" class="btn btn--outline pill-btn" data-goto="upload"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11a5 5 0 0 1 0 10H8M4 9l4-4M4 9l4 4"/></svg><span>返回上頁</span></button>
+          <a class="btn btn--outline pill-btn" href="tools.html"><span>返回上頁</span></a>
           <button type="button" class="btn btn--outline pill-btn" data-download><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 20h16"/></svg><span>下載檔案</span></button>
         </div>
       </div>

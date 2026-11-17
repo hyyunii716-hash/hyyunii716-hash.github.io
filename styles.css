@@ -92,13 +92,15 @@ svg { display: block; }
 
 .site-nav {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   min-height: 100px;
   padding: 0 var(--gutter);
   background: var(--color-bg);
   border-radius: var(--radius-card);
 }
+.site-nav__brand { display: inline-flex; align-items: center; margin-right: auto; flex: 0 0 10%; }
+.site-nav__logo { display: block; width: 100%; height: auto; }
 
 .site-nav__list {
   display: flex;
@@ -408,8 +410,8 @@ svg { display: block; }
 
 /* ≤ 600：手機 */
 @media (max-width: 600px) {
-  .site-nav { min-height: 72px; justify-content: center; }
-  .site-nav__list { gap: 20px; }
+  .site-nav { min-height: 72px; justify-content: space-between; }
+  .site-nav__list { gap: clamp(4px, 1.4vw, 8px); font-size: clamp(10px, 2vw, 12px); }
 
   .hero__inner { align-items: flex-start; text-align: left; }
 

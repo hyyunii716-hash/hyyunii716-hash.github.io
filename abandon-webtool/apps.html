@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>網頁程式 — Abandon</title>
+  <meta name="description" content="探索 Abandon 應用程式：Illustrator、Photoshop、InDesign、Lightroom。">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="pages.css">
+  <link rel="stylesheet" href="flow.css">
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html">網頁工具</a></li>
+        <li><a href="apps.html" aria-current="page">網頁程式</a></li>
+        <li><a href="pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="page page--sub">
+
+    <div class="container page-head">
+      <h1 class="section-title">探索 Abandon應用程式</h1>
+    </div>
+
+    <!-- App 清單 -->
+    <section class="container" aria-label="應用程式列表">
+      <div class="pill-nav app-filter" role="group" aria-label="應用程式分類">
+        <button type="button" class="pill pill--square" data-filter="all" aria-pressed="true">All apps</button>
+        <button type="button" class="pill pill--square" data-filter="image" aria-pressed="false">Image</button>
+        <button type="button" class="pill pill--square" data-filter="photo" aria-pressed="false">Photo</button>
+        <button type="button" class="pill pill--square" data-filter="design" aria-pressed="false">Design</button>
+      </div>
+
+      <ul class="app-grid">
+        <li class="app-card" data-category="image design">
+          <div>
+            <div class="app-card__head">
+              <span class="app-icon app-icon--sm app-icon--ai" aria-hidden="true">Ai</span>
+              <h2 class="app-card__name">Illustrator</h2>
+            </div>
+            <p class="app-card__desc">Using AI Tools Will Prevent<br>You From Ever Becoming a Designer</p>
+          </div>
+          <div class="app-card__actions">
+            <a class="btn btn--outline btn--sm" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">網頁版使用</a>
+            <a class="btn btn--sm" href="pricing.html">購買</a>
+          </div>
+        </li>
+
+        <li class="app-card" data-category="image photo">
+          <div>
+            <div class="app-card__head">
+              <span class="app-icon app-icon--sm" aria-hidden="true">Ps</span>
+              <h2 class="app-card__name">Photoshop</h2>
+            </div>
+            <p class="app-card__desc">Buy high-quality photos from<br>around the world</p>
+          </div>
+          <div class="app-card__actions">
+            <a class="btn btn--outline btn--sm" href="photoshop.html">網頁版使用</a>
+            <a class="btn btn--sm" href="pricing.html">購買</a>
+          </div>
+        </li>
+
+        <li class="app-card" data-category="design">
+          <div>
+            <div class="app-card__head">
+              <span class="app-icon app-icon--sm app-icon--id" aria-hidden="true">Id</span>
+              <h2 class="app-card__name">InDesign</h2>
+            </div>
+            <p class="app-card__desc">Taking Polaroid Photos and Creating<br>Invalid Designer Licenses</p>
+          </div>
+          <div class="app-card__actions">
+            <a class="btn btn--outline btn--sm" href="indesign.html">網頁版使用</a>
+            <a class="btn btn--sm" href="pricing.html">購買</a>
+          </div>
+        </li>
+
+        <li class="app-card" data-category="photo">
+          <div>
+            <div class="app-card__head">
+              <span class="app-icon app-icon--sm" aria-hidden="true">Lr</span>
+              <h2 class="app-card__name">Lightroom</h2>
+            </div>
+            <p class="app-card__desc">Enter a very bright room in a 3D model</p>
+          </div>
+          <div class="app-card__actions">
+            <a class="btn btn--outline btn--sm" href="lightroom.html">網頁版使用</a>
+            <a class="btn btn--sm" href="pricing.html">購買</a>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 介紹列 -->
+    <section class="container features" aria-label="應用程式介紹">
+
+      <article class="feature">
+        <a class="media media--illustrator" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="前往 Abandon illustrator（新分頁開啟 ChatGPT）— 黑色底與藍色細線條組成的波浪紋理"></a>
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon app-icon--ai" aria-hidden="true">Ai</span>
+            <h3 class="feature__name">Abandon illustrator</h3>
+          </div>
+          <p class="feature__headline">降智創作，職涯救星</p>
+          <p class="feature__text">這個時代最被濫用的功能，用越多就越笨的工具。設計系訴求，快把 AI 還給以拉，給我正常的 AI 喔。究竟 AI 產業會不會泡沫化？我們無法得知未來，唯一能知道的，只有我被台股加權反了。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+      </article>
+
+      <article class="feature feature--reverse">
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon" aria-hidden="true">Ps</span>
+            <h3 class="feature__name">Photoshop</h3>
+          </div>
+          <p class="feature__headline">全球採購，相片商城</p>
+          <p class="feature__text">直接為你串聯全球高品質實體與數位相片零售商。無需動用任何圖層或遮罩，只要拿出信用卡即可快速結帳購入全世界的優質照片。最專業的相片購物體驗，輕鬆省下所有點陣圖編修時間。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+        <a class="media media--mushroom" href="photoshop.html" aria-label="前往Photoshop（雨中發光的紫色蘑菇與蝸牛）"></a>
+      </article>
+
+      <article class="feature">
+        <a class="media media--abstract" href="indesign.html" aria-label="前往InDesign（青綠、米白與橘紅交織的抽象幾何圖像）"></a>
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon app-icon--id" aria-hidden="true">Id</span>
+            <h3 class="feature__name">Indesign</h3>
+          </div>
+          <p class="feature__headline">隨拍即傳，證照生成</p>
+          <p class="feature__text">強大排版引擎重磅升級：即時整合拍立得相機快照，一鍵快速產出完全不具任何法律效力的「高級設計師執照」。全面提升你在名片與排版專案中的權威感與虛榮心，輕鬆建立專屬假身分。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+      </article>
+
+      <article class="feature feature--reverse">
+        <div class="feature__body">
+          <div class="feature__brand">
+            <span class="app-icon" aria-hidden="true">Lr</span>
+            <h3 class="feature__name feature__name--bold">Lightroom</h3>
+          </div>
+          <p class="feature__headline">深度照明，極致留白</p>
+          <p class="feature__text">專為空虛極致體驗打造：一鍵套入空白頁讓你毫無意義地盡情找尋找尋找尋找存在意義。 滿年特惠按月計費。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
+        <a class="media media--mushroom" href="lightroom.html" aria-label="前往Lightroom（雨中發光的紫色蘑菇與蝸牛）"></a>
+      </article>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li><a class="u" href="#">支援中心</a></li>
+          <li><a class="u" href="#">下載及安裝</a></li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+
+  <script>
+    // 分類篩選（設計稿只有按鈕外觀，分類對應為依產品性質自訂）
+    (function () {
+      var buttons = document.querySelectorAll('[data-filter]');
+      var cards = document.querySelectorAll('.app-card');
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var f = btn.getAttribute('data-filter');
+          buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+          cards.forEach(function (c) {
+            var cats = (c.getAttribute('data-category') || '').split(' ');
+            c.hidden = !(f === 'all' || cats.indexOf(f) !== -1);
+          });
+        });
+      });
+    })();
+  </script>
+  <script src="cursor-trail.js"></script>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightroom 3D 房間 — Abandon</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; /* 隱藏捲軸 */
+            font-family: sans-serif;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 5px;
+            transform: scale(0.7);
+            transform-origin: top left;
+            pointer-events: none;
+        }
+        #status {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            max-width: min(600px, calc(100vw - 50px));
+            color: white;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 10px 15px;
+            border-radius: 5px;
+            overflow-wrap: anywhere;
+            pointer-events: none;
+        }
+        #back {
+            position: absolute; top: 10px; right: 10px;
+            color: #fff; background: rgba(0,0,0,.6); padding: 10px 16px;
+            border-radius: 5px; text-decoration: none; font-size: 14px;
+        }
+        #back:hover { background: rgba(0,0,0,.85); }
+        html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none; }
+        /* 觸控裝置：虛擬搖桿與提示 */
+        #joy { display: none; position: absolute; left: max(24px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom));
+            width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.35); touch-action: none; }
+        #joy .knob { position: absolute; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%;
+            background: rgba(255,255,255,.55); box-shadow: 0 2px 10px rgba(0,0,0,.4); }
+        #rotate { display: none; position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); color: #fff; background: rgba(0,0,0,.75);
+            padding: 8px 14px; border-radius: 20px; font-size: 13px; pointer-events: none; white-space: nowrap; }
+        body.is-touch #joy { display: block; }
+        body.is-touch #reticle { display: none; }
+        body.is-touch #back { padding: 8px 12px; font-size: 13px; }
+        body.is-touch #info { transform: scale(0.6); }
+        body.is-touch #status { left: auto; right: 10px; bottom: 10px; font-size: 13px; max-width: min(320px, 45vw); }
+        @media (orientation: portrait) { body.is-touch #rotate { display: block; } }
+        #reticle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            color: white;
+            font-size: 24px;
+            line-height: 1;
+            text-shadow: 0 0 4px black;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="info">
+        <!-- 電腦版說明；觸控裝置會由程式換成觸控說明 -->
+        <h3>3D 房間小遊戲</h3>
+        <p class="help-desktop">W / A / S / D 移動；點擊畫面啟用滑鼠視角</p>
+        <p class="help-touch" hidden>左下搖桿移動；單指拖曳畫面轉視角</p>
+        <p class="help-desktop">按 W / A / S / D 移動，ESC 離開</p>
+        <p class="help-desktop">看向開關並點擊可切換燈光</p>
+        <p class="help-touch" hidden>點一下牆上的燈座開關即可開關燈</p>
+    </div>
+    <a id="back" href="lightroom.html">← 返回 Lightroom</a>
+    <div id="joy" aria-label="移動搖桿"><div class="knob"></div></div>
+    <div id="rotate">建議將手機橫放遊玩</div>
+    <div id="reticle" aria-hidden="true">+</div>
+    <div id="status" role="status" aria-live="polite">正在載入 lightroom.glb…</div>
+
+    <!-- 全部本機載入，不需要網路（three.js r160 + GLTFLoader/DRACOLoader/PointerLockControls + 內嵌 Draco 解碼器 + 模型） -->
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/three-addons.js"></script>
+    <script src="vendor/draco-embedded.js"></script>
+    <script src="assets/lightroom-glb.js"></script>
+    <script>
+    (function () {
+        const THREE = window.THREE;
+        const { GLTFLoader, DRACOLoader, PointerLockControls } = window.THREE_ADDONS;
+
+        // 1. 建立初始化場景 (Scene)
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a); // 背景暗灰色
+
+        // 2. 建立相機 (Camera)
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10); // 設定相機初始位置 (X, Y, Z)
+
+        // 3. 建立渲染器 (Renderer)
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+        renderer.domElement.style.display = 'block';
+
+        // 關燈時保留足夠的環境光，讓房間幾何仍可辨識
+        const visibilityLight = new THREE.HemisphereLight(0xffffff, 0x263244, 0.2);
+        scene.add(visibilityLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 4400, 0, 1.5);
+        pointLight.castShadow = true;
+        pointLight.shadow.mapSize.set(1024, 1024);
+        pointLight.shadow.bias = -0.0001;
+        pointLight.position.set(0, 4, 0); // 放在房間上方
+        scene.add(pointLight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+        function setLightState(isOn) {
+            pointLight.visible = isOn;
+            visibilityLight.intensity = isOn ? 2.4 : 0.2;
+            bulbMaterials.forEach((material) => {
+                material.emissiveIntensity = isOn ? 6 : 0.25;
+            });
+            if (switchObject) {
+                switchObject.rotation.order = 'XYZ';
+                switchObject.rotation.x = THREE.MathUtils.degToRad(isOn ? -10 : 10);
+            }
+            status.textContent = `燈光${isOn ? '已開啟' : '已關閉'}。`;
+        }
+
+        // 觸控裝置偵測：沒有滑鼠的裝置改用虛擬搖桿 + 拖曳轉視角 + 點擊開關
+        const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+        if (isTouch) {
+            document.body.classList.add('is-touch');
+            document.querySelectorAll('.help-desktop').forEach((el) => { el.hidden = true; });
+            document.querySelectorAll('.help-touch').forEach((el) => { el.hidden = false; });
+        }
+
+        // 5. 第一人稱視角控制
+        const controls = new PointerLockControls(camera, renderer.domElement);
+        const status = document.getElementById('status');
+        controls.addEventListener('lock', () => {
+            status.textContent = '第一人稱模式：W / A / S / D 移動，ESC 離開。';
+        });
+        controls.addEventListener('unlock', () => {
+            if (isTouch) return;
+            status.textContent = '點擊畫面開始第一人稱操作。';
+        });
+        renderer.domElement.addEventListener('click', () => {
+            if (isTouch) return;
+            if (!controls.isLocked) controls.lock();
+        });
+
+        // 6. 載入 Blender 匯出的 .glb 模型
+        let roomModel, playerObject, switchObject, switchHitArea, bulbObject, roomBounds;
+        const bulbMaterials = [];
+        const loader = new GLTFLoader();
+        const dracoLoader = new DRACOLoader();
+        // 解碼器內嵌在 vendor/draco-embedded.js，改成直接從記憶體提供（免網路；file:// 也不會被 fetch 擋）
+        dracoLoader._loadLibrary = (url, type) => Promise.resolve(
+            type === 'text' ? window.DRACO_WRAPPER_JS : base64ToArrayBuffer(window.DRACO_WASM_B64)
+        );
+        loader.setDRACOLoader(dracoLoader);
+
+        // 請確保 'lightroom.glb' 和 index.html 放在同一個資料夾
+        // 模型內嵌在 assets/lightroom-glb.js（base64），避免 file:// 直接開啟時 fetch 被瀏覽器擋下
+        function base64ToArrayBuffer(b64) {
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return bytes.buffer;
+        }
+        const onModelLoaded = (gltf) => {
+            roomModel = gltf.scene;
+            const bounds = new THREE.Box3().setFromObject(roomModel);
+            if (bounds.isEmpty()) {
+                status.textContent = 'lightroom.glb 沒有可顯示的 3D 模型，請確認已從 Blender 匯出模型。';
+                console.error('模型檔沒有可顯示的物件。');
+                return;
+            }
+
+            const center = bounds.getCenter(new THREE.Vector3());
+            const size = bounds.getSize(new THREE.Vector3());
+            const radius = Math.max(size.length() / 2, 0.1);
+            roomModel.position.sub(center);
+            scene.add(roomModel);
+            roomModel.updateMatrixWorld(true);
+            playerObject = roomModel.getObjectByName('player');
+            switchObject = roomModel.getObjectByName('light_button');
+            bulbObject = roomModel.getObjectByName('bulb');
+            const lampBaseObject = roomModel.getObjectByName('燈座');
+            const roomObject = roomModel.getObjectByName('room');
+            if (roomObject) {
+                roomObject.traverse((object) => {
+                    if (!object.isMesh) return;
+                    object.castShadow = false;
+                    object.receiveShadow = true;
+                    const roomEdges = new THREE.LineSegments(
+                        new THREE.EdgesGeometry(object.geometry, 15),
+                        new THREE.LineBasicMaterial({
+                            color: 0x172233,
+                            transparent: true,
+                            opacity: 0.85,
+                            depthWrite: false,
+                            polygonOffset: true,
+                            polygonOffsetFactor: -1,
+                            polygonOffsetUnits: -1
+                        })
+                    );
+                    roomEdges.renderOrder = 1;
+                    object.add(roomEdges);
+                    const materials = Array.isArray(object.material) ? object.material : [object.material];
+                    materials.forEach((material) => {
+                        if (material.isMeshStandardMaterial) {
+                            material.color.set(0xffffff);
+                            material.metalness = 0;
+                            material.roughness = 1;
+                            material.needsUpdate = true;
+                        }
+                    });
+                });
+                roomBounds = new THREE.Box3().setFromObject(roomObject);
+                roomBounds.expandByScalar(-0.6);
+            } else {
+                roomBounds = bounds.clone().expandByScalar(-0.6);
+                console.warn('找不到名為 room 的物件，使用整個場景範圍限制玩家。');
+            }
+            [lampBaseObject, switchObject].forEach((object) => {
+                object?.traverse((child) => {
+                    if (!child.isMesh) return;
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                });
+            });
+            if (lampBaseObject) {
+                lampBaseObject.geometry.computeBoundingBox();
+                const originalHalfDepth = lampBaseObject.geometry.boundingBox.getSize(new THREE.Vector3()).z
+                    * lampBaseObject.scale.z / 2;
+                const thicknessScale = 5;
+                lampBaseObject.scale.z *= thicknessScale;
+                lampBaseObject.position.z -= originalHalfDepth * (thicknessScale - 1);
+            }
+            if (switchObject) {
+                if (lampBaseObject) {
+                    lampBaseObject.updateWorldMatrix(true, false);
+                    switchObject.updateWorldMatrix(true, false);
+                    const baseFrontZ = new THREE.Box3().setFromObject(lampBaseObject).max.z;
+                    const buttonBackZ = new THREE.Box3().setFromObject(switchObject).min.z;
+                    switchObject.position.z += baseFrontZ - 0.01 - buttonBackZ;
+                    switchObject.updateWorldMatrix(true, false);
+                }
+                switchHitArea = new THREE.Mesh(
+                    new THREE.SphereGeometry(isTouch ? 0.3 : 0.12, 12, 8),
+                    new THREE.MeshBasicMaterial({
+                        colorWrite: false,
+                        depthWrite: false,
+                        side: THREE.DoubleSide
+                    })
+                );
+                switchObject.getWorldPosition(switchHitArea.position);
+                scene.add(switchHitArea);
+            }
+            bulbObject?.traverse((object) => {
+                if (!object.isMesh) return;
+                object.castShadow = true;
+                object.receiveShadow = true;
+                const materials = Array.isArray(object.material) ? object.material : [object.material];
+                materials.forEach((material) => {
+                    if (!material.isMeshStandardMaterial) return;
+                    material.emissive.set(0xffd98a);
+                    bulbMaterials.push(material);
+                });
+            });
+            setLightState(pointLight.visible);
+            if (playerObject) {
+                playerObject.getWorldPosition(camera.position);
+                playerObject.visible = false;
+                if (roomBounds) {
+                    camera.position.x = THREE.MathUtils.clamp(camera.position.x, roomBounds.min.x, roomBounds.max.x);
+                    camera.position.z = THREE.MathUtils.clamp(camera.position.z, roomBounds.min.z, roomBounds.max.z);
+                }
+                if (roomBounds) {
+                    const roomCenter = roomBounds.getCenter(new THREE.Vector3());
+                    camera.lookAt(roomCenter.x, camera.position.y, roomCenter.z);
+                }
+            } else {
+                camera.position.set(0, 0, 0);
+                console.warn('找不到名為 player 的物件，使用場景中心作為第一人稱起點。');
+            }
+            camera.near = Math.max(radius / 1000, 0.01);
+            camera.far = Math.max(radius * 10, 1000);
+            camera.updateProjectionMatrix();
+            pointLight.position.set(0, size.y / 2, 0);
+            if (bulbObject) {
+                bulbObject.getWorldPosition(pointLight.position);
+            }
+            pointLight.distance = Math.max(radius * 8, 30);
+            pointLight.shadow.camera.near = 0.1;
+            pointLight.shadow.camera.far = pointLight.distance;
+            pointLight.shadow.camera.updateProjectionMatrix();
+            status.textContent = isTouch ? '模型載入成功。左下搖桿移動，拖曳畫面轉視角，點開關可開關燈。' : '模型載入成功。W / A / S / D 可移動；點擊畫面啟用滑鼠視角。';
+            console.log('模型載入成功！', roomModel);
+        };
+        const onModelError = (error) => {
+            status.textContent = '模型載入失敗：請確認 vendor 資料夾與 assets/lightroom-glb.js 都在 game.html 旁邊。';
+            console.error('模型載入失敗:', error);
+        };
+        loader.parse(base64ToArrayBuffer(window.LIGHTROOM_GLB_B64), '', onModelLoaded, onModelError);
+
+        // 7. 鍵盤 WASD 移動控制
+        const keys = { w: false, a: false, s: false, d: false };
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (Object.hasOwn(keys, key)) {
+                keys[key] = true;
+                e.preventDefault();
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (Object.hasOwn(keys, key)) keys[key] = false;
+        });
+        window.addEventListener('blur', () => {
+            Object.keys(keys).forEach((key) => { keys[key] = false; });
+        });
+
+        function updateMovement(delta) {
+            const forward = controls.getDirection(new THREE.Vector3());
+            forward.y = 0;
+            forward.normalize();
+            const right = new THREE.Vector3().crossVectors(forward, camera.up).normalize();
+            const speed = 3 * delta;
+            const movement = new THREE.Vector3();
+            if (joy.x || joy.y) {
+                movement.addScaledVector(forward, joy.y * speed);
+                movement.addScaledVector(right, joy.x * speed);
+            }
+            if (keys.w) movement.addScaledVector(forward, speed);
+            if (keys.s) movement.addScaledVector(forward, -speed);
+            if (keys.a) movement.addScaledVector(right, -speed);
+            if (keys.d) movement.addScaledVector(right, speed);
+
+            if (movement.lengthSq() > 0) {
+                const nextPosition = camera.position.clone().add(movement);
+                if (roomBounds) {
+                    nextPosition.x = THREE.MathUtils.clamp(nextPosition.x, roomBounds.min.x, roomBounds.max.x);
+                    nextPosition.z = THREE.MathUtils.clamp(nextPosition.z, roomBounds.min.z, roomBounds.max.z);
+                }
+                camera.position.copy(nextPosition);
+            }
+        }
+
+        // 7b. 觸控操作：虛擬搖桿（左下）、單指拖曳轉視角、點擊開關
+        const joy = { x: 0, y: 0 };
+        const joyEl = document.getElementById('joy');
+        const knob = joyEl.querySelector('.knob');
+        let joyId = null;
+        const JOY_R = 50;
+        function setJoy(e) {
+            const r = joyEl.getBoundingClientRect();
+            let dx = e.clientX - (r.left + r.width / 2);
+            let dy = e.clientY - (r.top + r.height / 2);
+            const len = Math.hypot(dx, dy);
+            if (len > JOY_R) { dx = dx / len * JOY_R; dy = dy / len * JOY_R; }
+            knob.style.transform = `translate(${dx}px, ${dy}px)`;
+            joy.x = dx / JOY_R;
+            joy.y = -dy / JOY_R;     // 往上推 = 前進
+        }
+        function resetJoy() { joyId = null; joy.x = joy.y = 0; knob.style.transform = ''; }
+        joyEl.addEventListener('pointerdown', (e) => {
+            if (joyId !== null) return;
+            joyId = e.pointerId; try { joyEl.setPointerCapture(e.pointerId); } catch (_) {} setJoy(e); e.preventDefault();
+        });
+        joyEl.addEventListener('pointermove', (e) => { if (e.pointerId === joyId) setJoy(e); });
+        joyEl.addEventListener('pointerup', (e) => { if (e.pointerId === joyId) resetJoy(); });
+        joyEl.addEventListener('pointercancel', (e) => { if (e.pointerId === joyId) resetJoy(); });
+
+        // 拖曳轉視角（yaw / pitch，與 PointerLockControls 相同的 YXZ 順序）
+        const look = { id: null, x: 0, y: 0, sx: 0, sy: 0, t: 0, moved: 0 };
+        const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const LOOK_SPEED = 0.005;
+        const canvas = renderer.domElement;
+        canvas.style.touchAction = 'none';
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!isTouch || e.pointerType === 'mouse' || look.id !== null) return;
+            look.id = e.pointerId; look.x = look.sx = e.clientX; look.y = look.sy = e.clientY;
+            look.t = performance.now(); look.moved = 0;
+            try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            if (e.pointerId !== look.id) return;
+            const dx = e.clientX - look.x, dy = e.clientY - look.y;
+            look.x = e.clientX; look.y = e.clientY;
+            look.moved += Math.abs(dx) + Math.abs(dy);
+            euler.setFromQuaternion(camera.quaternion);
+            euler.y -= dx * LOOK_SPEED;
+            euler.x -= dy * LOOK_SPEED;
+            euler.x = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, euler.x));
+            camera.quaternion.setFromEuler(euler);
+        });
+        function endLook(e, cancelled) {
+            if (e.pointerId !== look.id) return;
+            const wasTap = !cancelled && look.moved < 12 && performance.now() - look.t < 350;
+            look.id = null;
+            if (wasTap) tapAt(e.clientX, e.clientY);
+        }
+        canvas.addEventListener('pointerup', (e) => endLook(e, false));
+        canvas.addEventListener('pointercancel', (e) => endLook(e, true));
+
+        // 點擊畫面上的燈座開關（以點擊位置做射線檢測）
+        function tapAt(cx, cy) {
+            if (!switchObject) return;
+            const ndc = new THREE.Vector2((cx / window.innerWidth) * 2 - 1, -(cy / window.innerHeight) * 2 + 1);
+            raycaster.setFromCamera(ndc, camera);
+            const hit = raycaster.intersectObject(switchHitArea || switchObject, true);
+            if (hit.length > 0) setLightState(!pointLight.visible);
+            else status.textContent = '請直接點燈座上的開關。';
+        }
+
+        // 8. 滑鼠點擊觸發開關 (Raycaster 射線檢測)
+        const raycaster = new THREE.Raycaster();
+        renderer.domElement.addEventListener('click', () => {
+            if (isTouch || !controls.isLocked || !switchObject) return;
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const intersects = raycaster.intersectObject(switchHitArea || switchObject, true);
+            if (intersects.length > 0) {
+                setLightState(!pointLight.visible);
+                console.log('燈光狀態:', pointLight.visible, '按鈕 X 角度:', THREE.MathUtils.radToDeg(switchObject.rotation.x));
+            } else {
+                status.textContent = '請將準星對準燈座開關再點擊。';
+            }
+        });
+
+        // 9. 視窗大小改變修正
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // 10. 遊戲渲染主迴圈 (Loop)
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            updateMovement(Math.min(clock.getDelta(), 0.05));
+            renderer.render(scene, camera);
+        }
+        animate();
+    })();
+    </script>
+</body>
+</html>

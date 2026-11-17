@@ -14,6 +14,7 @@
 
   <header class="site-header site-header--overlay">
     <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
       <ul class="site-nav__list">
         <li><a href="index.html">首頁</a></li>
         <li><a href="tools.html" aria-current="page">網頁工具</a></li>
@@ -23,15 +24,17 @@
     </nav>
   </header>
 
-  <main class="page page--sub">
+  <main class="page page--sub" data-tool="group">
     <section class="flow-step" data-step="upload">
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">拼組圖檔</h1></div>
       <div class="container">
-        <button type="button" class="upload-box" data-goto="processing">
+        <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
-          <span class="upload-box__desc">將多張相片上傳，Abandon將會幫您自動群組相似的相片</span>
+          <span class="upload-box__desc">選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
+          <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
+        <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="4" data-max-size-mb="50" multiple tabindex="-1">
       </div>
       <div class="container info">
       <section class="how" aria-labelledby="how-title">
@@ -72,34 +75,68 @@
       </section>
       </div>
     </section>
-    <section class="flow-step" data-step="processing" data-auto="startchat" data-ms="3500" hidden>
+    <section class="flow-step" data-step="processing" data-auto="startchat" data-ms="3000" hidden>
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">拼組圖檔</h1></div>
       <div class="container">
-        <div class="upload-box upload-box--busy" role="status" aria-live="polite">
-          <svg class="up-icon up-icon--solid" viewBox="0 0 150 110" aria-hidden="true" focusable="false"><rect x="4" y="4" width="142" height="102" rx="8" fill="none" stroke="currentColor" stroke-width="6"/><circle cx="75" cy="36" r="13" fill="none" stroke="currentColor" stroke-width="6"/><path d="M48 106V76a27 27 0 0 1 54 0v30" fill="none" stroke="currentColor" stroke-width="6"/></svg>
-          <span class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></span>
-          <span class="upload-box__desc">檔案上傳成功！正在進行群組，可能需花費數秒</span>
+        <div class="processing-stage" role="status" aria-live="polite">
+          <img class="processing-animation" src="assets/processing-groups-transparent.png" alt="" aria-hidden="true">
+          <p class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></p>
+          <p class="upload-box__desc">檔案上傳成功！正在進行拼組，請稍候</p>
         </div>
       </div>
     </section>
-    <section class="flow-step" data-step="startchat" data-auto="call" data-ms="3500" hidden>
+    <section class="flow-step" data-step="startchat" data-auto="ringing" data-ms="3000" hidden>
       <div class="container">
         <div class="phone phone--chat" role="status" aria-live="polite">
-          <div class="avatars"><span class="avatar" aria-hidden="true"></span><span class="avatar" aria-hidden="true"></span><span class="avatar" aria-hidden="true"></span><span class="avatar" aria-hidden="true"></span></div>
-          <p class="phone__names">img, img, img, img 與您</p>
-          <p class="phone__msg">你已加入Abandon圖片群組</p>
+          <h2>你已加入Abandon圖片群組</h2>
+          <div class="avatars avatars--overlap" data-group-avatars aria-label="已加入群組的圖片"></div>
+          <p class="phone__names" data-group-names></p>
+          <p class="phone__msg" data-camera-feedback></p>
+          <div class="chat-meta"><span class="avatar avatar--self" aria-label="個人狀態"></span><span class="typing-indicator" aria-label="正在輸入"><i></i><i></i><i></i></span></div>
+          <div class="chat-message"><span>Message...</span><button type="button" aria-label="傳送訊息"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.6-7.2L3 10.2 21 3Z"/><path d="m10.2 13.8 4.5-4.5"/></svg></button></div>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="ringing" hidden>
+      <div class="container">
+        <div class="phone phone--ring" aria-label="Abandon 圖片群組來電">
+          <h2>Abandon圖片群組</h2>
+          <p class="phone__msg">正在邀請您加入群組通話</p>
+          <div class="avatars avatars--ring" data-ringing-avatars aria-hidden="true"></div>
+          <div class="ring-actions">
+            <button type="button" class="call-action call-action--answer" data-goto="call" aria-label="接聽群組通話"><img src="assets/call-button.png" alt="" aria-hidden="true"></button>
+            <button type="button" class="call-action call-action--no" data-goto="removed" aria-label="拒接並退出群組"><img src="assets/no-button.png" alt="" aria-hidden="true"></button>
+          </div>
         </div>
       </div>
     </section>
     <section class="flow-step" data-step="call" hidden>
       <div class="container">
-        <div class="phone phone--call" aria-label="群組視訊">
-          <div class="tiles"><span class="tile"></span><span class="tile"></span><span class="tile"></span><span class="tile tile--me">你</span></div>
-          <p class="phone__names">Abandon圖片群組 · 通話中</p>
+        <div class="call-layout">
+          <div class="phone phone--call" aria-label="Abandon 圖片群組視訊通話">
+            <div class="call-tiles" data-call-tiles></div>
+            <div class="call-self" data-call-self aria-label="您的相機照片">
+              <div class="call-controls">
+                <button type="button" class="call-control" data-call-toggle="mic" aria-label="切換麥克風" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10M5 5l22 22"/></svg></button>
+                <button type="button" class="call-control call-control--hangup" data-call-hangup aria-label="掛斷並離開群組"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m9 9 14 14M23 9 9 23"/></svg></button>
+                <button type="button" class="call-control" data-call-toggle="camera" aria-label="切換攝影機" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4z"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4zM4 4l24 24"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <a class="call-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
         </div>
-        <div class="result__actions result__actions--left">
-          <button type="button" class="btn btn--outline pill-btn" data-goto="upload"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11a5 5 0 0 1 0 10H8M4 9l4-4M4 9l4 4"/></svg><span>返回上頁</span></button>
+      </div>
+    </section>
+    <section class="flow-step" data-step="removed" hidden>
+      <div class="container removed-layout">
+        <div class="phone phone--removed" role="status" aria-live="polite">
+          <h2 data-removed-title>你已被移出群組</h2>
+          <div class="avatars avatars--overlap" data-removed-avatars aria-label="群組圖片"></div>
+          <p class="phone__names" data-removed-names></p>
+          <div class="chat-meta"><span class="avatar avatar--self" data-removed-self></span><span class="typing-indicator"><i></i><i></i><i></i></span></div>
+          <div class="chat-message"><span>Message...</span><button type="button" aria-label="傳送訊息"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.6-7.2L3 10.2 21 3Z"/><path d="m10.2 13.8 4.5-4.5"/></svg></button></div>
         </div>
+        <a class="removed-return" href="tools.html">返回上頁</a>
       </div>
     </section>
   </main>

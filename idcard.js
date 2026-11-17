@@ -37,6 +37,41 @@
     cardReady = true; resize(); renderOnce();
   }, function (err) { console.error('證照模型載入失敗', err); });
 
+
+  /* ---------- 大頭照：進頁面就請求相機、靜靜拍一張（不顯示），生成時貼到右上角的人像框 ----------
+     只在瀏覽器裡處理，不上傳；拍完立刻關掉相機。拒絕權限或沒有相機就用原本的人像示意圖。 cam_capture */
+  var photoCanvas = null, photoPromise = Promise.resolve(null);
+  function captureSelfie() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return Promise.resolve(null);
+    return navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
+      .then(function (stream) {
+        return new Promise(function (resolve) {
+          var v = document.createElement('video');
+          v.muted = true; v.playsInline = true; v.srcObject = stream;     // 不加進頁面，所以看不到畫面
+          var tries = 0, done = false;
+          function finish(c) { if (done) return; done = true; stream.getTracks().forEach(function (t) { t.stop(); }); v.srcObject = null; resolve(c); }
+          function grab() {
+            if (done) return;
+            var vw = v.videoWidth, vh = v.videoHeight;
+            if (!vw || !vh) { if (++tries > 20) return finish(null); return setTimeout(grab, 150); }
+            var side = Math.min(vw, vh), c = document.createElement('canvas'); c.width = c.height = 512;
+            var g = c.getContext('2d');
+            g.drawImage(v, (vw - side) / 2, (vh - side) / 2, side, side, 0, 0, 512, 512);   // 置中裁成正方形（不鏡像）
+            var px = g.getImageData(0, 0, 512, 512).data, sum = 0;
+            for (var i = 0; i < px.length; i += 64) sum += px[i] + px[i + 1] + px[i + 2];
+            var avg = sum / (px.length / 64 * 3);
+            if (avg < 12 && ++tries < 20) return setTimeout(grab, 150);                    // 相機剛開，畫面還是黑的，再等一下
+            finish(c);
+          }
+          v.onloadeddata = function () { setTimeout(grab, 700); };                         // 等自動曝光穩定再拍
+          v.play().catch(function () { finish(null); });
+          setTimeout(function () { finish(null); }, 8000);
+        });
+      })
+      .catch(function (e) { console.info('沒有取得相機，改用人像示意圖：', e && e.name); return null; });
+  }
+  photoPromise = captureSelfie().then(function (c) { photoCanvas = c; return c; });
+
   /* ---------- 文字貼圖 ---------- */
   function canvasTex(w, h, draw) {
     var c = document.createElement('canvas'); c.width = w; c.height = h;
@@ -68,6 +103,7 @@
       fitText(g, ds, w - 20, 120, 400); g.fillText(ds, 10, h / 2 + 4);
     }));
     applyTex(planes.photo, canvasTex(512, 512, function (g, w, h) {
+      if (photoCanvas) { g.drawImage(photoCanvas, 0, 0, w, h); return; }
       g.fillStyle = '#e4e4e4'; g.fillRect(0, 0, w, h);
       g.fillStyle = '#b4b4b4'; g.beginPath(); g.arc(w / 2, h * 0.38, h * 0.17, 0, Math.PI * 2); g.fill();
       g.beginPath(); g.ellipse(w / 2, h * 0.95, w * 0.34, h * 0.34, 0, Math.PI, 0); g.fill();
@@ -134,7 +170,8 @@
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var n = nameInput.value.trim(); if (!n || !cardReady) return;
-    ready.then(function () {
+    var wait = Promise.race([photoPromise, new Promise(function (r) { setTimeout(r, 2500); })]);
+    Promise.all([ready, wait]).then(function () {
       buildTextures(n);
       Object.keys(planes).forEach(function (k) { planes[k].visible = true; });
       appear = 0; appearT0 = performance.now();
