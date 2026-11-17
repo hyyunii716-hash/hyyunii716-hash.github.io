@@ -382,6 +382,8 @@ svg { display: block; }
 .footer-col a:hover,
 .footer-col a:focus-visible { color: var(--color-text); }
 .footer-col a.u { text-decoration: underline; text-underline-position: from-font; }
+.footer-col__hover { cursor: default; }
+.footer-col__hover:hover { color: var(--color-text); }
 
 .site-footer__copy {
   color: var(--color-text-muted);
