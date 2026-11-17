@@ -108,8 +108,11 @@ svg { display: block; }
   font-size: var(--fs-nav);
 }
 
+.site-nav__logo { display: block; width: 30%; height: auto; }
+
 .site-nav__list a {
   display: inline-block;
+  white-space: nowrap;
   padding-block: 4px;
   border-bottom: 1px solid transparent;
   transition: border-color 0.2s;
