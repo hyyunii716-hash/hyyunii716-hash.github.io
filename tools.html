@@ -14,6 +14,7 @@
 
   <header class="site-header site-header--overlay">
     <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a>
       <ul class="site-nav__list">
         <li><a href="index.html">首頁</a></li>
         <li><a href="tools.html" aria-current="page">網頁工具</a></li>
@@ -23,15 +24,15 @@
     </nav>
   </header>
 
-  <main class="page page--sub">
+  <main class="page page--sub page--tools">
 
     <!-- 標題 -->
     <div class="container page-head">
-      <h1 class="section-title">探索 Abandon網站工具</h1>
+      <h1 class="section-title">探索 <img class="tools-heading__logo" src="assets/abandon-wordmark.png" alt="Abandon"> 網站工具</h1>
       <p class="page-head__sub">WebsiteTools</p>
     </div>
 
-    <!-- 工具輪播：桌機滑鼠移到左右兩側會輪轉（hover），點中間那張才前往工具頁 -->
+    <!-- 工具輪播：滑鼠移入左右區或水平拖曳可切換工具，點卡片前往對應工具頁。圖示檔案在 assets/tool-*.png；圖示尺寸與位置在 pages.css 調整。 -->
     <section aria-label="網頁工具">
       <ul class="carousel" data-carousel aria-label="網頁工具輪播">
         <li class="slide slide--flip" data-slot="0">
@@ -39,13 +40,7 @@
             <span class="slide__title">翻轉圖檔</span>
             <span class="slide__desc">自由翻轉你的<br>圖檔，實現多<br>維度編輯。</span>
             <span class="slide__en">Flip Image</span>
-            <svg class="slide__icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false">
-              <path d="M26 16c20-14 48-14 68 0M86 8l9 9-11 4"/>
-              <rect x="20" y="28" width="80" height="46" rx="6"/>
-              <circle cx="38" cy="43" r="4"/>
-              <path d="M22 68c14-22 28-22 40-8s26 6 36-6"/>
-              <path d="M94 84c-20 14-48 14-68 0M34 92l-9-9 11-4"/>
-            </svg>
+            <img class="slide__icon" src="assets/tool-flip.png" alt="" aria-hidden="true" draggable="false">
           </a>
         </li>
         <li class="slide slide--groups" data-slot="1">
@@ -53,19 +48,7 @@
             <span class="slide__title">拼組圖檔</span>
             <span class="slide__desc">組合你的圖檔，<br class="br-center">使作品之間更加和諧。</span>
             <span class="slide__en">Image Groups</span>
-            <svg class="slide__icon" viewBox="0 0 120 90" aria-hidden="true" focusable="false">
-              <defs>
-                <g id="groups-tile">
-                  <rect x="2" y="2" width="52" height="38" rx="4"/>
-                  <circle cx="16" cy="14" r="4"/>
-                  <path d="M4 36c8-12 16-12 22-4s14 4 26-8"/>
-                </g>
-              </defs>
-              <use href="#groups-tile"/>
-              <use href="#groups-tile" x="62"/>
-              <use href="#groups-tile" y="48"/>
-              <use href="#groups-tile" x="62" y="48"/>
-            </svg>
+            <img class="slide__icon" src="assets/tool-groups.png" alt="" aria-hidden="true" draggable="false">
           </a>
         </li>
         <li class="slide slide--compress" data-slot="2">
@@ -73,15 +56,7 @@
             <span class="slide__title">壓縮圖檔</span>
             <span class="slide__desc">壓縮檔案大小，<br>節省電腦容量，<br>更好攜帶。</span>
             <span class="slide__en">compression image</span>
-            <svg class="slide__icon" viewBox="0 0 120 150" aria-hidden="true" focusable="false">
-              <path d="M60 2v20M52 15l8 8 8-8"/>
-              <path d="M0 33h120"/>
-              <rect x="2" y="43" width="116" height="64" rx="7"/>
-              <circle cx="26" cy="63" r="6"/>
-              <path d="M5 101c20-34 38-34 54-12s34 10 57-18"/>
-              <path d="M0 119h120"/>
-              <path d="M60 148v-20M52 135l8-8 8 8"/>
-            </svg>
+            <img class="slide__icon" src="assets/tool-compress.png" alt="" aria-hidden="true" draggable="false">
           </a>
         </li>
         <li class="slide slide--backless" data-slot="3">
@@ -89,75 +64,90 @@
             <span class="slide__title">去背工具</span>
             <span class="slide__desc">使用去背工具，<br>讓作品更簡潔，<br>清淨視野。</span>
             <span class="slide__en">Backless Tool</span>
-            <svg class="slide__icon" viewBox="0 0 120 90" aria-hidden="true" focusable="false">
-              <rect x="2" y="2" width="116" height="86" rx="3" stroke-dasharray="9 6"/>
-              <circle cx="60" cy="31" r="11"/>
-              <path d="M40 87V66a20 20 0 0 1 40 0v21"/>
-            </svg>
+            <img class="slide__icon" src="assets/tool-backless.png" alt="" aria-hidden="true" draggable="false">
           </a>
         </li>
       </ul>
     </section>
 
-    <!-- CTA -->
-    <div class="container btn-row">
-  <div class="mag-zone">
-    <a class="btn btn--primary mag-btn wiggle" href="pricing.html">
-      <span class="label">購買方案</span>
-    </a>
-  </div>
-  <div class="mag-zone">
-    <a class="btn btn--outline mag-btn" href="#more-features">
-      <span class="label">查看更多</span>
-    </a>
-  </div>
-</div>
+    <!-- 工具入口與下拉選單 -->
+    <div class="tools-control">
+      <div class="container btn-row">
+      <a class="btn btn--primary" href="pricing.html">購買方案</a>
+      <button type="button" class="btn btn--outline tools-more-link" id="tools-menu-trigger" aria-expanded="false" aria-controls="tools-dropdown">查看更多</button>
+    </div>
+
+    <section class="tools-dropdown" id="tools-dropdown" aria-label="所有網頁工具" aria-hidden="true" hidden>
+      <a class="tool-option tool-option--flip" href="flip.html">
+        <span class="tool-option__title">翻轉圖檔</span>
+        <span class="tool-option__desc">自由翻轉你的圖檔，<br>實現多維度編輯。</span>
+        <span class="tool-option__en">Flip Image</span>
+        <img class="tool-option__icon" src="assets/tool-flip.png" alt="" aria-hidden="true" draggable="false">
+      </a>
+      <a class="tool-option tool-option--groups" href="group.html">
+        <span class="tool-option__title">拼組圖檔</span>
+        <span class="tool-option__desc">組合你的圖檔，<br>使作品之間更加和諧。</span>
+        <span class="tool-option__en">Image Groups</span>
+        <img class="tool-option__icon" src="assets/tool-groups.png" alt="" aria-hidden="true" draggable="false">
+      </a>
+      <a class="tool-option tool-option--backless" href="remover.html">
+        <span class="tool-option__title">去背工具</span>
+        <span class="tool-option__desc">使用去背工具，<br>讓作品更簡潔，<br>清淨視野。</span>
+        <span class="tool-option__en">Backless Tool</span>
+        <img class="tool-option__icon" src="assets/tool-backless.png" alt="" aria-hidden="true" draggable="false">
+      </a>
+      <a class="tool-option tool-option--compress" href="compress.html">
+        <span class="tool-option__title">壓縮圖檔</span>
+        <span class="tool-option__desc">壓縮檔案大小，<br>節省電腦容量，<br>更好攜帶。</span>
+        <span class="tool-option__en">compression image</span>
+        <img class="tool-option__icon tool-option__icon--compress" src="assets/tool-compress.png" alt="" aria-hidden="true" draggable="false">
+      </a>
+      </section>
+    </div>
 
     <!-- 更多功能 -->
-    <section class="container" id="more-features" aria-labelledby="mf-title">
-      <div class="page-head" style="gap:16px">
+    <section class="container tools-more" id="more-features" aria-labelledby="mf-title" tabindex="-1">
+      <div class="page-head tools-more__head">
         <h2 id="mf-title" class="sub-title">更多功能</h2>
         <p class="eyebrow">More Features</p>
-        <div class="pill-nav" role="group" aria-label="功能分類" style="margin-top:8px">
-          <button type="button" class="pill">螢幕保護</button>
-          <button type="button" class="pill">核心理念</button>
-          <button type="button" class="pill">量身定制</button>
-        </div>
+        <nav class="pill-nav tools-more__nav" aria-label="更多功能分類">
+          <a class="pill" href="#screen-rest">螢幕保護</a>
+          <a class="pill" href="#core-idea">核心理念</a>
+          <a class="pill" href="#education">量身定制</a>
+        </nav>
       </div>
     </section>
 
-    <section class="container features" aria-label="應用程式介紹">
-
-      <article class="feature">
-        <a class="media media--illustrator" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="前往 Abandon illustrator（新分頁開啟 ChatGPT）— 黑色底與藍色細線條組成的波浪紋理"></a>
+    <section class="container features tools-features" aria-label="更多網站工具功能">
+      <article class="feature" id="screen-rest">
+        <div class="media tools-media tools-media--rest" aria-hidden="true"><span class="tools-media__frame"></span><span class="tools-media__orbit"></span></div>
         <div class="feature__body">
-          <div class="feature__brand">
-            <span class="app-icon app-icon--ai" aria-hidden="true">Ai</span>
-            <h3 class="feature__name">Abandon illustrator</h3>
-          </div>
-          <p class="feature__headline">降智創作，職涯救星</p>
-          <p class="feature__text">這個時代最被濫用的功能，用越多就越笨的工具。設計系訴求，快把 AI 還給以拉，給我正常的 AI 喔。究竟 AI 產業會不會泡沫化？我們無法得知未來，唯一能知道的，只有我被台股加權反了。</p>
+          <div class="feature__brand"><img class="tools-wordmark" src="assets/abandon-wordmark.png" alt="Abandon"></div>
+          <p class="feature__headline">靈魂出竅，螢幕對看</p>
+          <p class="feature__text">當休息模式開始反覆出現，代表你已經進入正常發揮狀態。我們不提供任何有建設性的功能，只提供陪伴你開啟電腦螢幕滑手機的。</p>
           <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
         </div>
       </article>
 
-      <article class="feature feature--reverse">
+      <article class="feature feature--reverse" id="core-idea">
         <div class="feature__body">
-          <div class="feature__brand">
-            <span class="app-icon" aria-hidden="true">Ps</span>
-            <h3 class="feature__name">Photoshop</h3>
-          </div>
-          <p class="feature__headline">全球採購，相片商城</p>
-          <p class="feature__text">直接為你串聯全球高品質實體與數位相片零售商。無需動用任何圖層或遮罩，只要拿出信用卡即可快速結帳購入全世界的優質照片。最專業的相片購物體驗，輕鬆省下所有點陣圖編修時間。</p>
-          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+          <div class="feature__brand"><img class="tools-wordmark" src="assets/abandon-wordmark.png" alt="Abandon"></div>
+          <p class="feature__headline">讓我們一起放棄掙扎</p>
+          <p class="feature__text">教授問你進度到哪裡了？直接把這個網頁傳給他。讓系統幫你把所有邏輯與檔案一併物理銷毀，從此人間蒸發，快樂過年。</p>
         </div>
-        <a class="media media--mushroom" href="photoshop.html" aria-label="前往Photoshop（雨中發光的紫色蘑菇與蝸牛）"></a>
+        <div class="media tools-media tools-media--release" aria-hidden="true"></div>
       </article>
 
-      <article class="roll" aria-label="Abandon">
-        <h3 class="roll__title" id="rollTitle" aria-label="Abandon">Abandon</h3>
-        <p class="roll__hint">點擊文字重播</p>
+      <article class="feature" id="education">
+        <div class="media tools-media tools-media--education" aria-hidden="true"><span class="tools-media__seal">EDU</span></div>
+        <div class="feature__body">
+          <div class="feature__brand"><img class="tools-wordmark" src="assets/abandon-wordmark.png" alt="Abandon"></div>
+          <p class="feature__headline">Education 教育專用退化方案</p>
+          <p class="feature__text">從小培養提早放棄的好習慣。學生與教師專屬優惠。安裝後可自動略過所有作業要求，直接體驗出社會後的無力感，提早適應職場。</p>
+          <a class="feature__link" href="pricing.html">瀏覽適用於企業或學生與教師的方案</a>
+        </div>
       </article>
+
 
     </section>
   </main>
@@ -204,43 +194,166 @@
   </footer>
 
 
-  <script src="roll.js"></script>
   <script>
+    // 工具輪播：四張卡片排成一圈，每張卡片目前在哪個「槽位」記在 data-slot（0 最小／1 左／2 中間／3 右）。
+    // 桌機：滑鼠移入左右感應區、水平拖曳或方向鍵都可切換；點卡片前往對應工具頁。
     (function () {
-      var zones = document.querySelectorAll('.mag-zone');
-      if (!zones.length) return;
+      var carousel = document.querySelector('[data-carousel]');
+      if (!carousel) return;
 
-      window.addEventListener('mousemove', function (e) {
-        zones.forEach(function (zone) {
-          var btn = zone.querySelector('.mag-btn');
-          var label = btn ? btn.querySelector('.label') : null;
-          if (!btn) return;
+      var slides = Array.prototype.slice.call(carousel.querySelectorAll('.slide'));
+      var n = slides.length;
+      var desktop = window.matchMedia('(min-width: 901px)');
+      var timer;
+      var dragPointerId = null;
+      var dragStartX = 0;
+      var dragStartY = 0;
+      var dragging = false;
+      var suppressClick = false;
 
-          var rect = zone.getBoundingClientRect();
-          var centerX = rect.left + rect.width / 2;
-          var centerY = rect.top + rect.height / 2;
-          var dx = e.clientX - centerX;
-          var dy = e.clientY - centerY;
-          var dist = Math.hypot(dx, dy);
+      function slotOf(el) { return +el.getAttribute('data-slot'); }
 
-          if (dist < 70) {
-            zone.classList.add('is-hovering');
-            btn.style.setProperty('transform', 'translate(' + (dx * 0.4) + 'px, ' + (dy * 0.4) + 'px)', 'important');
-            if (label) {
-              label.style.setProperty('transform', 'translate(' + (dx * 0.2) + 'px, ' + (dy * 0.2) + 'px)', 'important');
-            }
-          } else if (zone.classList.contains('is-hovering')) {
-            zone.classList.remove('is-hovering');
-            btn.style.setProperty('transform', 'translate(0px, 0px)', 'important');
-            if (label) {
-              label.style.setProperty('transform', 'translate(0px, 0px)', 'important');
-            }
+      function rotate(step) {            // step > 0：整圈往右；step < 0：往左
+        slides.forEach(function (el) {
+          var from = slotOf(el);
+          var to = ((from + step) % n + n) % n;
+          // 繞過頭的那張（最左 ↔ 最右）不要飛越整個畫面，改成淡入
+          el.classList.toggle('slide--jump', Math.abs(to - from) > 1);
+          el.setAttribute('data-slot', to);
+          var link = el.querySelector('.slide__link');
+          if (to === 2) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
+        });
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          slides.forEach(function (el) { el.classList.remove('slide--jump'); });
+        }, 600);
+      }
+
+      // Figma 的透明按鈕：左右各一條固定的感應區（佔容器寬 9.3–22.4%、76–89.1%）。
+      // 滑鼠「移入」感應區就輪轉一次；必須先離開再移入才會再轉，避免轉完又連環觸發。
+      var zone = null;                       // 目前游標所在區：'l' / 'r' / null
+      function zoneAt(e) {
+        var r = carousel.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width * 100;
+        if (x >= 9.3 && x <= 22.4) return 'l';
+        if (x >= 76 && x <= 89.1) return 'r';
+        return null;
+      }
+      window.addEventListener('pointermove', function (e) {
+        if (dragPointerId !== null && e.pointerId === dragPointerId) {
+          var dx = e.clientX - dragStartX;
+          var dy = e.clientY - dragStartY;
+          if (!dragging && Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) {
+            dragging = true;
+            carousel.classList.add('is-dragging');
+            if (carousel.setPointerCapture) carousel.setPointerCapture(e.pointerId);
+          }
+          if (dragging) {
+            zone = null;
+            e.preventDefault();
+          }
+          return;
+        }
+        if (!carousel.contains(e.target) || !desktop.matches || e.pointerType !== 'mouse') return;
+        var z = zoneAt(e);
+        if (z === zone) return;
+        zone = z;
+        if (z === 'l') rotate(1);            // 左側卡片移到中間
+        if (z === 'r') rotate(-1);           // 右側卡片移到中間
+      });
+      carousel.addEventListener('pointerleave', function () { zone = null; });
+
+      carousel.addEventListener('pointerdown', function (e) {
+        if (!desktop.matches || !e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        dragPointerId = e.pointerId;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        dragging = false;
+      });
+
+      function finishDrag(e) {
+        if (dragPointerId === null || e.pointerId !== dragPointerId) return;
+        var dx = e.clientX - dragStartX;
+        if (dragging) {
+          var threshold = Math.max(56, carousel.clientWidth * 0.065);
+          var steps = Math.max(1, Math.min(3, Math.floor(Math.abs(dx) / threshold)));
+          rotate(dx < 0 ? -steps : steps);
+          suppressClick = true;
+          carousel.classList.remove('is-dragging');
+          if (carousel.hasPointerCapture && carousel.hasPointerCapture(e.pointerId)) carousel.releasePointerCapture(e.pointerId);
+          setTimeout(function () { suppressClick = false; }, 0);
+        }
+        dragPointerId = null;
+        dragging = false;
+        if (e.pointerType === 'mouse') zone = zoneAt(e);
+      }
+      window.addEventListener('pointerup', finishDrag);
+      window.addEventListener('pointercancel', function (e) {
+        if (dragPointerId === e.pointerId) {
+          dragPointerId = null;
+          dragging = false;
+          carousel.classList.remove('is-dragging');
+        }
+      });
+      carousel.addEventListener('click', function (e) {
+        if (!suppressClick) return;
+        e.preventDefault();
+        e.stopPropagation();
+        suppressClick = false;
+      }, true);
+
+      carousel.addEventListener('keydown', function (e) {
+        if (!desktop.matches) return;
+        if (e.key === 'ArrowRight') { e.preventDefault(); rotate(-1); }
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); rotate(1); }
+      });
+
+      var moreButton = document.querySelector('.tools-more-link');
+      var toolsMenu = document.getElementById('tools-dropdown');
+      var openTimer;
+      var closeTimer;
+      if (moreButton && toolsMenu) {
+        function openToolsMenu() {
+          clearTimeout(closeTimer);
+          toolsMenu.hidden = false;
+          toolsMenu.inert = false;
+          toolsMenu.setAttribute('aria-hidden', 'false');
+          moreButton.setAttribute('aria-expanded', 'true');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { toolsMenu.classList.add('is-open'); });
+          });
+        }
+        function closeToolsMenu(returnFocus) {
+          clearTimeout(openTimer);
+          moreButton.setAttribute('aria-expanded', 'false');
+          toolsMenu.setAttribute('aria-hidden', 'true');
+          toolsMenu.inert = true;
+          toolsMenu.classList.remove('is-open');
+          closeTimer = setTimeout(function () {
+            if (moreButton.getAttribute('aria-expanded') === 'false') toolsMenu.hidden = true;
+          }, 320);
+          if (returnFocus) moreButton.focus();
+        }
+        moreButton.addEventListener('click', function () {
+          if (moreButton.getAttribute('aria-expanded') === 'true') {
+            closeToolsMenu(false);
+          } else {
+            clearTimeout(closeTimer);
+            moreButton.setAttribute('aria-expanded', 'true');
+            openTimer = setTimeout(openToolsMenu, 30);
           }
         });
-      }, { passive: true });
+        document.addEventListener('pointerdown', function (e) {
+          if (moreButton.getAttribute('aria-expanded') !== 'true') return;
+          if (!toolsMenu.contains(e.target) && !moreButton.contains(e.target)) closeToolsMenu(false);
+        });
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && moreButton.getAttribute('aria-expanded') === 'true') closeToolsMenu(true);
+        });
+      }
     })();
   </script>
-</body>
   <script src="cursor-trail.js"></script>
 </body>
 </html>
