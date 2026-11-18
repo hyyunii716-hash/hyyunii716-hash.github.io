@@ -656,3 +656,6 @@
   .tools-more__nav { gap: 8px; }
   .tools-more__nav .pill { min-width: auto; padding-inline: 14px; }
 }
+
+/* 標題內嵌 Abandon 字標 */
+.title-logo { display:inline-block; height:.68em; width:auto; vertical-align:baseline; margin:0 .12em; }
