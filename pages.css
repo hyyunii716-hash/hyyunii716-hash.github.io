@@ -657,5 +657,6 @@
   .tools-more__nav .pill { min-width: auto; padding-inline: 14px; }
 }
 
-/* 標題內嵌 Abandon 字標 */
-.title-logo { display:inline-block; height:.68em; width:auto; vertical-align:baseline; margin:0 .12em; }
+/* 標題：Abandon 字標（點陣特效）獨立一行，中文在下方 */
+.title-logo { display:block; width:clamp(260px,46vw,860px); max-width:100%; height:auto; margin:0 auto; }
+.title-sub { display:block; margin-top:clamp(28px,4.5vw,72px); }
