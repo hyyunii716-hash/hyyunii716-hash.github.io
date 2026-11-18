@@ -32,7 +32,10 @@
         <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
-          <span class="upload-box__desc">選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
+          <span class="upload-box__desc group-upload-desc">
+            <span>選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
+            <span class="group-upload-limit">最多可選擇四張照片</span>
+          </span>
           <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
         <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="4" data-max-size-mb="50" multiple tabindex="-1">
@@ -82,7 +85,7 @@
         <div class="processing-stage" role="status" aria-live="polite">
           <img class="processing-animation" src="assets/processing-groups-transparent.png" alt="" aria-hidden="true">
           <p class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></p>
-          <p class="upload-box__desc">檔案上傳成功！正在進行拼組，請稍候</p>
+          <p class="upload-box__desc">檔案上傳成功！正在進行群組，可能需花費數秒</p>
         </div>
       </div>
     </section>

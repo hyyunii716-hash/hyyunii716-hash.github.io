@@ -93,6 +93,8 @@ button.upload-box:is(:hover, :focus-visible, .is-dragover) .up-icon { color: #38
 .upload-box__feedback[hidden] { display: none; }
 .upload-box__title { font-weight: 700; font-size: clamp(24px, 2.6vw, 44px); line-height: 1.3; }
 .upload-box__desc { font-size: clamp(14px, 1.16vw, 20px); }
+.group-upload-desc { display: flex; flex-direction: column; align-items: center; gap: 1.15pt; line-height: 1.15; }
+.group-upload-limit { color: #b3b3b3; font-size: 0.5em; line-height: 1.15; }
 .dots::after { content: ""; animation: dots 1.4s steps(4) infinite; }
 @keyframes dots { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75%, 100% { content: "..."; } }
 
@@ -221,6 +223,7 @@ a.media:is(:hover, :focus-visible) { filter: brightness(1.12); transform: scale(
 .processing-stage { width: min(720px, 80%); aspect-ratio: 900 / 590; margin-inline: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1.5px dashed rgb(255 255 255 / .55); border-radius: 28px; text-align: center; }
 .processing-animation { display: block; width: min(100%, 720px); height: 0; min-height: 0; flex: 1 1 0; max-height: min(300px, 38vh); object-fit: contain; }
 .processing-stage .upload-box__title, .processing-stage .upload-box__desc { margin: 0; }
+.page[data-tool="group"] .processing-stage .upload-box__desc { line-height: 1.15; }
 .result__img--dynamic { width: min(1000px, 100%); min-height: 240px; aspect-ratio: auto; display: grid; place-items: center; overflow: hidden; background: transparent; }
 .result-preview__image { display: block; width: 100%; max-height: min(64vh, 620px); object-fit: contain; border-radius: 16px; }
 .result__img--dynamic.is-checkerboard, body.is-remover-result { background-color: #f2f2f2; background-image: conic-gradient(#e2e2e2 25%, #f8f8f8 0 50%, #e2e2e2 0 75%, #f8f8f8 0); background-size: 32px 32px; }
@@ -333,7 +336,7 @@ body.is-camera-off .call-self__image { opacity: 0; }
 }
 
 .call-layout {
-  --call-frame-size: min(1000px, calc(100vw - 40px), calc(175svh - 400px));
+  --call-frame-size: min(1000px, 100%, calc(175svh - 400px));
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(190px, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto;
@@ -371,37 +374,49 @@ body.is-camera-off .call-self__image { opacity: 0; }
 .call-tiles .tile { overflow: hidden; background: conic-gradient(#e2e2e2 25%, #f8f8f8 0 50%, #e2e2e2 0 75%, #f8f8f8 0) 0 0 / 20px 20px; }
 .call-tiles .group-upload-image, .call-tiles .group-upload-image img { width: 100%; height: 100%; object-fit: cover; }
 .call-self { position: relative; width: 100%; height: auto; overflow: hidden; background: conic-gradient(#e2e2e2 25%, #f8f8f8 0 50%, #e2e2e2 0 75%, #f8f8f8 0) 0 0 / 24px 24px; }
+/* Button dimensions scale from the 16-inch MacBook Pro reference viewport (1728 x 1117). */
 .call-controls {
   grid-column: 2;
   grid-row: 2;
-  width: min(200px, 100%);
-  min-height: 44px;
-  gap: 18px;
-  margin: 12px auto 0;
-  padding: 4px 8px;
+  width: min(clamp(120px, min(11.574vw, 17.905svh), 200px), 100%);
+  min-height: clamp(36px, min(2.546vw, 3.94svh), 44px);
+  gap: clamp(6px, min(1.042vw, 1.612svh), 18px);
+  margin: clamp(6px, min(.694vw, 1.074svh), 12px) auto 0;
+  padding: clamp(3px, min(.463vw, .716svh), 8px);
   border: 1px solid rgb(255 255 255 / .38);
   background: rgb(235 235 235 / .24);
   left: auto;
   right: auto;
 }
-.call-control, .call-controls .call-control--hangup { width: 32px; height: 32px; }
-.call-control svg, .call-controls .call-control--hangup svg { width: 20px; height: 20px; }
+.call-control, .call-controls .call-control--hangup {
+  width: clamp(20px, min(1.852vw, 2.865svh), 32px);
+  height: clamp(20px, min(1.852vw, 2.865svh), 32px);
+}
+.call-control svg, .call-controls .call-control--hangup svg {
+  width: clamp(12px, min(1.157vw, 1.79svh), 20px);
+  height: clamp(12px, min(1.157vw, 1.79svh), 20px);
+}
 .call-return {
   position: static;
   grid-column: 1;
   grid-row: 2;
   justify-self: start;
   align-self: center;
-  width: clamp(140px, 18.23vw, 210px);
-  height: clamp(44px, 5.64vw, 65px);
+  width: clamp(120px, min(12.153vw, 18.8svh), 210px);
+  height: auto;
+  aspect-ratio: 210 / 65;
   min-width: 0;
   min-height: 0;
-  margin: 12px 0 0 10px;
-  padding-inline: clamp(12px, 1.56vw, 18px);
-  gap: clamp(8px, 1.39vw, 16px);
-  font-size: clamp(13px, 2.26vw, 26px);
+  margin: clamp(6px, min(.694vw, 1.074svh), 12px) 0 0 clamp(6px, min(.579vw, .895svh), 10px);
+  padding-inline: clamp(8px, min(1.042vw, 1.612svh), 18px);
+  gap: clamp(6px, min(.926vw, 1.433svh), 16px);
+  border-radius: clamp(12px, min(1.273vw, 1.97svh), 22px);
+  font-size: clamp(12px, min(1.505vw, 2.328svh), 26px);
 }
-.call-return svg { width: clamp(18px, 2.26vw, 26px); height: clamp(18px, 2.26vw, 26px); }
+.call-return svg {
+  width: clamp(14px, min(1.505vw, 2.328svh), 26px);
+  height: clamp(14px, min(1.505vw, 2.328svh), 26px);
+}
 .flow-step[data-step="call"] {
   box-sizing: border-box;
   min-height: 100svh;
@@ -412,13 +427,12 @@ body.is-camera-off .call-self__image { opacity: 0; }
 
 @media (max-width: 600px) {
   .call-layout {
-    --call-frame-size: min(1000px, 100%, calc(175svh - 350px));
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     justify-items: center;
   }
   .phone--call { grid-column: 1; grid-row: 1; border-radius: 8px; }
-  .call-controls { grid-column: 1; grid-row: 2; margin-top: 10px; }
-  .call-return { grid-column: 1; grid-row: 3; justify-self: start; margin: 12px 0 0; }
+  .call-controls { grid-column: 1; grid-row: 2; margin-top: clamp(6px, min(.694vw, 1.074svh), 12px); }
+  .call-return { grid-column: 1; grid-row: 3; justify-self: start; margin: clamp(6px, min(.694vw, 1.074svh), 12px) 0 0; }
   .flow-step[data-step="call"] { padding: calc(var(--nav-h) + 16px) 0 24px; }
 }
