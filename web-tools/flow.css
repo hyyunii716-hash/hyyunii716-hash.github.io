@@ -73,15 +73,22 @@
 @keyframes step-in { from { opacity: 0; transform: translateY(10px); } }
 
 .upload-box {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
   margin-inline: auto; padding: 24px;
   border: 1.5px dashed rgb(255 255 255 / 0.7); border-radius: 28px; background: transparent; color: var(--color-text);
   font: inherit; text-align: center; cursor: pointer;
   transition: border-color 0.25s, background-color 0.25s, box-shadow 0.25s;
 }
+
 button.upload-box { width: min(720px, 80%); aspect-ratio: 900 / 590; }
 .page[data-tool="group"] button.upload-box { position: relative; }
 .upload-box__limit { position: absolute; bottom: clamp(16px, 3vw, 32px); color: var(--color-text-muted); font-size: 12px; }
+.group-upload-main { width: 100%; font-size: clamp(14px, 1.16vw, 20px); line-height: 1.15; }
+.group-upload-limit {
+  position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+  color: #b3b3b3; font-size: clamp(7px, .58vw, 10px); line-height: 1.15; white-space: nowrap;
+}
 .upload-box--busy { width: min(800px, 80%); aspect-ratio: 1000 / 656; cursor: default; }
 button.upload-box:is(:hover, :focus-visible), button.upload-box.is-dragover {
   border-color: #3887F5;
@@ -392,14 +399,14 @@ body.is-camera-off .call-self__image { opacity: 0; }
 .call-controls {
   grid-column: 2;
   grid-row: 2;
-  width: min(200px, 100%);
-  min-height: 44px;
-  gap: 18px;
+  width: clamp(170px, 20vw, 220px);
+  min-height: clamp(42px, 5vh, 50px);
+  gap: clamp(12px, 1.8vw, 20px);
   margin: 12px auto 0;
-  padding: 4px 8px;
+  padding: clamp(4px, .7vh, 7px) clamp(8px, 1vw, 12px);
 }
-.call-control, .call-controls .call-control--hangup { width: 32px; height: 32px; }
-.call-control svg, .call-controls .call-control--hangup svg { width: 20px; height: 20px; }
+.call-control, .call-controls .call-control--hangup { width: clamp(30px, 4.2vh, 40px); height: clamp(30px, 4.2vh, 40px); }
+.call-control svg, .call-controls .call-control--hangup svg { width: clamp(18px, 2.4vh, 24px); height: clamp(18px, 2.4vh, 24px); }
 .call-return {
   position: static;
   grid-column: 1;
@@ -417,8 +424,7 @@ body.is-camera-off .call-self__image { opacity: 0; }
 }
 @media (max-width: 600px) {
   .call-layout {
-    --call-frame-size: min(calc(100vw - 24px), calc(175vh - 350px));
-    --call-frame-size: min(calc(100vw - 24px), calc(175svh - 350px));
+    --call-frame-size: min(100%, calc(100vw - 64px), calc(175svh - 350px));
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto auto;
     justify-items: center;
@@ -428,4 +434,187 @@ body.is-camera-off .call-self__image { opacity: 0; }
   .call-return { grid-column: 1; grid-row: 2; justify-self: start; margin: 12px 0 0; }
   .call-controls { grid-column: 1; grid-row: 3; margin-top: 10px; }
   .flow-step[data-step="call"] { padding: calc(var(--nav-h) + 16px) 0 24px; }
+}
+/* ---- 群組成功過渡頁 ---- */
+.group-success-stage {
+  position: relative;
+  width: min(360px, calc(100vw - 48px));
+  height: 300px;
+  margin-inline: auto;
+  overflow: visible;
+}
+.orbit-center-user {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  margin: -45px 0 0 -45px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: conic-gradient(#e2e2e2 25%, #f8f8f8 0 50%, #e2e2e2 0 75%, #f8f8f8 0) 0 0 / 16px 16px;
+  box-shadow: 0 4px 20px rgb(0 0 0 / .4);
+  z-index: 2;
+  animation: center-pulse 2s ease-in-out infinite alternate;
+}
+.orbit-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+  z-index: 1;
+  animation: counter-spin 8s linear infinite;
+}
+.orbit-item {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgb(0 0 0 / .3);
+}
+.orbit-item img, .orbit-center-user img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes counter-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes center-pulse {
+  from { transform: scale(0.96); }
+  to { transform: scale(1.04); }
+}
+
+.flow-step[data-step="grouped"] .result__done { margin: 0; }
+
+/* ---- 聊天室透明度降至 70% 辦理 ---- */
+.phone--transparent-chat {
+  background: rgba(41, 41, 41, 0.7) !important;
+  backdrop-filter: blur(12px);
+  position: relative;
+}
+.page[data-tool="group"] .phone--transparent-chat,
+.page[data-tool="group"] .phone--removed {
+  box-sizing: border-box;
+  width: min(1100px, 100%);
+  height: auto;
+  min-height: 360px;
+  max-height: 620px;
+  aspect-ratio: 16 / 9;
+  padding: clamp(22px, 4vh, 48px) clamp(24px, 6vw, 80px);
+  gap: clamp(12px, 2.4vw, 28px);
+  border-radius: 24px;
+}
+.page[data-tool="group"] .phone--removed { background: rgb(41 41 41 / .7); }
+.page[data-tool="group"] .chat-message { width: min(760px, 100%); align-self: center; }
+.page[data-tool="group"] .removed-layout { width: min(1200px, 100%); }
+.page[data-tool="group"] .back-button {
+  width: clamp(120px, 12vw, 170px);
+  min-width: 0;
+  height: clamp(38px, 5vh, 52px);
+  min-height: 0;
+  gap: clamp(8px, 1vw, 12px);
+  padding-inline: clamp(10px, 1.5vw, 16px);
+  font-size: clamp(13px, 1vw, 16px);
+}
+.page[data-tool="group"] .back-button svg {
+  width: clamp(16px, 1.4vw, 20px);
+  height: clamp(16px, 1.4vw, 20px);
+}
+.page[data-tool="group"] .flow-step[data-step="grouped"] .result {
+  gap: 12px;
+  padding-top: clamp(28px, 4vh, 56px);
+}
+.incoming-call-toast {
+  box-sizing: border-box;
+  width: min(220px, calc(100vw - 32px));
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  padding: 16px;
+}
+.incoming-call-toast__video {
+  display: grid;
+  min-height: 88px;
+  place-items: center;
+  border-radius: 14px;
+  background: rgb(255 255 255 / .1);
+}
+.incoming-call-toast__video svg {
+  width: 58px;
+  height: 44px;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.incoming-call-toast__info { text-align: center; }
+.incoming-call-toast__actions { justify-content: center; }
+.call-control { transition: filter .2s, transform .2s; }
+.call-control:hover { filter: brightness(.86); transform: scale(1.05); }
+.call-control:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* ---- 右下角彈出視訊通知視窗 ---- */
+.incoming-call-toast {
+  position: fixed;
+  right: 32px;
+  bottom: 32px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: rgba(30, 30, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  animation: toast-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.incoming-call-toast__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+}
+.incoming-call-toast__sub {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+}
+.incoming-call-toast__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.incoming-call-toast__actions .call-action {
+  width: 48px;
+  height: 48px;
+}
+@keyframes toast-slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .page[data-tool="group"] .phone--transparent-chat,
+  .page[data-tool="group"] .phone--removed {
+    height: calc(100svh - var(--nav-h) - 180px);
+    min-height: 340px;
+    max-height: none;
+    aspect-ratio: auto;
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+  .incoming-call-toast { right: 12px; bottom: 12px; padding: 12px; }
+  .incoming-call-toast__video { min-height: 64px; }
+  .incoming-call-toast__actions .call-action { width: 40px; height: 40px; }
+  .group-success-stage { height: 260px; }
 }
