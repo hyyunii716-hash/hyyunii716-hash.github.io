@@ -126,7 +126,7 @@
 .slide--backless { --accent: 118 56 240; }
 .slide--flip     { --accent: 214 48 170;  --iw: 28cqw; --ir: 9cqw;  --it: 14cqw; }
 .slide--groups   { --accent: 46 110 255; }
-.slide--groups .slide__desc { max-width: 34cqw; }
+.slide--groups .slide__desc { max-width: 28cqw; }
 .slide .br-center { display: none; }                       /* 只有排在中間時才在「，」後換行（影片） */
 .slide[data-slot="2"] .br-center { display: inline; }
 .slide--groups[data-slot="2"] .slide__desc { max-width: 40cqw; }
