@@ -6,7 +6,7 @@
   var feats = document.querySelectorAll('.tools-features .feature');
   if (!openers.length || !feats.length) return;
 
-  var pills = {};
+  var pills = {'screen-rest':'螢幕保護','core-idea':'核心理念','education':'量身定制'};
   document.querySelectorAll('.tools-more__nav .pill').forEach(function (a) { pills[(a.getAttribute('href') || '').slice(1)] = a.textContent.trim(); });
   var items = Array.prototype.map.call(feats, function (f) {
     var m = f.querySelector('.tools-media'), l = f.querySelector('.feature__link'), b = f.querySelector('.tools-wordmark');
