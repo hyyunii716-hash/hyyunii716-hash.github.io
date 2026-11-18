@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="pages.css">
   <link rel="stylesheet" href="flow.css">
   <link rel="stylesheet" href="pay.css">
+  <link rel="stylesheet" href="confirm-anim.css">
 </head>
 <body>
 
@@ -28,8 +29,8 @@
   <main class="pay">
     <div class="panel" id="panel">
       <!-- 信用卡預覽 -->
-      <div class="card-stage" id="stage" aria-hidden="true">
-        <div class="card" id="card">
+      <div class="card-stage" id="stage">
+        <div class="card" id="card" aria-hidden="true">
           <div class="face front" id="front">
             <div class="card-top">
               <div class="chip"></div>
@@ -58,6 +59,7 @@
             <div class="back-note">僅限持卡人本人使用。<br /></div>
           </div>
         </div>
+        <p class="after-confirm-note">感謝您的魔法小卡(&gt;^ω^&lt;)，若有盜刷嫌疑概不負責</p>
       </div>
 
       <!-- 表單：資料只在瀏覽器內處理，不會送出。接後端時請改 submit handler。 -->
@@ -203,6 +205,7 @@
     <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
   </footer>
   <script src="pay.js"></script>
+  <script src="confirm-anim.js"></script>
   <script src="cursor-trail.js"></script>
 </body>
 </html>
