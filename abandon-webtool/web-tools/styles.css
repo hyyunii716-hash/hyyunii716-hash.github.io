@@ -44,6 +44,12 @@
 /* ---------- Reset / base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 
+/* 全站返回上頁按鈕 */
+.back-button { box-sizing: border-box; width: 210px; height: 65px; min-width: 210px; min-height: 65px; display: inline-flex; align-items: center; justify-content: center; gap: 16px; padding: 0 18px; border: 1px solid var(--color-stroke); border-radius: 22px; background: #0b0b0b; color: var(--color-text); font: inherit; font-size: clamp(18px, 1.55vw, 26px); line-height: 1.2; text-decoration: none; transition: color .2s, border-color .2s, background-color .2s; }
+.back-button svg { width: 26px; height: 26px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.back-button:is(:hover, :focus-visible) { border-color: #686868; background: #0b0b0b; color: #fff; }
+.back-button[aria-disabled="true"], .back-button:disabled { color: #686868; cursor: default; }
+
 html { -webkit-text-size-adjust: 100%; }
 
 body {

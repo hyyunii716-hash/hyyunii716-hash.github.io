@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="pages.css">
   <link rel="stylesheet" href="flow.css">
+  <link rel="stylesheet" href="page-transition.css">
 </head>
 <body>
 
@@ -32,6 +33,7 @@
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
           <span class="upload-box__desc">點擊或拖曳圖片至此，以上傳您的檔案</span>
+          <span class="upload-box__limit">至多可上傳四張照片</span>
           <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
         <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="4" data-max-size-mb="50" multiple tabindex="-1">
@@ -123,7 +125,7 @@
               </div>
             </div>
           </div>
-          <a class="call-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
+          <a class="back-button call-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
         </div>
       </div>
     </section>
@@ -136,7 +138,7 @@
           <div class="chat-meta"><span class="avatar avatar--self" data-removed-self></span><span class="typing-indicator"><i></i><i></i><i></i></span></div>
           <div class="chat-message"><span>Message...</span><button type="button" aria-label="傳送訊息"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 3-7.2 18-3.6-7.2L3 10.2 21 3Z"/><path d="m10.2 13.8 4.5-4.5"/></svg></button></div>
         </div>
-        <a class="removed-return" href="tools.html">返回上頁</a>
+        <a class="back-button removed-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
       </div>
     </section>
   </main>
@@ -184,5 +186,6 @@
   <script src="flow.js"></script>
   <script src="help-modal.js"></script>
   <script src="cursor-trail.js"></script>
+  <script src="page-transition.js"></script>
 </body>
 </html>

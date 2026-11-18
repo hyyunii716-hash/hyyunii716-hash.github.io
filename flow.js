@@ -4,6 +4,7 @@
   if (!steps.length) return;
 
   var tool = document.querySelector('main[data-tool]')?.getAttribute('data-tool') || '';
+  var chromeCamera = /Chrome\//.test(navigator.userAgent) && !/(Edg|OPR|SamsungBrowser)\//.test(navigator.userAgent);
   var timer;
   var files = [];
   var outputBlob = null;
@@ -270,7 +271,10 @@
             var canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            var context = canvas.getContext('2d');
+            if (chromeCamera && 'filter' in context) context.filter = 'brightness(1.2)';
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            if (chromeCamera && 'filter' in context) context.filter = 'none';
             canvasBlob(canvas, 'image/jpeg').then(function (blob) {
               userPhoto = blob;
               resolve(blob);
