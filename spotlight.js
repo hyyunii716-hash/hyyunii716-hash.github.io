@@ -8,6 +8,7 @@
       ".feature-card",
       ".pricing-card",
       ".card",
+      ".js-value-card", // ★ 新增這行，讓首頁第一屏三張字卡也能吃到
       ".bento-item",
       ".tool-card",
     ];
