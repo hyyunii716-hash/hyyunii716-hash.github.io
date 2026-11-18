@@ -31,6 +31,8 @@
 .pricing-hero h1,.pricing-hero p { position:relative; z-index:1; }
 .pricing-hero h1 { font-size:clamp(34px,4.4vw,76px); font-weight:500; letter-spacing:.01em; line-height:1.2; }
 .pricing-brand { font-family:Orbitron,"Michroma","Eurostile",sans-serif; font-weight:400; }
+.pricing-title-logo { display:block; width:clamp(260px,40vw,760px); height:auto; margin:0 auto; }
+.pricing-title-sub { display:block; margin-top:clamp(14px,2vw,30px); }
 .pricing-hero p { margin-top:22px; font-size:clamp(14px,1.35vw,22px); font-weight:700; }
 .pricing-plans { padding:90px 0 0; }
 .pricing-tabs { display:flex; justify-content:center; }
