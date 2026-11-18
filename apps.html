@@ -198,23 +198,7 @@
     <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
   </footer>
 
-  <script>
-    // 分類篩選（設計稿只有按鈕外觀，分類對應為依產品性質自訂）
-    (function () {
-      var buttons = document.querySelectorAll('[data-filter]');
-      var cards = document.querySelectorAll('.app-card');
-      buttons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var f = btn.getAttribute('data-filter');
-          buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
-          cards.forEach(function (c) {
-            var cats = (c.getAttribute('data-category') || '').split(' ');
-            c.hidden = !(f === 'all' || cats.indexOf(f) !== -1);
-          });
-        });
-      });
-    })();
-  </script>
+  <script src="app-filter.js"></script>
   <script src="cursor-trail.js"></script>
   <script>
 (function () {
