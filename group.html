@@ -32,7 +32,10 @@
         <button type="button" class="upload-box" data-upload-trigger aria-label="上傳您的檔案；可點擊選擇或拖曳圖檔">
           <svg class="up-icon" viewBox="0 0 120 100" aria-hidden="true" focusable="false"><rect x="6" y="8" width="96" height="74" rx="8" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="30" cy="30" r="7" fill="none" stroke="currentColor" stroke-width="4"/><path d="M8 72c16-26 30-26 44-8s26 10 50-14" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><circle cx="98" cy="76" r="17" fill="#0c0c0c" stroke="currentColor" stroke-width="3.5"/><path d="M98 67v18M89 76h18" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>
           <span class="upload-box__title">上傳您的檔案</span>
-          <span class="upload-box__desc">選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
+          <span class="upload-box__desc group-upload-desc">
+            <span>選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
+            <span class="group-upload-limit">最多可選擇四張照片</span>
+          </span>
           <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
         <input class="sr-only" type="file" accept="image/*" data-file-input data-max-files="4" data-max-size-mb="50" multiple tabindex="-1">
@@ -82,7 +85,7 @@
         <div class="processing-stage" role="status" aria-live="polite">
           <img class="processing-animation" src="assets/processing-groups-transparent.png" alt="" aria-hidden="true">
           <p class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></p>
-          <p class="upload-box__desc">檔案上傳成功！正在進行拼組，請稍候</p>
+          <p class="upload-box__desc">檔案上傳成功！正在進行群組，可能需花費數秒</p>
         </div>
       </div>
     </section>
@@ -117,12 +120,12 @@
           <div class="phone phone--call" aria-label="Abandon 圖片群組視訊通話">
             <div class="call-tiles" data-call-tiles></div>
             <div class="call-self" data-call-self aria-label="您的相機照片">
-              <div class="call-controls">
-                <button type="button" class="call-control" data-call-toggle="mic" aria-label="切換麥克風" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10M5 5l22 22"/></svg></button>
-                <button type="button" class="call-control call-control--hangup" data-call-hangup aria-label="掛斷並離開群組"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m9 9 14 14M23 9 9 23"/></svg></button>
-                <button type="button" class="call-control" data-call-toggle="camera" aria-label="切換攝影機" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4z"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4zM4 4l24 24"/></svg></button>
-              </div>
             </div>
+          </div>
+          <div class="call-controls">
+            <button type="button" class="call-control" data-call-toggle="mic" aria-label="切換麥克風" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="11" y="4" width="10" height="17" rx="5"/><path d="M7 15v2a9 9 0 0 0 18 0v-2M16 26v4m-5 0h10M5 5l22 22"/></svg></button>
+            <button type="button" class="call-control call-control--hangup" data-call-hangup aria-label="掛斷並離開群組"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m9 9 14 14M23 9 9 23"/></svg></button>
+            <button type="button" class="call-control" data-call-toggle="camera" aria-label="切換攝影機" aria-pressed="false"><svg class="icon-on" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4z"/></svg><svg class="icon-off" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="8" width="18" height="16" rx="4"/><path d="m21 13 8-4v14l-8-4zM4 4l24 24"/></svg></button>
           </div>
           <a class="back-button call-return" href="tools.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/></svg>返回上頁</a>
         </div>

@@ -63,6 +63,7 @@
       }, delay);
     }
     if (name === 'download') updateResult();
+    if (name === 'grouped') populateGroupedOrbit();
     if (name === 'startchat') populateGroup();
     if (name === 'ringing') populateRinging();
     if (name === 'call') populateCall();
@@ -80,7 +81,7 @@
     document.body.classList.remove('is-remover-result');
     document.body.classList.remove('is-mic-muted', 'is-camera-off');
     var removedTitle = document.querySelector('[data-removed-title]');
-    if (removedTitle) removedTitle.textContent = '你已被移出群組';
+    if (removedTitle) removedTitle.textContent = '你已被移出Abandon群組';
     var flip = document.querySelector('[data-flip-stage]');
     flipImage = null;
     if (flip) {
@@ -203,13 +204,9 @@
       files.forEach(function (file) { avatars.appendChild(photoSlot(avatars, file, 'avatar')); });
       avatars.appendChild(photoSlot(avatars, userPhoto, 'avatar avatar--self-photo', '您的相機照片'));
     }
+
     var names = document.querySelector('[data-group-names]');
     if (names) names.textContent = files.map(function (file) { return file.name; }).join(', ');
-    var selfAvatar = document.querySelector('[data-group-self]');
-    if (selfAvatar) {
-      selfAvatar.replaceChildren();
-      if (files[0]) selfAvatar.appendChild(makeImage(files[0], 'group-upload-image'));
-    }
     var message = document.querySelector('[data-camera-feedback]');
     if (message) message.textContent = cameraMessage;
   }
@@ -375,7 +372,7 @@
     var hangup = event.target.closest('[data-call-hangup]');
     if (hangup) {
       var removedTitle = document.querySelector('[data-removed-title]');
-      if (removedTitle) removedTitle.textContent = '你已被移出群組';
+      if (removedTitle) removedTitle.textContent = '你已離開群組';
       show('removed');
       return;
     }
@@ -410,4 +407,30 @@
       }).catch(reportError);
     }
   });
+
+  function populateGroupedOrbit() {
+    var ring = document.querySelector('[data-orbit-ring]');
+    if (!ring) return;
+    ring.replaceChildren();
+    var center = document.querySelector('[data-orbit-center]');
+    if (center) {
+      center.replaceChildren();
+      if (userPhoto) center.appendChild(makeImage(userPhoto, 'group-upload-image'));
+    }
+
+    var count = Math.min(files.length, 4);
+    if (!count) return;
+    var radius = 100;
+    files.slice(0, count).forEach(function (file, index) {
+      var angle = (index / count) * Math.PI * 2;
+      var x = Math.cos(angle) * radius + 110 - 32;
+      var y = Math.sin(angle) * radius + 110 - 32;
+      var item = document.createElement('div');
+      item.className = 'orbit-item';
+      item.style.left = x + 'px';
+      item.style.top = y + 'px';
+      item.appendChild(makeImage(file, 'group-upload-image'));
+      ring.appendChild(item);
+    });
+  }
 })();
