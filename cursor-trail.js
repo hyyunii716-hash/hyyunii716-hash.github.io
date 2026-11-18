@@ -306,10 +306,25 @@
     return getComputedStyle(t).cursor === "pointer";
   }
 
+  // 標記 data-no-trail 的區塊（含外圍 NO_TRAIL_PAD px）不掉落文字，例如點陣字標標題
+  var NO_TRAIL_PAD = 70;
+  function inNoTrail(x, y) {
+    var zones = document.querySelectorAll("[data-no-trail]");
+    for (var i = 0; i < zones.length; i++) {
+      var r = zones[i].getBoundingClientRect();
+      if (x > r.left - NO_TRAIL_PAD && x < r.right + NO_TRAIL_PAD && y > r.top - NO_TRAIL_PAD && y < r.bottom + NO_TRAIL_PAD) return true;
+    }
+    return false;
+  }
+
   window.addEventListener(
     "mousemove",
     function (e) {
       if (!isEnabled) return;
+      if (inNoTrail(e.clientX, e.clientY)) {
+        last = null;
+        return;
+      }
       if (onInteractive(e.target)) {
         last = { x: e.clientX, y: e.clientY };
         return;
