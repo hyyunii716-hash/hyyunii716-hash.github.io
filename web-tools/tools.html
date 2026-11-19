@@ -47,7 +47,7 @@
         <li class="slide slide--groups" data-slot="1">
           <a class="slide__link" href="group.html">
             <span class="slide__title">拼組圖檔</span>
-            <span class="slide__desc">組合你的圖檔，<br class="br-center">使作品之間更加和諧。</span>
+            <span class="slide__desc">組合你的圖檔，<br>使作品之間<br>更加和諧。</span>
             <span class="slide__en">Image Groups</span>
             <img class="slide__icon" src="assets/tool-groups.png" alt="" aria-hidden="true" draggable="false">
           </a>
@@ -87,7 +87,7 @@
       </a>
       <a class="tool-option tool-option--groups" href="group.html">
         <span class="tool-option__title">拼組圖檔</span>
-        <span class="tool-option__desc">組合你的圖檔，<br>使作品之間更加和諧。</span>
+        <span class="tool-option__desc">組合你的圖檔，<br>使作品之間<br>更加和諧。</span>
         <span class="tool-option__en">Image Groups</span>
         <img class="tool-option__icon" src="assets/tool-groups.png" alt="" aria-hidden="true" draggable="false">
       </a>
@@ -213,6 +213,10 @@
       var suppressClick = false;
 
       function slotOf(el) { return +el.getAttribute('data-slot'); }
+
+      carousel.addEventListener('dragstart', function (e) {
+        e.preventDefault();
+      });
 
       function rotate(step) {            // step > 0：整圈往右；step < 0：往左
         slides.forEach(function (el) {

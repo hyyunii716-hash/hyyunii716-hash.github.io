@@ -40,6 +40,16 @@
   animation-timing-function: cubic-bezier(.76, 0, .24, 1);
 }
 
+/* Expanding circular reveal for transition effect C. */
+.page-transition-effect-c::view-transition-new(root) {
+  animation: effect-c-expand 850ms cubic-bezier(.76, 0, .24, 1) forwards;
+}
+
+@keyframes effect-c-expand {
+  0% { clip-path: circle(0% at 50% 50%); transform: scale(1.1); }
+  100% { clip-path: circle(150% at 50% 50%); transform: scale(1); }
+}
+
 @keyframes page-transition-out {
   to { opacity: 0; transform: translateY(20px); }
 }
@@ -116,6 +126,8 @@
 }
 .page-transition-fallback-out .carousel .slide:nth-child(odd):not(.page-transition-source) { transform: translateX(-20px); }
 .page-transition-fallback-out .carousel .slide:nth-child(even):not(.page-transition-source) { transform: translateX(20px); }
+
+.carousel { touch-action: pan-y; }
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*) { animation-duration: 1ms !important; }
