@@ -213,6 +213,10 @@
 
       function slotOf(el) { return +el.getAttribute('data-slot'); }
 
+      carousel.addEventListener('dragstart', function (e) {
+        e.preventDefault();
+      });
+
       function rotate(step) {            // step > 0：整圈往右；step < 0：往左
         slides.forEach(function (el) {
           var from = slotOf(el);
