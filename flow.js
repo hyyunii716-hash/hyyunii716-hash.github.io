@@ -63,6 +63,7 @@
       }, delay);
     }
     if (name === 'download') updateResult();
+    if (name === 'success') populateSuccess();
     if (name === 'startchat') populateGroup();
     if (name === 'ringing') populateRinging();
     if (name === 'call') populateCall();
@@ -207,6 +208,44 @@
     if (names) names.textContent = files.map(function (file) { return file.name; }).join(', ');
     var message = document.querySelector('[data-camera-feedback]');
     if (message) message.textContent = cameraMessage;
+  }
+
+  function populateSuccess() {
+    var orbit = document.querySelector('[data-success-orbit]');
+    if (!orbit) return;
+    orbit.replaceChildren();
+    var list = files.slice(0, 4);
+    var count = Math.max(list.length, 1);
+    var ring = document.createElement('div');
+    ring.className = 'gs-ring';
+    for (var i = 0; i < count; i++) {
+      var angle = -90 + (360 / count) * i;
+      var rad = angle * Math.PI / 180;
+      var orb = document.createElement('span');
+      orb.className = 'gs-orb';
+      orb.style.setProperty('--a', angle + 'deg');
+      orb.style.setProperty('--i', String(i));
+      orb.style.setProperty('--dx', Math.round(Math.cos(rad) * 340) + 'px');
+      orb.style.setProperty('--dy', Math.round(Math.sin(rad) * 340 + 120) + 'px');
+      var spin = document.createElement('span');
+      spin.className = 'gs-orb__spin';
+      var body = document.createElement('span');
+      body.className = 'gs-orb__body';
+      if (list[i]) body.appendChild(makeImage(list[i], 'group-upload-image'));
+      spin.appendChild(body);
+      orb.appendChild(spin);
+      ring.appendChild(orb);
+    }
+    var center = document.createElement('span');
+    center.className = 'gs-center';
+    center.style.setProperty('--dx', '0px');
+    center.style.setProperty('--dy', '200px');
+    var cBody = document.createElement('span');
+    cBody.className = 'gs-center__body';
+    if (userPhoto) cBody.appendChild(makeImage(userPhoto, 'group-upload-image'));
+    center.appendChild(cBody);
+    orbit.appendChild(ring);
+    orbit.appendChild(center);
   }
 
   function populateRinging() {
