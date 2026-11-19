@@ -244,17 +244,18 @@
     --r: 13.3cqw; --glow: 20cqw;
     --glow-near: 0.62; --glow-mid: 0.42; --glow-far: 0.25;
   }
-  .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2; }
+  .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2;  --d: 4cqw; --e: 3.9cqw; }   /* 後方卡片：內文較小 */
   .slide[data-slot="2"] {
     left: 25.57%; top: 0; width: 44.51%; height: 100%; z-index: 4;
-    --t: 7.11cqw; --d: 3.55cqw; --e: 3.11cqw;
+    --t: 7.11cqw; --d: 4.6cqw; --e: 3.4cqw;   /* 中央卡片：內文最大 */
     --pt: 5.9cqw; --px: 9.6cqw; --pb: 6cqw; --gap: 7.8cqw;
     --iw: 35cqw; --ir: 14cqw; --it: 13cqw;
     --r: 3.43cqw; --glow: 9cqw;
     --glow-near: 0.52; --glow-mid: 0.35; --glow-far: 0.2;
   }
-  .slide[data-slot="3"] { left: 67.39%; top: 16.72%; width: 29.65%; height: 66.56%; z-index: 3; }
+  .slide[data-slot="3"] { left: 67.39%; top: 16.72%; width: 29.65%; height: 66.56%; z-index: 3;  --d: 4cqw; --e: 3.9cqw; }
 
+  .slide:not([data-slot="2"]) .slide__desc { text-wrap: balance; }   /* 後方卡片換行平均，避免單字落單 */
   .slide--compress[data-slot="2"] { --iw: 35cqw; --ir: 13cqw; --it: 11cqw; }
   .slide--backless[data-slot="2"] { --iw: 38cqw; --it: 15cqw; }
   .slide--groups[data-slot="2"]   { --iw: 42.6cqw; --ir: 8.2cqw; --it: 17.5cqw; }
@@ -656,3 +657,7 @@
   .tools-more__nav { gap: 8px; }
   .tools-more__nav .pill { min-width: auto; padding-inline: 14px; }
 }
+
+/* 標題：Abandon 字標（點陣特效）獨立一行，中文在下方 */
+.title-logo { display:block; width:clamp(260px,40vw,760px); max-width:100%; height:auto; margin:0 auto; }
+.title-sub { display:block; margin-top:clamp(14px,2vw,30px); font-size:clamp(34px,4.4vw,76px); font-weight:500; letter-spacing:.01em; line-height:1.2; }

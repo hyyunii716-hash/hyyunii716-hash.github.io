@@ -9,7 +9,9 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="pages.css">
   <link rel="stylesheet" href="flow.css">
+  <link rel="stylesheet" href="spotlight.css">
   <link rel="stylesheet" href="page-transition.css">
+  <link rel="stylesheet" href="showcase.css">
 </head>
 <body>
 
@@ -114,11 +116,7 @@
       <div class="page-head tools-more__head">
         <h2 id="mf-title" class="sub-title">更多功能</h2>
         <p class="eyebrow">More Features</p>
-        <nav class="pill-nav tools-more__nav" aria-label="更多功能分類">
-          <a class="pill" href="#screen-rest">螢幕保護</a>
-          <a class="pill" href="#core-idea">核心理念</a>
-          <a class="pill" href="#education">量身定制</a>
-        </nav>
+      <button type="button" class="btn btn--outline sc-open" data-showcase-open>全螢幕展示</button>
       </div>
     </section>
 
@@ -492,6 +490,8 @@
 })();
 </script>
   
+  <script src="scroll-reveal.js"></script>
   <script src="page-transition.js"></script>
+  <script src="showcase.js"></script>
 </body>
 </html>

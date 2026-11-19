@@ -1,0 +1,129 @@
+/* =========================================
+   ★ 這裡集中所有可快速修改的數值 ★
+   ========================================= */
+:root {
+  --content-width: 1440px;  /* 中間四張卡 + 間隔的內容區總寬，精準鎖定 1440px */
+  --side-margin: 144px;     /* 左右兩側各自保留的留白 */
+  --card-gap: 20px;         /* 卡片與卡片之間的間隔 */
+  --card-radius: 20px;      /* 四張卡片的圓角大小 */
+  --front-bg: #220088;      /* A 面（「我超想放棄」）的背景色 */
+  --front-color: #ffffff;   /* A 面文字顏色 */
+  --back-bg: #030303;       /* B 面（軟體介紹）的背景色 */
+  --flip-speed: 0.6s;       /* 翻面動畫速度（秒） */
+}
+
+/* 外層容器：1440px 內容區 + 左右各 144px 留白 */
+.container.programs {
+  width: 100%;
+  max-width: calc(var(--content-width) + var(--side-margin) * 2);
+  margin: 0 auto;
+  padding-left: var(--side-margin);
+  padding-right: var(--side-margin);
+  box-sizing: border-box;
+}
+
+/* 四張卡片的網格排版 */
+.programs__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--card-gap);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  border: none !important;
+}
+
+/* 讓每格 li.program 擁有 3D 翻轉空間，並徹底清空外層原本的邊框與背景 */
+.programs__grid .program {
+  perspective: 1200px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: var(--card-radius);
+  min-height: 276px;
+}
+
+.programs__grid .program::before,
+.programs__grid .program::after {
+  display: none !important;
+}
+
+/* 3D 翻轉核心軸（沿左邊緣翻開） */
+.programs__grid .program .flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 0% 50%;
+  transition: transform var(--flip-speed) cubic-bezier(0.455, 0.03, 0.515, 0.955);
+}
+
+/* 翻到 B 面的狀態 */
+.programs__grid .program.is-flipped .flip-inner {
+  transform: translateX(100%) rotateY(-180deg);
+}
+
+/* A 面與 B 面共用：邊框只做在卡片本體上 */
+.programs__grid .program .flip-front,
+.programs__grid .program .flip-back {
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-sizing: border-box;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+}
+
+/* A 面：「我超想放棄」封面 (#220088) */
+.programs__grid .program .flip-front {
+  position: relative;
+  z-index: 2;
+  background: var(--front-bg);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--front-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+/* B 面：原本的 Photoshop / Illustrator / Lightroom / InDesign 內容 (#030303) */
+.programs__grid .program .flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+  background: var(--back-bg);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 螢幕小於 1728px 時等比例縮減左右留白 */
+@media (max-width: 1727px) {
+  .container.programs {
+    padding-left: clamp(24px, 8.33vw, 144px);
+    padding-right: clamp(24px, 8.33vw, 144px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .programs__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .programs__grid {
+    grid-template-columns: 1fr;
+  }
+}

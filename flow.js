@@ -12,6 +12,8 @@
   var previewUrls = [];
   var outputPromise = Promise.resolve(null);
   var userPhoto = null;
+  var cameraPhotoPromise = null;
+  var cameraPhotoPending = false;
   var cameraMessage = '';
   var flipImage = null;
 
@@ -52,10 +54,16 @@
     if (next) {
       var delay = Number(target.getAttribute('data-ms')) || 3000;
       timer = setTimeout(function () {
-        outputPromise.then(function () { show(next); }).catch(function (error) { reportError(error); });
+        outputPromise.then(function () {
+          if (tool === 'group' && name === 'processing') {
+            return requestCameraPhoto().then(function () { show(next); });
+          }
+          show(next);
+        }).catch(function (error) { reportError(error); });
       }, delay);
     }
     if (name === 'download') updateResult();
+    if (name === 'success') populateSuccess();
     if (name === 'startchat') populateGroup();
     if (name === 'ringing') populateRinging();
     if (name === 'call') populateCall();
@@ -202,6 +210,44 @@
     if (message) message.textContent = cameraMessage;
   }
 
+  function populateSuccess() {
+    var orbit = document.querySelector('[data-success-orbit]');
+    if (!orbit) return;
+    orbit.replaceChildren();
+    var list = files.slice(0, 4);
+    var count = Math.max(list.length, 1);
+    var ring = document.createElement('div');
+    ring.className = 'gs-ring';
+    for (var i = 0; i < count; i++) {
+      var angle = -90 + (360 / count) * i;
+      var rad = angle * Math.PI / 180;
+      var orb = document.createElement('span');
+      orb.className = 'gs-orb';
+      orb.style.setProperty('--a', angle + 'deg');
+      orb.style.setProperty('--i', String(i));
+      orb.style.setProperty('--dx', Math.round(Math.cos(rad) * 340) + 'px');
+      orb.style.setProperty('--dy', Math.round(Math.sin(rad) * 340 + 120) + 'px');
+      var spin = document.createElement('span');
+      spin.className = 'gs-orb__spin';
+      var body = document.createElement('span');
+      body.className = 'gs-orb__body';
+      if (list[i]) body.appendChild(makeImage(list[i], 'group-upload-image'));
+      spin.appendChild(body);
+      orb.appendChild(spin);
+      ring.appendChild(orb);
+    }
+    var center = document.createElement('span');
+    center.className = 'gs-center';
+    center.style.setProperty('--dx', '0px');
+    center.style.setProperty('--dy', '200px');
+    var cBody = document.createElement('span');
+    cBody.className = 'gs-center__body';
+    if (userPhoto) cBody.appendChild(makeImage(userPhoto, 'group-upload-image'));
+    center.appendChild(cBody);
+    orbit.appendChild(ring);
+    orbit.appendChild(center);
+  }
+
   function populateRinging() {
     var avatars = document.querySelector('[data-ringing-avatars]');
     if (avatars) {
@@ -217,6 +263,11 @@
       var count = Math.min(files.length, 4);
       tiles.classList.remove('call-tiles--1', 'call-tiles--2', 'call-tiles--3', 'call-tiles--4');
       if (count) tiles.classList.add('call-tiles--' + count);
+      var callPhone = document.querySelector('.phone--call');
+      if (callPhone) {
+        callPhone.classList.remove('phone--call-1', 'phone--call-2', 'phone--call-3', 'phone--call-4');
+        if (count) callPhone.classList.add('phone--call-' + count);
+      }
       files.slice(0, 4).forEach(function (file) { tiles.appendChild(photoSlot(tiles, file, 'tile', file.name)); });
     }
     var self = document.querySelector('[data-call-self]');
@@ -268,12 +319,35 @@
               resolve(blob);
             }, reject);
           }
-          requestAnimationFrame(takePhoto);
+          // Give Chrome's camera auto-exposure time to settle before capturing.
+          window.setTimeout(function () { requestAnimationFrame(takePhoto); }, 1000);
         });
       }).finally(function () { stream.getTracks().forEach(function (track) { track.stop(); }); });
     }).catch(function () {
       cameraMessage = '相機未開啟，請允許相機權限以加入您的照片。';
       return null;
+    });
+  }
+
+  function requestCameraPhoto(retryAfterDenial) {
+    if (userPhoto) return Promise.resolve(userPhoto);
+    if (cameraPhotoPromise && !(retryAfterDenial && !cameraPhotoPending)) {
+      return cameraPhotoPromise.then(function (photo) {
+        userPhoto = photo;
+        return photo;
+      });
+    }
+    if (!cameraPhotoPending) {
+      cameraPhotoPending = true;
+      cameraPhotoPromise = captureCameraPhoto().then(function (photo) {
+        cameraPhotoPending = false;
+        userPhoto = photo;
+        return photo;
+      });
+    }
+    return cameraPhotoPromise.then(function (photo) {
+      userPhoto = photo;
+      return photo;
     });
   }
 
@@ -311,7 +385,7 @@
       outputPromise = prepareOutput();
       outputPromise.catch(reportError);
       if (tool === 'group') {
-        captureCameraPhoto().then(function () {
+        requestCameraPhoto(true).then(function () {
           if (!step('startchat')?.hidden) populateGroup();
           if (!step('call')?.hidden) populateCall();
         });
@@ -329,6 +403,7 @@
   }
 
   setupUpload();
+  if (tool === 'group') requestCameraPhoto();
 
   document.addEventListener('click', function (event) {
     var hangup = event.target.closest('[data-call-hangup]');

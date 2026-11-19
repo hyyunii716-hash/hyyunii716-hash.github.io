@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="pages.css">
   <link rel="stylesheet" href="flow.css">
+  <link rel="stylesheet" href="group-transitions.css">
   <link rel="stylesheet" href="page-transition.css">
 </head>
 <body>
@@ -34,7 +35,7 @@
           <span class="upload-box__title">上傳您的檔案</span>
           <span class="upload-box__desc group-upload-desc">
             <span>選擇最多四張圖片，接著開啟相機拍攝一張本人照片</span>
-            <span class="group-upload-limit">最多可選擇四張照片</span>
+            <span class="group-upload-limit">至多上傳四張照片</span>
           </span>
           <span class="upload-box__feedback" data-upload-feedback role="status" aria-live="polite" hidden></span>
         </button>
@@ -79,13 +80,21 @@
       </section>
       </div>
     </section>
-    <section class="flow-step" data-step="processing" data-auto="startchat" data-ms="3000" hidden>
+    <section class="flow-step" data-step="processing" data-auto="success" data-ms="3000" hidden>
       <div class="container stage-head"><h1 class="flow-title" tabindex="-1">拼組圖檔</h1></div>
       <div class="container">
         <div class="processing-stage" role="status" aria-live="polite">
           <img class="processing-animation" src="assets/processing-groups-transparent.png" alt="" aria-hidden="true">
           <p class="upload-box__title">拼組製作中<span class="dots" aria-hidden="true"></span></p>
           <p class="upload-box__desc">檔案上傳成功！正在進行群組，可能需花費數秒</p>
+        </div>
+      </div>
+    </section>
+    <section class="flow-step" data-step="success" data-auto="startchat" data-ms="3800" hidden>
+      <div class="container gs">
+        <div class="gs__inner" role="status" aria-live="polite">
+          <div class="gs-orbit" data-success-orbit aria-hidden="true"></div>
+          <h1 class="gs-title" tabindex="-1">群組成功！</h1>
         </div>
       </div>
     </section>
@@ -186,6 +195,7 @@
     <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
   </footer>
   <script src="flow.js"></script>
+  <script src="group-transitions.js"></script>
   <script src="help-modal.js"></script>
   <script src="cursor-trail.js"></script>
   <script src="page-transition.js"></script>

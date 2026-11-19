@@ -309,23 +309,20 @@
           el.panel.style.setProperty("--card-h", el.stage.offsetHeight + "px");
         };
 
-        /* ---------- 驗證 ---------- */
-        const luhn = (d) => {
-          let sum = 0,
-            alt = false;
-          for (let i = d.length - 1; i >= 0; i--) {
-            let n = +d[i];
-            if (alt) {
-              n *= 2;
-              if (n > 9) n -= 9;
-            }
-            sum += n;
-            alt = !alt;
-          }
-          return d.length > 0 && sum % 10 === 0;
+        /* ---------- 必填欄位檢查 ---------- */
+        const errorFields = {
+          number: [el.number, $("numberErr")],
+          holder: [el.holder, $("holderErr")],
+          exp: [el.month, $("expErr")],
+          cvv: [el.cvv, $("cvvErr")],
         };
-        // 驗證只回傳結果，不顯示錯誤文字或紅色欄位狀態。
-        const setErr = () => {};
+        const setErr = (key, message) => {
+          const field = errorFields[key];
+          if (!field) return;
+          const [input, messageEl] = field;
+          input.setAttribute("aria-invalid", message ? "true" : "false");
+          messageEl.textContent = message;
+        };
 
         const clearErr = (key) => {
           setErr(key, "");
@@ -336,21 +333,15 @@
         };
 
         const validate = () => {
-          const need = state.type.mask.replace(/ /g, "").length;
-          const numberValid =
-            state.digits.length >= 13 &&
-            (state.type.id === "none" || state.digits.length === need);
-
+          const numberValid = !!state.digits.length;
           const holderValid = !!el.holder.value.trim();
+          const expValid = !!el.month.value && !!el.year.value;
+          const cvvValid = !!el.cvv.value.trim();
 
-          const m = +el.month.value;
-          const y = +el.year.value;
-          const expValid =
-            !!m &&
-            !!y &&
-            !(y === thisYear && m < now.getMonth() + 1);
-
-          const cvvValid = el.cvv.value.length === state.type.cvv;
+          setErr("number", numberValid ? "" : "請填寫信用卡卡號。");
+          setErr("holder", holderValid ? "" : "請輸入持卡者姓名。");
+          setErr("exp", expValid ? "" : "請填寫有效時間。");
+          setErr("cvv", cvvValid ? "" : "請填寫 CVV。");
 
           return numberValid && holderValid && expValid && cvvValid;
         };
@@ -358,20 +349,16 @@
         el.form.addEventListener("submit", (e) => {
           e.preventDefault();
           if (!validate()) {
-            el.status.textContent = "請確認卡號、持卡者姓名、有效期限與 CVV 都已填寫完整。";
+            el.status.textContent = "請檢查標示的付款欄位。";
             el.status.className = "status err";
             return;
           }
           // TODO: 實際串接金流時，請改用金流商的 hosted fields / tokenization，
           // 不要把卡號與 CVV 直接送到自己的伺服器。
           el.confirm.classList.add("done");
-          el.confirm.textContent = "已確認";
-          el.status.textContent =
-            (AMOUNT ? "感謝你贊助 $" + AMOUNT + "！" : "") +
-            "示範頁面：資料只在你的瀏覽器內處理，沒有送出。";
-          el.status.className = "status ok";
+          el.status.textContent = "";
+          el.status.className = "status";
           setActive(null);
-          setTimeout(() => { location.href = "received.html" + (AMOUNT ? "?amount=" + AMOUNT : ""); }, 900);
         });
 
         /* ---------- 初始化 ---------- */

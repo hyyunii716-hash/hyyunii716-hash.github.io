@@ -332,6 +332,12 @@
 .pay .control[aria-invalid="true"] {
   border-color: var(--error);
 }
+.pay .err {
+  min-height: 18px;
+  margin: 6px 0 0;
+  color: #ff6b6b;
+  font-size: 13px;
+}
 .pay .row {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
