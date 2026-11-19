@@ -124,9 +124,9 @@
 /* 每張卡片的主題色；--iw/--ir/--it 分別控制插圖寬度、右側距離與上方距離。 */
 .slide--compress { --accent: 38 190 70;   --iw: 28cqw; --ir: 12cqw; --it: 12cqw; }
 .slide--backless { --accent: 118 56 240; }
-.slide--flip     { --accent: 214 48 170;  --iw: 28cqw; --ir: 9cqw;  --it: 14cqw; }
+.slide--flip     { --accent: 214 48 170;  --iw: 33cqw; --ir: 9cqw;  --it: 14cqw; }
 .slide--groups   { --accent: 46 110 255; }
-.slide--groups .slide__desc { max-width: 28cqw; }
+.slide--groups .slide__desc { max-width: 34cqw; }
 .slide .br-center { display: none; }                       /* 只有排在中間時才在「，」後換行（影片） */
 .slide[data-slot="2"] .br-center { display: inline; }
 .slide--groups[data-slot="2"] .slide__desc { max-width: 40cqw; }
@@ -138,7 +138,6 @@
   flex-direction: column;
   height: 100%;
   padding: var(--pt) var(--px) var(--pb);
-  padding-right: 160px;
   overflow: hidden;
   border: 0.64px solid rgb(217 217 217 / 0.5);
   border-radius: var(--r);
@@ -155,7 +154,6 @@
     border-radius 0.3s ease-out,
     border-color 0.2s ease-out,
     box-shadow 0.3s ease-out;
-  
 }
 
 /* hover／鍵盤聚焦：主題色只往卡片內側暈開，中心保留黑色。 */
@@ -169,37 +167,27 @@
 }
 .slide__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
 
-/* ==========================================
-    各 Slot 尺寸變數設定 (精簡合併版)
-   ========================================== */
-
-/* --- Slot 0 (最左側小卡片) --- */
-.slide[data-slot="0"] { 
-  --title-fs: 9px;
-  --desc-fs: 0px;
-  --en-fs: 4px!important; /* 英文名只由這個變數控制 */
+.slide__title {
+  font-weight: 700;
+  font-size: var(--t);
+  line-height: 1.4;
+  transition: font-size 0.3s ease-out;
+}
+.slide__desc {
+  margin-top: var(--gap);
+  color: var(--color-tool-desc);
+  font-size: var(--d);
+  line-height: 1.5;
+  transition: font-size 0.3s ease-out, margin 0.3s ease-out, opacity 0.2s ease-out;
+}
+.slide__en {
+  margin-top: auto;
+  font-weight: 300;
+  font-size: var(--e);
+  letter-spacing: 0.05em;
+  transition: font-size 0.3s ease-out;
 }
 
-/* --- Slot 1 與 Slot 3 (兩側次要卡片) --- */
-.slide[data-slot="1"],
-.slide[data-slot="3"] { 
-  --title-fs: 16px;
-  --desc-fs: 9px;
-  --en-fs: 7px; /* 英文名只由這個變數控制 */
-}
-
-/* Slot 1 的文字整體往左微調；不影響卡片內容區與圖示位置。 */
-.slide[data-slot="1"] :is(.slide__title, .slide__desc, .slide__en) {
-  position: relative;
-  left: -10px;
-}
-
-/* --- Slot 2 (正中間大卡片) --- */
-.slide[data-slot="2"] { 
-  --title-fs: 34px;
-  --desc-fs: 16px;
-  --en-fs: 14px; /* 英文名只由這個變數控制 */
-}
 .slide__icon {
   position: absolute;
   top: var(--it);
@@ -211,37 +199,6 @@
   user-select: none;
   transition: width 0.3s ease-out, top 0.3s ease-out, right 0.3s ease-out, opacity 0.2s ease-out;
 }
-
-/* ==========================================
-   1. 基礎元件樣式設定 (讀取自定義變數，無變數時用預設值)
-   ========================================== */
-.slide__title {
-  font-weight: 700;
-  font-size: var(--title-fs, var(--t));
-  line-height: 1.5;
-  transition: font-size 0.3s ease-out;
-}
-
-.slide__desc {
-  max-width: 220px;
-  margin-top: var(--gap);
-  color: var(--color-tool-desc);
-  font-size: var(--desc-fs, var(--d));
-  line-height: 1.5;
-  transition: font-size 0.3s ease-out, margin 0.3s ease-out, opacity 0.2s ease-out;
-}
-
-.slide__en {
-  margin-top: auto;
-  margin-bottom: 30px;
-  font-weight: 300;
-  font-size: var(--en-fs, var(--e));
-  letter-spacing: 0.05em;
-  transition: font-size 0.3s ease-out;
-}
-
-
-
 
 /* 手機版維持元件設計稿的 3:2 比例，卡片只在輪播容器內水平滑動。 */
 @media (max-width: 900px) {
@@ -283,21 +240,27 @@
   /* 卡片槽位：0 最左、1 左側、2 中央、3 右側；調 left/top/width/height 可微調位置與尺寸。 */
   .slide[data-slot="0"] {
     left: 0; top: 33.33%; width: 15.21%; height: 33.34%; z-index: 1;
-    --t: 5cqw; --en:0.9cqw; --pt: 6.7cqw; --px: 13.3cqw; --pb: 6.7cqw;
+    --t: 9.3cqw; --e: 9.3cqw; --pt: 6.7cqw; --px: 13.3cqw; --pb: 6.7cqw;
     --r: 13.3cqw; --glow: 20cqw;
     --glow-near: 0.62; --glow-mid: 0.42; --glow-far: 0.25;
   }
-  .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2; }
+  /* 所有卡片標題一律不換行（換張縮小的過程中才不會變直排） */
+  .slide .slide__title { white-space: nowrap; }
+  /* 最小卡：說明文字不佔版面（只淡出），英文標才會留在卡片底部 */
+  .slide[data-slot="0"] .slide__desc { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .slide[data-slot="0"] .slide__en { white-space: nowrap; font-size: 3cqw; }
+  .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2;  --d: 4cqw; --e: 3.9cqw; }   /* 後方卡片：內文較小 */
   .slide[data-slot="2"] {
     left: 25.57%; top: 0; width: 44.51%; height: 100%; z-index: 4;
-    --t: 7.11cqw; --d: 3.55cqw; --e: 3.11cqw;
+    --t: 7.11cqw; --d: 3.55cqw; --e: 3.4cqw;
     --pt: 5.9cqw; --px: 9.6cqw; --pb: 6cqw; --gap: 7.8cqw;
     --iw: 35cqw; --ir: 14cqw; --it: 13cqw;
     --r: 3.43cqw; --glow: 9cqw;
     --glow-near: 0.52; --glow-mid: 0.35; --glow-far: 0.2;
   }
-  .slide[data-slot="3"] { left: 67.39%; top: 16.72%; width: 29.65%; height: 66.56%; z-index: 3; }
+  .slide[data-slot="3"] { left: 67.39%; top: 16.72%; width: 29.65%; height: 66.56%; z-index: 3;  --d: 4cqw; --e: 3.9cqw; }
 
+  .slide:not([data-slot="2"]) .slide__desc { text-wrap: balance; }   /* 後方卡片換行平均，避免單字落單 */
   .slide--compress[data-slot="2"] { --iw: 35cqw; --ir: 13cqw; --it: 11cqw; }
   .slide--backless[data-slot="2"] { --iw: 38cqw; --it: 15cqw; }
   .slide--groups[data-slot="2"]   { --iw: 42.6cqw; --ir: 8.2cqw; --it: 17.5cqw; }
@@ -308,45 +271,6 @@
 
   /* 最小那格只顯示標題與英文名 */
   .slide[data-slot="0"] :is(.slide__desc, .slide__icon) { opacity: 0; }
-}
-/* ==========================================================
-   各個 slot (0~3) 對應四種工具的獨立字體大小變數設定
-   ========================================================== */
-
-/* --- Slot 0 (最左側小卡片) --- */
-.slide--compress[data-slot="0"] { --title-fs: 14px; --desc-fs: 10px; --en-fs: 4px; }
-.slide--groups[data-slot="0"]   { --title-fs: 14px; --desc-fs: 10px; --en-fs: 4px; }
-.slide--backless[data-slot="0"] { --title-fs: 14px; --desc-fs: 10px; --en-fs: 4px; }
-.slide--flip[data-slot="0"]     { --title-fs: 14px; --desc-fs: 10px; --en-fs: 4px; }
-
-/* --- Slot 1 (左側次要卡片) --- */
-.slide--compress[data-slot="1"] { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--groups[data-slot="1"]   { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--backless[data-slot="1"] { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--flip[data-slot="1"]     { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-
-/* --- Slot 2 (正中間主視覺大卡片) --- */
-.slide--compress[data-slot="2"] { --title-fs: 32px; --desc-fs: 16px; --en-fs: 8px; }
-.slide--groups[data-slot="2"]   { --title-fs: 32px; --desc-fs: 16px; --en-fs: 8px; }
-.slide--backless[data-slot="2"] { --title-fs: 32px; --desc-fs: 16px; --en-fs: 8px; }
-.slide--flip[data-slot="2"]     { --title-fs: 32px; --desc-fs: 16px; --en-fs: 8px; }
-
-/* --- Slot 3 (右側次要卡片) --- */
-.slide--compress[data-slot="3"] { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--groups[data-slot="3"]   { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--backless[data-slot="3"] { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-.slide--flip[data-slot="3"]     { --title-fs: 18px; --desc-fs: 12px; --en-fs: 6px; }
-
-
-/* ==========================================================
-   全域統一套用變數（只需寫這兩行，所有卡片自動生效）
-   ========================================================== */
-.slide .slide__title {
-  font-size: var(--title-fs, 24px);
-}
-
-.slide .slide__desc {
-  font-size: var(--desc-fs, 14px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -738,13 +662,7 @@
   .tools-more__nav { gap: 8px; }
   .tools-more__nav .pill { min-width: auto; padding-inline: 14px; }
 }
-/* 單獨調整「拼組圖檔」的卡片右側 padding 與文字寬度限制 */
-.slide.slide--groups .slide__link {
-  padding-right: 180px !important; /* 依照你的圖示大小調整數值，確保文字不會撞到圖片 */
-}
 
-/* 確保拼組圖檔卡片內的描述文字不會超出範圍 */
-.slide.slide--groups .slide__desc {
-  max-width: 200px !important; 
-  word-break: break-word !important;
-}
+/* 標題：Abandon 字標（點陣特效）獨立一行，中文在下方 */
+.title-logo { display:block; width:clamp(260px,40vw,760px); max-width:100%; height:auto; margin:0 auto; }
+.title-sub { display:block; margin-top:clamp(14px,2vw,30px); font-size:clamp(34px,4.4vw,76px); font-weight:500; letter-spacing:.01em; line-height:1.2; }

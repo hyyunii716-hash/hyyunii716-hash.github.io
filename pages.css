@@ -244,10 +244,11 @@
     --r: 13.3cqw; --glow: 20cqw;
     --glow-near: 0.62; --glow-mid: 0.42; --glow-far: 0.25;
   }
+  .slide[data-slot="0"] .slide__title { white-space: nowrap; }
   .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2;  --d: 4cqw; --e: 3.9cqw; }   /* 後方卡片：內文較小 */
   .slide[data-slot="2"] {
     left: 25.57%; top: 0; width: 44.51%; height: 100%; z-index: 4;
-    --t: 7.11cqw; --d: 4.6cqw; --e: 3.4cqw;   /* 中央卡片：內文最大 */
+    --t: 7.11cqw; --d: 3.55cqw; --e: 3.4cqw;
     --pt: 5.9cqw; --px: 9.6cqw; --pb: 6cqw; --gap: 7.8cqw;
     --iw: 35cqw; --ir: 14cqw; --it: 13cqw;
     --r: 3.43cqw; --glow: 9cqw;
