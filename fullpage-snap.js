@@ -37,7 +37,7 @@
 
     // --- 退場動畫調整區 ---
     exitDuration: 0.45, // 離開該區塊時的淡出退場速度（秒，建議比進場快一點更俐落）
-    exitStagger: 0.05, // 退場時元素錯開淡出的時間差（秒）
+    exitStagger: 0.08, // 退場時元素錯開淡出的時間差（秒）
     exitDistance: 28, // 退場時向上或向下飄移的距離（px）
   };
 
@@ -170,7 +170,11 @@
         padding-top: calc(88px + ${CONFIG.navOffset}px);
         padding-bottom: 60px;
       }
-    
+    /* 最後一區 QA：與上方各區保持一致的頂部導覽列安全距離，並保留下方 Footer 空間 */
+      main.page > section:last-of-type {
+        padding-top: calc(88px + ${CONFIG.navOffset}px);
+        padding-bottom: 120px;
+      }
       `;
     document.head.appendChild(style);
 

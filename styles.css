@@ -658,26 +658,106 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 .tools .tools__grid > li:nth-child(3).is-revealed .card--tool { animation-delay: 0.49s; }
 .tools .tools__grid > li:nth-child(4).is-revealed .card--tool { animation-delay: 0.61s; }
 
-/* 2. 滑鼠移上去時，立刻蓋過進場動畫並啟動持續震動（delay 歸零避免等待） */
+/* =========================================================
+   「現在可以使用的工具」卡片：絲滑上浮（不與進場動畫打架）
+   ========================================================= */
+
+/* 1. 進場搖晃改用獨立的 translate / rotate 屬性，完全不佔用 transform */
+.tools .tools__grid > li.is-revealed .card--tool {
+  animation: wobble-hor-top 0.8s both;
+}
+.tools .tools__grid > li:nth-child(1).is-revealed .card--tool { animation-delay: 0.25s; }
+.tools .tools__grid > li:nth-child(2).is-revealed .card--tool { animation-delay: 0.37s; }
+.tools .tools__grid > li:nth-child(3).is-revealed .card--tool { animation-delay: 0.49s; }
+.tools .tools__grid > li:nth-child(4).is-revealed .card--tool { animation-delay: 0.61s; }
+
+/* 2. Hover 時由 transform 專門負責平滑上浮與回彈（0.55s 絲滑減速曲線） */
+.tools .tools__grid > li .card--tool {
+  cursor: pointer;
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transition:
+    transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
 .tools .tools__grid > li .card--tool:hover {
-  animation: vibrate-2 0.3s linear infinite both !important;
-  animation-delay: 0s !important;
+  transform: translateY(-8px) scale(1.015);
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  box-shadow: 0 18px 36px -10px rgba(0, 0, 0, 0.65);
+}
+
+/* 點擊瞬間柔和下壓 */
+.tools .tools__grid > li .card--tool:active {
+  transform: translateY(-2px) scale(0.99);
+  transition-duration: 0.15s !important;
 }
 
 @keyframes wobble-hor-top {
-  0%, 100% { transform: translateX(0); transform-origin: 50% 50%; }
-  15% { transform: translateX(-30px) rotate(6deg); }
-  30% { transform: translateX(15px) rotate(-6deg); }
-  45% { transform: translateX(-15px) rotate(3.6deg); }
-  60% { transform: translateX(9px) rotate(-2.4deg); }
-  75% { transform: translateX(-6px) rotate(1.2deg); }
+  0%, 100% { translate: 0 0; rotate: 0deg; }
+  15% { translate: -30px 0; rotate: 6deg; }
+  30% { translate: 15px 0; rotate: -6deg; }
+  45% { translate: -15px 0; rotate: 3.6deg; }
+  60% { translate: 9px 0; rotate: -2.4deg; }
+  75% { translate: -6px 0; rotate: 1.2deg; }
+}
+/* =========================================================
+   QA 手風琴平滑展開／收合動畫（對應 .qa__item）
+   ========================================================= */
+
+/* 允許高度從 0 平滑過渡到 auto（Chrome / Safari / Edge 現代瀏覽器支援） */
+:root {
+  interpolate-size: allow-keywords;
 }
 
-@keyframes vibrate-2 {
-  0% { transform: translate(0); }
-  20% { transform: translate(2px, -2px); }
-  40% { transform: translate(2px, 2px); }
-  60% { transform: translate(-2px, 2px); }
-  80% { transform: translate(-2px, -2px); }
-  100% { transform: translate(0); }
+.qa__item {
+  overflow: hidden;
 }
+
+/* 針對回答區塊（::details-content）設定收合狀態與過渡曲線 */
+.qa__item::details-content {
+  block-size: 0;
+  opacity: 0;
+  transform: translateY(-6px);
+  overflow-y: clip;
+  transition:
+    block-size 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.35s ease,
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    content-visibility 0.45s allow-discrete;
+}
+
+/* 展開時的目標狀態 */
+.qa__item[open]::details-content {
+  block-size: auto;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 讓問題標題點擊手勢明確，並讓原本的 +/- 或箭頭圖示平滑旋轉 */
+.qa__item > summary {
+  cursor: pointer;
+}
+
+.qa__item > summary::after {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.qa__item[open] > summary::after {
+  transform: rotate(45deg);
+}
+/* 讓 QA 左側大標題的上緣與右側第一個問題的文字高度視覺齊平 */
+.qa .section-title--left {
+  margin-top: 0;
+  padding-top: 14px; /* 可依實際視覺差微調 12px ~ 18px */
+}
+/* 消除 h2 預設行高造成的上方透明留白，讓文字頂端切齊右側邊框線 */
+section.qa .section-title.section-title--left {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  line-height: 1.05 !important; /* 大字體預設行高 1.4~1.5 會在字體上方多出約 15px 空白 */
+}
+
