@@ -1,8 +1,7 @@
 /* 本機字型（免網路）：由 Google Fonts 的 OFL 授權字型裁切出網站用到的字元 */
 @font-face { font-family: "Noto Sans TC"; src: url("fonts/NotoSansTC-subset.woff") format("woff"); font-weight: 100 900; font-style: normal; font-display: swap; }
 @font-face { font-family: "Inter"; src: url("fonts/Inter-subset.woff") format("woff"); font-weight: 100 900; font-style: normal; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-subset.woff") format("woff"); font-weight: 100 800; font-style: normal; font-display: swap; }
-@font-face { font-family: "Poppins"; src: url("fonts/Poppins-Bold-subset.woff") format("woff"); font-weight: 700; font-style: normal; font-display: swap; }
+
 
 /* 全站返回上頁按鈕 */
 .back-button {
@@ -32,7 +31,7 @@
   --color-nav-line: rgba(255, 255, 255, 0.75);
 
   /* Font family */
-  --font-zh: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-zh: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --font-en: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 
   /* Radius / shadow */
@@ -44,14 +43,21 @@
   --content-max: 1440px;
   --section-gap: clamp(56px, 5.556vw, 96px);
 
-  /* Type scale（fluid：到 1728px 時等於設計稿數值） */
-  --fs-hero: clamp(48px, 5.556vw, 96px);        /* 96 */
-  --fs-hero-sub: clamp(18px, 1.62vw, 28px);     /* 28 */
-  --fs-manifesto: clamp(24px, 2.778vw, 48px);   /* 48 */
-  --fs-h2: clamp(32px, 4.282vw, 74px);          /* 中文標題2 74 */
-  --fs-title: clamp(20px, 1.389vw, 24px);       /* 24 */
-  --fs-body: 16px;                              /* 16 / 24 */
-  --fs-nav: 14px;
+  /* Type scale */
+  --fs-hero: clamp(44px, 5vw, 84px);          /* 夠大氣，改配 Medium 500 就不笨重 */
+  --fs-h2: clamp(28px, 3.6vw, 58px);          /* 區塊標題拉回存在感，字重降為 500 */
+  --fs-manifesto: clamp(22px, 2.4vw, 40px);   /* 宣言句拉大，字重降為 500 */
+  --fs-hero-sub: clamp(18px, 1.45vw, 24px);   /* 副標題拉回清晰度 */
+  --fs-title: clamp(19px, 1.3vw, 22px);       /* 卡片標題適中大小 */
+  --fs-body: 15px;                            /* 內文取 14px 與 16px 的黃金中間值 */
+  --fs-nav: 14px;                             /* 導覽列保持清楚好讀 */
+
+  /* 補齊 pages.css / pay.css / pricing.css 呼叫的變數，全部導向全站標準 */
+  --fs-h3: var(--fs-title);
+  --fs-lead: var(--fs-body);
+  --font-ui: var(--font-en);
+  --font-num: var(--font-en);
+  --pr-font: var(--font-zh);
 }
 
 /* ---------- Reset / base ---------- */
@@ -599,7 +605,7 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 
 .cover-secret-text span {
   position: absolute;
-  font-family: "Poppins", "Noto Sans TC", sans-serif;
+  font-family: var(--font-zh);
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -617,9 +623,9 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 .cover-nav .site-nav { min-height: var(--cover-nav-h); background: #0a0a0a; border-radius: 0 0 40px 0; }
 .cover-title { position: absolute; right: var(--cover-pad-x); top: 57%; transform: translateY(-50%) translateY(24px); text-align: right; opacity: 0; transition: opacity .7s .1s,transform .8s .1s cubic-bezier(.2,.8,.2,1); }
 .cover-title.show { opacity: 1; transform: translateY(-50%); }
-.cover-title h1 { font-family: "Poppins",sans-serif; font-weight: 700; font-size: clamp(56px,10vw,150px); line-height: 1; letter-spacing: -.02em; }
-.cover-title p { margin-top: .5em; font-family: "Poppins",sans-serif; font-size: clamp(16px,2.2vw,32px); letter-spacing: .08em; }
-.cover-hint { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); font-family: "Poppins",sans-serif; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .45s; }
+.cover-title h1 { font-family: var(--font-en); font-weight: 700; font-size: clamp(56px,10vw,150px); line-height: 1; letter-spacing: -.02em; }
+.cover-title p { margin-top: .5em; font-family: var(--font-en); font-size: clamp(16px,2.2vw,32px); letter-spacing: .08em; }
+.cover-hint { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); font-family: var(--font-en); font-size: 12px; letter-spacing: .3em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .45s; }
 .cover-hint.ready { opacity: .75; } .cover-hint.hide { opacity: 0; }
 .cover-hint::after { content: ""; display: block; width: 1px; height: 36px; margin: 12px auto 0; background: #fff; transform-origin: top; animation: cover-drip 1.8s infinite ease-in-out; }
 @keyframes cover-drip { 0%{transform:scaleY(0)} 50%{transform:scaleY(1)} 100%{transform:scaleY(1);opacity:0} }
@@ -769,5 +775,78 @@ section.qa .section-title.section-title--left {
   margin-top: 0 !important;
   padding-top: 0 !important;
   line-height: 1.05 !important; /* 大字體預設行高 1.4~1.5 會在字體上方多出約 15px 空白 */
+}
+/* 讓「程式」與「工具」卡片的說明內文退後一層，拉開與標題的質感對比 */
+.program__desc,
+.card--tool .card__text {
+  font-size: 13.5px;                        /* 比一般內文再收斂 0.5px，更有精密規格書的感覺 */
+  line-height: 1.55;                        /* 解除原本寫死的 24px 行高，讓卡片更緊湊俐落 */
+  color: rgba(255, 255, 255, 0.65);         /* 把純白降為 65% 柔和灰白，消除黑底白字膨脹感 */
+}
+
+/* 「程式」區塊下方的免責聲明小字，再往後退一階 */
+.disclaimer {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+/* =========================================================
+   質感平衡微調：拉大字級、減輕字重（用明度與留白區分層次）
+   ========================================================= */
+
+/* 1. 區塊大標題 & 宣言：字級大氣，但字重從 700 降為 500，瞬間變輕盈高冷 */
+.section-title,
+.manifesto,
+.flow-title,
+.flow-h2 {
+  font-weight: 500 !important;
+  letter-spacing: -0.02em; /* 大字體微縮字距會更有現代設計感 */
+}
+
+/* 2. 卡片標題 & QA 問題列：改用 Medium 500，不再黑壓壓一團 */
+.card__title,
+.program__name,
+.qa__q {
+  font-weight: 500 !important;
+  color: #ffffff;
+}
+
+/* =========================================================
+   全站強制統一規範（直接壓過 pages.css 等所有分頁檔案）
+   ========================================================= */
+
+/* 1. 強制把 pages.css 裡偷定義的 --fs-lead 和 --fs-h3 全部鎖回標準尺寸 */
+:root, body, .page, .page--sub {
+  --fs-lead: var(--fs-body) !important;   /* 強制全站所有 lead 段落統一為 15px */
+  --fs-h3: var(--fs-title) !important;    /* 強制全站所有 h3 小標統一為標準標題 */
+}
+
+/* 2. 全站所有一般說明內文、卡片段落、連結（包含圖中的 a.feature__link）一次統一 */
+.program__desc,
+.card--tool .card__text,
+.feature__text,
+.feature__link,
+.app-card__desc,
+.checkout__why,
+.choice__desc {
+  font-size: var(--fs-body) !important;   /* 統一 15px */
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+/* 3. 全站所有中大標題統一輕量化（500 Medium）*/
+.section-title,
+.manifesto,
+.flow-title,
+.flow-h2,
+.card__title,
+.program__name,
+.qa__q,
+.feature__name,
+.feature__headline,
+.app-card__name {
+  font-weight: 500 !important;
+  color: #ffffff !important;
 }
 
