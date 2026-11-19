@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABANDON — 線上客服支援</title>
+  <style>
+    :root {
+      --bg-black: #0C0C0C;
+      --deep-blue: #220088;
+      --vivid-purple: #65318E;
+      --soft-pink: #F77FBE;
+      --pure-white: #FFFFFF;
+      --card-gray: #2B2B2B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-black);
+      color: var(--pure-white);
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "PingFang TC", "Helvetica Neue", sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* 頂部導覽列（延續全站設定） */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 76px;
+      padding: 0 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 20;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--pure-white);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .logo-symbol {
+      display: inline-block;
+      font-weight: 400;
+      transform: scaleX(1.15);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    nav a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.25s ease;
+    }
+
+    nav a:hover {
+      color: var(--pure-white);
+    }
+
+    .cart-icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+    }
+
+    /* 中央舞台與自由移動的藍紫粉漸層光暈 */
+    main {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .glow-container {
+      position: absolute;
+      width: 680px;
+      height: 520px;
+      pointer-events: none;
+      z-index: 1;
+      filter: blur(75px);
+      opacity: 0.9;
+    }
+
+    .glow-blob {
+      position: absolute;
+      border-radius: 50%;
+      mix-blend-mode: screen;
+    }
+
+    .blob-blue {
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, var(--deep-blue) 0%, transparent 70%);
+      top: 15%;
+      left: 22%;
+      animation: floatBlob1 9s ease-in-out infinite alternate;
+    }
+
+    .blob-purple {
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, var(--vivid-purple) 0%, transparent 70%);
+      top: 25%;
+      right: 18%;
+      animation: floatBlob2 11s ease-in-out infinite alternate;
+    }
+
+    .blob-pink {
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(247, 127, 190, 0.22) 0%, transparent 72%);
+      bottom: 18%;
+      left: 34%;
+      animation: floatBlob3 13s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatBlob1 {
+      0%   { transform: translate(-30px, -20px) scale(1); }
+      50%  { transform: translate(45px, 25px) scale(1.12); }
+      100% { transform: translate(-15px, 40px) scale(0.95); }
+    }
+
+    @keyframes floatBlob2 {
+      0%   { transform: translate(30px, 20px) scale(1.05); }
+      50%  { transform: translate(-40px, -30px) scale(0.92); }
+      100% { transform: translate(20px, -15px) scale(1.1); }
+    }
+
+    @keyframes floatBlob3 {
+      0%   { transform: translate(0px, 15px) scale(0.9); }
+      100% { transform: translate(35px, -35px) scale(1.15); }
+    }
+
+    /* 語音播放時光暈呼吸加速 */
+    main.is-speaking .glow-container {
+      animation: speakingPulse 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes speakingPulse {
+      from { transform: scale(0.98); opacity: 0.85; }
+      to   { transform: scale(1.08); opacity: 1; }
+    }
+
+    /* 狀態一：正在為您接通客服...（文字輪流上下跳動） */
+    .connecting-view {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .connecting-view.is-hidden {
+      opacity: 0;
+      transform: translateY(-90px);
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .wave-text {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      display: flex;
+      gap: 2px;
+    }
+
+    .wave-text span {
+      display: inline-block;
+      animation: letterBounce 1.6s ease-in-out infinite;
+    }
+
+    @keyframes letterBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30%           { transform: translateY(-10px); }
+    }
+
+    .connect-hint {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.04);
+      transition: all 0.25s ease;
+    }
+
+    .connect-hint:hover {
+      color: var(--pure-white);
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    /* 狀態二：已接通畫面 */
+    .connected-view {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(40px);
+      pointer-events: none;
+      transition: opacity 0.7s ease 0.15s, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+    }
+
+    .connected-view.is-active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .status-title {
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.92);
+      margin-bottom: 42px;
+    }
+
+    /* 中央耳機圖示 */
+    .headset-wrapper {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .headset-icon {
+      width: 112px;
+      height: 112px;
+      fill: #050508;
+      filter: drop-shadow(0 0 24px rgba(34, 0, 136, 0.75));
+      transition: transform 0.3s ease;
+    }
+
+    main.is-speaking .headset-icon {
+      animation: headsetTalk 0.9s ease-in-out infinite alternate;
+    }
+
+    @keyframes headsetTalk {
+      from { transform: scale(1); }
+      to   { transform: scale(1.06); }
+    }
+
+    /* 底部操作列：返回上頁 + 輸入框 */
+    .bottom-bar {
+      position: fixed;
+      bottom: 44px;
+      left: 0;
+      width: 100%;
+      padding: 0 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+    }
+
+    .btn-back {
+      position: absolute;
+      left: 96px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background-color: rgba(12, 12, 12, 0.8);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-back:hover {
+      background-color: var(--card-gray);
+      border-color: var(--pure-white);
+      color: var(--pure-white);
+    }
+
+    /* 問答輸入框（已接通後滑入） */
+    .chat-input-box {
+      width: 100%;
+      max-width: 440px;
+      height: 44px;
+      background-color: rgba(160, 160, 165, 0.52);
+      backdrop-filter: blur(10px);
+      border-radius: 999px;
+      padding: 0 8px 0 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(24px);
+      pointer-events: none;
+      transition: opacity 0.6s ease 0.3s, transform 0.6s ease 0.3s, background-color 0.25s ease;
+    }
+
+    .chat-input-box.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .chat-input-box:focus-within {
+      background-color: rgba(185, 185, 192, 0.65);
+    }
+
+    .chat-input-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--pure-white);
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .chat-input-box input::placeholder {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .btn-send {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background-color: rgba(255, 255, 255, 0.72);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .btn-send:hover {
+      background-color: var(--pure-white);
+      transform: scale(1.08);
+    }
+
+    .btn-send:active {
+      transform: scale(0.95);
+    }
+
+    .btn-send svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--bg-black);
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    /* 右下角低調的段落進度指示器（方便測試，不想要可設 display:none） */
+    .debug-pill {
+      position: fixed;
+      bottom: 16px;
+      right: 24px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.06em;
+      z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      header { padding: 0 24px; }
+      nav { gap: 18px; font-size: 12px; }
+      .bottom-bar { padding: 0 24px; bottom: 28px; }
+      .btn-back { left: 24px; bottom: 64px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <a href="index.html" class="logo">
+      <span class="logo-symbol">⇄</span>BANDON
+    </a>
+    <nav>
+      <a href="index.html">首頁</a>
+      <a href="tools.html">網頁工具</a>
+      <a href="programs.html">網頁程式</a>
+      <a href="pricing.html">購買方案</a>
+      <a href="cart.html" aria-label="購物車">
+        <svg class="cart-icon" viewBox="0 0 24 24">
+          <circle cx="9" cy="20" r="1.5"></circle>
+          <circle cx="18" cy="20" r="1.5"></circle>
+          <path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 1.9-1.4L22 7H6"></path>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <!-- 中央主視覺 -->
+  <main id="stage">
+    <!-- 自由移動漸層光暈 -->
+    <div class="glow-container">
+      <div class="glow-blob blob-blue"></div>
+      <div class="glow-blob blob-purple"></div>
+      <div class="glow-blob blob-pink"></div>
+    </div>
+
+    <!-- 畫面 1：正在為您接通客服... -->
+    <section class="connecting-view" id="connectingView">
+      <h1 class="wave-text" id="waveText">正在為您接通客服...</h1>
+      <button class="connect-hint" id="startBtn" type="button">點擊立即接通語音客服</button>
+    </section>
+
+    <!-- 畫面 2：已接通（我可以幫您什麼？ + 耳機圖示） -->
+    <section class="connected-view" id="connectedView">
+      <p class="status-title" id="statusTitle">我可以幫您什麼？</p>
+      <div class="headset-wrapper">
+        <svg class="headset-icon" viewBox="0 0 100 100" aria-hidden="true">
+          <!-- 頭帶 -->
+          <path d="M22 50 C22 30, 78 30, 78 50" fill="none" stroke="#050508" stroke-width="6" stroke-linecap="round"/>
+          <!-- 左耳罩 -->
+          <rect x="15" y="44" width="14" height="26" rx="7" fill="#050508"/>
+          <!-- 右耳罩 -->
+          <rect x="71" y="44" width="14" height="26" rx="7" fill="#050508"/>
+          <!-- 麥克風支架 -->
+          <path d="M78 68 C78 80, 64 83, 53 83" fill="none" stroke="#050508" stroke-width="4.5" stroke-linecap="round"/>
+          <!-- 麥克風頭 -->
+          <circle cx="51" cy="83" r="4.5" fill="#050508"/>
+        </svg>
+      </div>
+    </section>
+  </main>
+
+  <!-- 底部返回與問題輸入框 -->
+  <div class="bottom-bar">
+    <button class="btn-back" type="button" onclick="history.back()">
+      <span>↩</span> 返回上頁
+    </button>
+
+    <form class="chat-input-box" id="chatForm" autocomplete="off">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="What can I help you"
+        aria-label="輸入您的問題"
+      />
+      <button class="btn-send" type="submit" aria-label="送出問題">
+        <svg viewBox="0 0 24 24">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <div class="debug-pill" id="trackIndicator">WAITING</div>
+
+  <script>
+    // 1. 將「正在為您接通客服...」拆成單字 span 以製作輪流跳動動畫
+    const waveTextEl = document.getElementById("waveText");
+    const rawText = waveTextEl.textContent.trim();
+    waveTextEl.innerHTML = "";
+    [...rawText].forEach((char, idx) => {
+      const span = document.createElement("span");
+      span.textContent = char;
+      span.style.animationDelay = `${idx * 0.1}s`;
+      waveTextEl.appendChild(span);
+    });
+
+    // 2. 直接讀取單一音檔「印度小哥.mp3」與六段起訖秒數
+    const AUDIO_FILE = "印度小哥.mp3";
+    const audioSegments = [
+      { part: 1, start: 0,  end: 11 },
+      { part: 2, start: 11, end: 25 },
+      { part: 3, start: 25, end: 44 },
+      { part: 4, start: 44, end: 59 },
+      { part: 5, start: 59, end: 90 },
+      { part: 6, start: 90, end: 103 }
+    ];
+
+    let currentTrackIndex = 0;
+    let currentEndTime = 0;
+    let isConnected = false;
+
+    const player = new Audio(AUDIO_FILE);
+    player.preload = "auto";
+
+    const stage = document.getElementById("stage");
+    const connectingView = document.getElementById("connectingView");
+    const connectedView = document.getElementById("connectedView");
+    const chatInputBox = document.getElementById("chatForm");
+    const chatForm = document.getElementById("chatForm");
+    const userInput = document.getElementById("userInput");
+    const startBtn = document.getElementById("startBtn");
+    const trackIndicator = document.getElementById("trackIndicator");
+
+    // 監聽播放進度，到達該段結束秒數時自動暫停
+    player.addEventListener("timeupdate", () => {
+      if (!player.paused && player.currentTime >= currentEndTime) {
+        player.pause();
+        stage.classList.remove("is-speaking");
+      }
+    });
+
+    player.addEventListener("ended", () => {
+      stage.classList.remove("is-speaking");
+    });
+
+    // 播放指定段落區間
+    function playSegment(index) {
+      const safeIndex = index % audioSegments.length;
+      const seg = audioSegments[safeIndex];
+      currentEndTime = seg.end;
+      trackIndicator.textContent = `PART ${seg.part} / ${audioSegments.length} (${seg.start}s-${seg.end}s)`;
+
+      const startPlayback = () => {
+        player.currentTime = seg.start;
+        player.play()
+          .then(() => {
+            stage.classList.add("is-speaking");
+          })
+          .catch(() => {
+            // 若瀏覽器尚未允許自動播放，仍模擬說話狀態 3 秒
+            stage.classList.add("is-speaking");
+            setTimeout(() => stage.classList.remove("is-speaking"), 3000);
+          });
+      };
+
+      // 確保音檔 metadata 載入後再設定 currentTime
+      if (player.readyState >= 1) {
+        startPlayback();
+      } else {
+        player.addEventListener("loadedmetadata", startPlayback, { once: true });
+      }
+    }
+
+    // 切換至已接通畫面並播放第 1 段音檔
+    function connectSupport() {
+      if (isConnected) return;
+      isConnected = true;
+
+      connectingView.classList.add("is-hidden");
+      connectedView.classList.add("is-active");
+      chatInputBox.classList.add("is-visible");
+
+      currentTrackIndex = 0;
+      playSegment(currentTrackIndex);
+      setTimeout(() => userInput.focus(), 700);
+    }
+
+    // 點擊按鈕立即接通；若無點擊則 3.2 秒後自動轉場
+    startBtn.addEventListener("click", connectSupport);
+    setTimeout(connectSupport, 3200);
+
+    // 3. 使用者送出任何問題：無視內容，直接播放下一段區間
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      userInput.value = "";
+
+      // 推進到下一段；第 6 段播完後回到第 2 段無限鬼打牆循環
+      if (currentTrackIndex < audioSegments.length - 1) {
+        currentTrackIndex += 1;
+      } else {
+        currentTrackIndex = 1;
+      }
+
+      playSegment(currentTrackIndex);
+    });
+  </script>
+</body>
+</html>

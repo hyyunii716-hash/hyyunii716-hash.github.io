@@ -1,6 +1,6 @@
 /* 「還是不會用？更多資訊」→ 在原頁面彈出方案卡片（不跳轉頁面）。按 ESC、點卡片外或「×」關閉。 */
 (function () {
-  var links = document.querySelectorAll('.more-link');
+  var links = document.querySelectorAll('.more-link[href="pricing.html"]');
   if (!links.length) return;
 
   var wrap = document.createElement('div');
