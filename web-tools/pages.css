@@ -168,6 +168,44 @@
     inset 0 0 calc(var(--glow) * 2.7) rgb(var(--accent) / var(--glow-far));
 }
 .slide__link:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
+
+/* ==========================================
+    各 Slot 尺寸變數設定 (精簡合併版)
+   ========================================== */
+
+/* --- Slot 0 (最左側小卡片) --- */
+.slide[data-slot="0"] { 
+  --title-fs: 9px;
+  --desc-fs: 0px;
+  --en-fs: 4px; 
+}
+
+/* --- Slot 1 與 Slot 3 (兩側次要卡片) --- */
+.slide[data-slot="1"],
+.slide[data-slot="3"] { 
+  --title-fs: 16px;
+  --desc-fs: 9px;
+  --en-fs: 7px; 
+}
+
+/* --- Slot 2 (正中間大卡片) --- */
+.slide[data-slot="2"] { 
+  --title-fs: 34px;
+  --desc-fs: 16px;
+  --en-fs: 14px; 
+}
+.slide__icon {
+  position: absolute;
+  top: var(--it);
+  right: var(--ir);
+  width: var(--iw);
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  transition: width 0.3s ease-out, top 0.3s ease-out, right 0.3s ease-out, opacity 0.2s ease-out;
+}
+
 /* ==========================================
    1. 基礎元件樣式設定 (讀取自定義變數，無變數時用預設值)
    ========================================== */
@@ -198,42 +236,6 @@
 
 
 
-/* ==========================================
-    各 Slot 尺寸變數設定 (精簡合併版)
-   ========================================== */
-
-/* --- Slot 0 (最左側小卡片) --- */
-.slide[data-slot="0"] { 
-  --title-fs: 12px;
-  --desc-fs: 7px;
-  --en-fs: 4px; 
-}
-
-/* --- Slot 1 與 Slot 3 (兩側次要卡片) --- */
-.slide[data-slot="1"],
-.slide[data-slot="3"] { 
-  --title-fs: 16px;
-  --desc-fs: 9px;
-  --en-fs: 7px; 
-}
-
-/* --- Slot 2 (正中間大卡片) --- */
-.slide[data-slot="2"] { 
-  --title-fs: 34px;
-  --desc-fs: 16px;
-  --en-fs: 14px; 
-}
-.slide__icon {
-  position: absolute;
-  top: var(--it);
-  right: var(--ir);
-  width: var(--iw);
-  height: auto;
-  object-fit: contain;
-  pointer-events: none;
-  user-select: none;
-  transition: width 0.3s ease-out, top 0.3s ease-out, right 0.3s ease-out, opacity 0.2s ease-out;
-}
 
 /* 手機版維持元件設計稿的 3:2 比例，卡片只在輪播容器內水平滑動。 */
 @media (max-width: 900px) {
