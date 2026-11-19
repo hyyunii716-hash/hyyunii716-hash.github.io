@@ -41,10 +41,15 @@
   function goToPricing() {
     if (!played || returning) return;
     returning = true;
+    var scaleToCover = Math.max(
+      window.innerWidth / stage.offsetWidth,
+      window.innerHeight / stage.offsetHeight
+    ) * 1.12;
+    document.body.style.setProperty('--exit-scale', scaleToCover);
     document.body.classList.add('is-returning');
     window.setTimeout(function () {
       window.location.href = 'pricing.html';
-    }, 650);
+    }, 1550);
   }
 
   window.addEventListener('wheel', function (event) {
