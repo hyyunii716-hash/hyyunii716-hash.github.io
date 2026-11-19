@@ -74,7 +74,7 @@
   }
 
   /* ---------- 離開：apps.html ---------- */
-  function leave(card, link) {
+  function leave(card, link, external) {
     if (document.documentElement.classList.contains('az-leaving')) return;
     styleTag();
     var icon0 = card.querySelector('.app-icon'), nameEl = card.querySelector('.app-card__name');
@@ -119,6 +119,20 @@
     var nw = name.getBoundingClientRect().width * NAME_SCALE, tx = c.x - nw / 2 - nr.left, ty = (c.y + T / 2 + 22) - nr.top;
     name.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + NAME_SCALE + ')' }], { duration: D, easing: EASE_IO, fill: 'forwards' });
 
+    if (external) {
+      /* 外部連結（Illustrator）：放大動畫播完後在新分頁開啟，原頁面淡出動畫、恢復原狀；被擋彈窗就改用本頁開啟 */
+      setTimeout(function () {
+        var w = null;
+        try { w = window.open(link.href, '_blank'); if (w) w.opener = null; } catch (_) {}
+        if (!w) { location.href = link.href; return; }
+        setTimeout(function () {
+          var fade = root.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500, easing: 'ease-out', fill: 'forwards' });
+          fade.onfinish = cleanupLeave;
+          setTimeout(cleanupLeave, 900);
+        }, 250);
+      }, D + 40);
+      return true;
+    }
     try { sessionStorage.setItem(KEY, JSON.stringify(st)); } catch (_) { return false; }
     setTimeout(function () { location.href = link.href; }, D + 40);
     return true;
@@ -138,10 +152,13 @@
     var hit = e.target.closest('a');
     if (hit && hit.getAttribute('href') && /pricing\.html/.test(hit.getAttribute('href'))) return;      // 「購買」照常
     var link = card.querySelector('a.btn--outline[href]');
-    if (!link || link.target === '_blank' || !/^[\w.-]+\.html?$/i.test(link.getAttribute('href') || '')) return;  // Illustrator 是外部連結，不放大
+    if (!link) return;
+    var href = link.getAttribute('href') || '';
+    var external = /^https?:\/\//i.test(href) && link.target === '_blank';   // Illustrator：外部連結，新分頁開啟
+    if (!external && (link.target === '_blank' || !/^[\w.-]+\.html?$/i.test(href))) return;
     if (hit && hit !== link) return;
     e.preventDefault();
-    if (leave(card, link) === false) location.href = link.href;
+    if (leave(card, link, external) === false) { if (external) window.open(link.href, '_blank'); else location.href = link.href; }
   });
   window.addEventListener('pageshow', function (e) { if (e.persisted) cleanupLeave(); });
   arrive();
