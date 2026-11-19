@@ -7,8 +7,8 @@
   --color-primary: #208;            /* var(--primary) */
   --color-primary-bright: #3503ce;  /* 細＿藍底白字 */
   --color-tool-desc: #d9d9d9;
-  --fs-h3: clamp(28px, 2.778vw, 48px);   /* 中文標題3 48 */
-  --fs-lead: clamp(16px, 1.389vw, 24px); /* 中文內文1 24 */
+  --fs-h3: var(--fs-title);
+  --fs-lead: var(--fs-body);
   --nav-h: 100px;
   --ease: cubic-bezier(0.22, 0.8, 0.3, 1);
 }
@@ -36,7 +36,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 40px;
+  padding: var(--btn-pad); font-weight: 500; line-height: 1.25;
   border: 1px solid var(--color-stroke);
   border-radius: var(--radius-card);
   background: transparent;
@@ -51,16 +51,16 @@
 .btn:hover, .btn:focus-visible { filter: brightness(1.2); border-color: var(--color-text-muted); }
 .btn--primary { background: var(--color-primary-bright); box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.05); }
 .btn--outline { border-width: 1.5px; }
-.btn--sm { padding: 10px 18px; min-height: 49px; background: var(--color-primary); }
-.btn--outline.btn--sm { background: transparent; min-width: 120px; min-height: 52px; padding-inline: 15px; }
-.btn--lg {                           /* 立即購買／完成選購及結帳 */
-  padding: 20px 36px;
-  min-height: 74px;
+.btn--sm { padding: var(--btn-pad); background: var(--color-primary); line-height: 1.25; }
+.btn--outline.btn--sm { background: transparent; padding: var(--btn-pad); line-height: 1.25; }
+.btn--lg {
+  padding: var(--btn-lg-pad);
   border: 2px solid var(--color-stroke);
-  border-radius: 40px;
+  border-radius: 999px;
   background: var(--color-primary);
-  font-size: clamp(20px, 1.85vw, 32px);
-  line-height: 1.5;
+  font-size: var(--btn-lg-fs);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 .btn-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px clamp(24px, 17.8vw, 308px); }
@@ -430,7 +430,14 @@
 
 .checkout { display: flex; flex-direction: column; align-items: center; gap: clamp(40px, 5.8vw, 100px); }
 .checkout__title { font-weight: 700; font-size: clamp(40px, 5.556vw, 96px); line-height: 1.2; text-align: center; }
-.checkout__why { max-width: 1165px; font-family: var(--font-en); font-size: var(--fs-lead); letter-spacing: 0.05em; text-align: center; }
+.checkout__why {
+  max-width: 1165px;
+  color: var(--color-text-muted);
+  font-family: var(--font-zh);
+  font-size: var(--fs-nav);
+  line-height: 1.6;
+  text-align: center;
+}
 
 .choices { display: flex; flex-direction: column; gap: 50px; width: 100%; }
 .choice-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(16px, 2.9vw, 50px); margin: 0; padding: 0; border: 0; min-width: 0; }
@@ -665,4 +672,4 @@
 
 /* 標題：Abandon 字標（點陣特效）獨立一行，中文在下方 */
 .title-logo { display:block; width:clamp(260px,40vw,760px); max-width:100%; height:auto; margin:0 auto; }
-.title-sub { display:block; margin-top:clamp(14px,2vw,30px); font-size:clamp(34px,4.4vw,76px); font-weight:500; letter-spacing:.01em; line-height:1.2; }
+.title-sub { display:block; margin-top:clamp(14px,2vw,30px); font-size: var(--fs-h2); font-weight: 700; letter-spacing:.01em; line-height:1.2; }

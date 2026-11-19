@@ -291,7 +291,7 @@
   min-width: 0;
 }
 .pay label, .pay .legend {
-  font-size: 18px;
+  font-size: var(--fs-body);
   font-weight: 400;
 }
 .pay .control {
@@ -303,7 +303,7 @@
   border: 1px solid var(--field-line);
   border-radius: 16px;
   font: inherit;
-  font-size: 18px;
+  font-size: var(--fs-body);
   outline: none;
   transition:
     border-color 0.2s,

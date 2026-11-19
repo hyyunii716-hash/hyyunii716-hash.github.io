@@ -56,13 +56,19 @@
 .license { display: block; width: 100%; height: auto; aspect-ratio: 1440 / 802; background: #fff; }
 .id-controls { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 16px clamp(24px, 4.9vw, 85px); }
 .field input {
-  width: min(360px, 80vw); min-height: 60px; padding: 0 24px;
-  border: 1px solid var(--color-stroke); border-radius: var(--radius-card); background: transparent; color: var(--color-text);
-  font: inherit; font-size: var(--fs-title);
+  width: min(360px, 80vw);
+  padding: 13px 24px;
+  border: 1px solid var(--color-stroke);
+  border-radius: var(--radius-card);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: 1.25;
 }
 .field input::placeholder { color: var(--color-text); opacity: 0.9; }
 .field input:focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
-.pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 214px; min-height: 60px; padding: 0 28px; border-radius: var(--radius-card); font-size: var(--fs-title); background: transparent; cursor: pointer; font-family: inherit; color: var(--color-text); border: 1px solid var(--color-stroke); }
+.pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: var(--btn-pad); font-size: var(--btn-fs); font-weight: 500; line-height: 1.25; background: transparent; cursor: pointer; font-family: inherit; color: var(--color-text); border: 1px solid var(--color-stroke); }
 .pill-btn:is(:hover, :focus-visible) { background: rgb(255 255 255 / 0.08); border-color: var(--color-text-muted); }
 
 /* ---------- Lightroom ---------- */
@@ -142,7 +148,8 @@ button.upload-box:is(:hover, :focus-visible, .is-dragover) .up-icon { color: #38
 .coupon__big { font-weight: 700; font-size: clamp(32px, 4.3vw, 74px); line-height: 1.2; }
 .coupon__small { font-size: clamp(14px, 1.4vw, 24px); letter-spacing: 0.05em; opacity: 0.85; }
 .coupon:is(:hover, :focus-visible) .coupon__face--front { border-color: var(--color-text-muted); }
-.discount__note { color: var(--color-text-muted); font-size: 14px; max-width: 696px; }
+.discount__note { color: var(--color-text-muted); font-size: var(--fs-nav); max-width: 696px; }
+.phone__msg { color: var(--color-text-muted); font-size: var(--fs-nav); }
 
 .price-card[data-href] { cursor: pointer; }
 
@@ -205,8 +212,8 @@ a.media:is(:hover, :focus-visible) { filter: brightness(1.12); transform: scale(
 
 /* ---- 贊助區塊（pricing.html） ---- */
 .donate { text-align: center; padding-block: clamp(48px, 7vw, 110px); }
-.donate__title { margin: 0; font-size: clamp(24px, 5.6vw, 80px); font-weight: 700; line-height: 1.2; letter-spacing: .01em; }
-.donate__sub { margin: clamp(16px, 2vw, 28px) 0 0; font-size: clamp(15px, 1.4vw, 20px); }
+.donate__title { margin: 0; font-size: var(--fs-h2); font-weight: 700; line-height: 1.2; letter-spacing: .01em; }
+.donate__sub { margin: clamp(16px, 2vw, 28px) 0 0; font-size: var(--fs-body); }
 .donate__list { list-style: none; margin: clamp(32px, 5vw, 72px) 0 0; padding: 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 24px clamp(20px, 3.5vw, 48px); }
 .donate__btn {
   text-decoration: none;
@@ -217,7 +224,7 @@ a.media:is(:hover, :focus-visible) { filter: brightness(1.12); transform: scale(
 .donate__btn:hover, .donate__btn:focus-visible { background: rgb(255 255 255 / .06); border-color: rgb(255 255 255 / .55); transform: translateY(-3px); }
 .donate__btn:active { transform: translateY(0); }
 .donate__label { display: inline-flex; align-items: center; gap: 8px; font-size: clamp(13px, 1.2vw, 17px); }
-.donate__amount { font-size: clamp(24px, 2.6vw, 38px); font-weight: 400; }
+.donate__amount { font-size: var(--fs-price); font-weight: 700;}
 .donate__thanks { margin: 28px 0 0; font-size: 15px; color: rgb(255 255 255 / .7); }
 
 /* 四個工具的實際處理流程與結果預覽 */
@@ -461,4 +468,19 @@ body.is-camera-off .call-self__image { opacity: 0; }
   .page[data-tool="group"] button.upload-box { aspect-ratio: auto; min-height: 225px; }
   .page[data-tool="group"] .group-upload-limit { position: static; margin-top: 6px; }
   .page[data-tool="group"] .group-upload-desc > span:first-child { display: block; text-wrap: balance; }
+}
+/* 確保 indesign.html 下方相機權限免責提示字與全站免責聲明一致 */
+.checkout__why,
+.id-note,
+.page[data-page="indesign"] .container > p:last-of-type {
+  font-size: var(--fs-nav);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  text-align: center;
+}
+.id-note {
+  font-size: var(--fs-nav);
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 12px;
 }
