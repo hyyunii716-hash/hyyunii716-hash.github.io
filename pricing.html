@@ -31,8 +31,24 @@
 
 <div class="pricing-redesign">
       <section class="pricing-hero" aria-labelledby="pricing-hero-title">
-        <div class="pricing-hero__bg" aria-hidden="true"></div>
-        <h1 id="pricing-hero-title"><span class="pricing-brand">ABANDON</span>應用程式的計劃與價格</h1>
+        <div class="pricing-hero__bg" aria-hidden="true">
+          <svg class="pricing-hero__filters" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <filter id="pricing-goo">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
+              <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+          </svg>
+          <div class="pricing-hero__blobs">
+            <span class="pricing-blob pricing-blob--purple"></span>
+            <span class="pricing-blob pricing-blob--violet"></span>
+            <span class="pricing-blob pricing-blob--pink"></span>
+            <span class="pricing-blob pricing-blob--rose"></span>
+            <span class="pricing-blob pricing-blob--light"></span>
+            <span class="pricing-blob pricing-blob--interactive"></span>
+          </div>
+        </div>
+        <h1 id="pricing-hero-title"><img class="pricing-brand" src="assets/pricing-abandon-logo.svg" alt="Abandon"><span>應用程式的計劃與價格</span></h1>
         <p>安心開始使用，14 天內不確定可以隨時取消並獲得全額退款</p>
       </section>
       <section class="pricing-plans" id="plans" aria-label="方案介紹">
