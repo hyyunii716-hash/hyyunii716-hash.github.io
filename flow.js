@@ -324,7 +324,7 @@
         });
       }).finally(function () { stream.getTracks().forEach(function (track) { track.stop(); }); });
     }).catch(function () {
-      cameraMessage = '相機未開啟，請允許相機權限以加入您的照片。';
+      cameraMessage = '請允許相機權限以加入您的照片。';
       return null;
     });
   }

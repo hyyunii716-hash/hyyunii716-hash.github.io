@@ -222,8 +222,26 @@ a.media:is(:hover, :focus-visible) { filter: brightness(1.12); transform: scale(
 
 /* 四個工具的實際處理流程與結果預覽 */
 .processing-stage { width: min(720px, 80%); aspect-ratio: 900 / 590; margin-inline: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1.5px dashed rgb(255 255 255 / .55); border-radius: 28px; text-align: center; }
-.processing-animation { display: block; width: min(100%, 720px); height: 0; min-height: 0; flex: 1 1 0; max-height: min(300px, 38vh); object-fit: contain; }
-.processing-stage .upload-box__title, .processing-stage .upload-box__desc { margin: 0; }
+.processing-animation {
+  display: block;
+  width: min(100%, 720px);
+  height: 0;
+  min-height: 0;
+  flex: 1 1 0;
+  max-height: min(300px, 38vh);
+  object-fit: contain;
+  transform: translateY(-20px);
+}
+
+.processing-stage .upload-box__title {
+  position: relative;
+  z-index: 1;
+  margin: -60px 0 0;
+}
+
+.processing-stage .upload-box__desc {
+  margin: 10px;
+}
 .page[data-tool="group"] .processing-stage .upload-box__desc { line-height: 1.15; }
 .result__img--dynamic { width: min(1000px, 100%); min-height: 240px; aspect-ratio: auto; display: grid; place-items: center; overflow: hidden; background: transparent; }
 .result-preview__image { display: block; width: 100%; max-height: min(64vh, 620px); object-fit: contain; border-radius: 16px; }
