@@ -4,7 +4,6 @@
 (function () {
   'use strict';
   var KEY = 'abandon-app-zoom';
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var BG = '#0c0c0c';
   var EASE_OUT = 'cubic-bezier(0.16, 1, 0.3, 1)';
   var EASE_IO = 'cubic-bezier(0.76, 0, 0.24, 1)';
@@ -27,7 +26,8 @@
       '.az__glow{position:absolute;inset:-20%;opacity:0;will-change:opacity,transform}' +
       '.az__icon{position:fixed;margin:0;display:grid;place-items:center;line-height:1;will-change:transform;transform-origin:0 0}' +
       '.az__name{position:fixed;margin:0;white-space:nowrap;font-weight:700;color:#fff;will-change:transform,opacity;transform-origin:50% 0}' +
-      'html.az-leaving .app-card.is-az-source{visibility:hidden}';
+      '.az__veil{position:absolute;inset:0;background:' + BG + ';opacity:0}' +
+      'html.az-leaving .app-card.is-az-source,html.az-leaving .feature.is-az-source .media{visibility:hidden}';
     document.head ? document.head.appendChild(s) : document.documentElement.appendChild(s);
   }
   function glowCss(fg) { return 'radial-gradient(circle at 50% 46%, ' + rgba(fg, .55) + ' 0%, ' + rgba(fg, .18) + ' 34%, transparent 62%)'; }
@@ -42,7 +42,7 @@
   /* ---------- 抵達：新頁面 ---------- */
   function arrive() {
     var st; try { st = JSON.parse(sessionStorage.getItem(KEY) || 'null'); sessionStorage.removeItem(KEY); } catch (_) { st = null; }
-    if (!st || Date.now() - st.t > 6000 || reduce.matches) return;
+    if (!st || Date.now() - st.t > 6000) return;
     styleTag();
     var root = document.createElement('div'); root.className = 'az'; root.setAttribute('aria-hidden', 'true');
     var base = document.createElement('div'); base.className = 'az__base'; base.style.cssText += ';left:0;top:0;width:100%;height:100%;border-radius:0';
@@ -77,10 +77,11 @@
   function leave(card, link, external) {
     if (document.documentElement.classList.contains('az-leaving')) return;
     styleTag();
-    var icon0 = card.querySelector('.app-icon'), nameEl = card.querySelector('.app-card__name');
+    var feat = card.classList.contains('feature');                  // 下方介紹列：以圖片為放大起點
+    var icon0 = card.querySelector('.app-icon'), nameEl = card.querySelector('.app-card__name, .feature__name');
     if (!icon0 || !nameEl) return false;
-    var ics = getComputedStyle(icon0), ns = getComputedStyle(nameEl), cs = getComputedStyle(card);
-    var ir = icon0.getBoundingClientRect(), nr = nameEl.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    var ics = getComputedStyle(icon0), ns = getComputedStyle(nameEl), cs = getComputedStyle(feat ? link : card);
+    var ir = icon0.getBoundingClientRect(), nr = nameEl.getBoundingClientRect(), cr = (feat ? link : card).getBoundingClientRect();
     var rng = document.createRange(); rng.selectNodeContents(nameEl);
     var tr = rng.getBoundingClientRect();
     nr = { left: tr.left, top: nr.top, width: tr.width };            // 文字實際寬度，放大後才會真正置中
@@ -92,6 +93,8 @@
     var bgNow = cs.backgroundColor === 'rgba(0, 0, 0, 0)' ? '#121212' : cs.backgroundColor;
     base.style.cssText += ';left:' + cr.left + 'px;top:' + cr.top + 'px;width:' + cr.width + 'px;height:' + cr.height + 'px;border-radius:' + cs.borderTopLeftRadius + ';background:' + bgNow + ';border:' + cs.borderTopWidth + ' solid ' + cs.borderTopColor + ';box-sizing:border-box';
     var glow = document.createElement('div'); glow.className = 'az__glow'; glow.style.background = glowCss(st.fg);
+    var veil = null;
+    if (feat) { base.style.backgroundImage = cs.backgroundImage; base.style.backgroundSize = 'cover'; base.style.backgroundPosition = 'center'; veil = document.createElement('div'); veil.className = 'az__veil'; base.appendChild(veil); }
     base.appendChild(glow);
     var T = iconTarget(), c = centerPoint();
     var icon = buildIcon(st, ir.width); icon.style.left = ir.left + 'px'; icon.style.top = ir.top + 'px';
@@ -102,7 +105,8 @@
     card.classList.add('is-az-source'); document.documentElement.classList.add('az-leaving');
 
     /* 其他卡片退到後面 */
-    Array.prototype.forEach.call(document.querySelectorAll('.app-card'), function (o) {
+    if (feat) { var body = card.querySelector('.feature__body'); if (body) body.animate([{ opacity: 1, filter: 'blur(0)' }, { opacity: 0, filter: 'blur(6px)' }], { duration: 360, easing: EASE_IO, fill: 'forwards' }); }
+    Array.prototype.forEach.call(document.querySelectorAll('.app-card, .feature'), function (o) {
       if (o === card) return;
       o.animate([{ opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }, { opacity: 0, transform: 'scale(.9)', filter: 'blur(6px)' }], { duration: 420, easing: EASE_IO, fill: 'forwards' });
     });
@@ -112,6 +116,7 @@
       { left: cr.left + 'px', top: cr.top + 'px', width: cr.width + 'px', height: cr.height + 'px', borderRadius: cs.borderTopLeftRadius },
       { left: '0px', top: '0px', width: innerWidth + 'px', height: innerHeight + 'px', borderRadius: '0px' }
     ], { duration: D, easing: EASE_IO, fill: 'forwards' });
+    if (veil) veil.animate([{ opacity: 0 }, { opacity: .94 }], { duration: D, easing: 'ease-out', fill: 'forwards' });
     base.animate([{ backgroundColor: bgNow }, { backgroundColor: BG }], { duration: D, easing: 'ease-out', fill: 'forwards' });
     glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)' }], { duration: D, delay: 120, easing: EASE_OUT, fill: 'forwards' });
     var s = T / ir.width, dx = (c.x - T / 2) - ir.left, dy = (c.y - T / 2) - ir.top;
@@ -142,17 +147,22 @@
     document.querySelectorAll('.az').forEach(function (e) { e.remove(); });
     document.documentElement.classList.remove('az-leaving');
     document.querySelectorAll('.is-az-source').forEach(function (e) { e.classList.remove('is-az-source'); });
-    document.querySelectorAll('.app-card').forEach(function (e) { e.getAnimations().forEach(function (a) { a.cancel(); }); });
+    document.querySelectorAll('.app-card, .feature, .feature__body').forEach(function (e) { e.getAnimations().forEach(function (a) { a.cancel(); }); });
   }
 
   document.addEventListener('click', function (e) {
-    if (reduce.matches || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (e.defaultPrevented || e.button !== 0) return;
     var card = e.target.closest && e.target.closest('.app-card');
-    if (!card) return;
     var hit = e.target.closest('a');
-    if (hit && hit.getAttribute('href') && /pricing\.html/.test(hit.getAttribute('href'))) return;      // 「購買」照常
-    var link = card.querySelector('a.btn--outline[href]');
-    if (!link) return;
+    var link;
+    if (card) {
+      if (hit && hit.getAttribute('href') && /pricing\.html/.test(hit.getAttribute('href'))) return;      // 「購買」照常
+      link = card.querySelector('a.btn--outline[href]');
+    } else {                                                          // 下方介紹列：點圖片
+      link = hit && hit.classList.contains('media') ? hit : null;
+      card = link && link.closest('.feature');
+    }
+    if (!card || !link) return;
     var href = link.getAttribute('href') || '';
     var external = /^https?:\/\//i.test(href) && link.target === '_blank';   // Illustrator：外部連結，新分頁開啟
     if (!external && (link.target === '_blank' || !/^[\w.-]+\.html?$/i.test(href))) return;
