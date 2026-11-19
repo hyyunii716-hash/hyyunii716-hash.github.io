@@ -20,21 +20,28 @@
   will-change: transform;
 }
 
-.pay .face {
-  animation: card-glow 2.4s ease-in-out infinite alternate;
+body.is-confirmed .pay .face {
+  animation: card-neon-blur 0.75s ease-out infinite alternate;
 }
 
-@keyframes card-glow {
+@keyframes card-neon-blur {
   from {
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55),
-      0 0 10px color-mix(in srgb, var(--card-tint) 48%, transparent),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.55),
+      0 0 10px #fff,
+      0 0 25px #fff,
+      0 0 50px #7b96b8,
+      0 0 100px #7b96b8,
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   }
   to {
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55),
-      0 0 30px color-mix(in srgb, var(--card-tint) 88%, transparent),
-      0 0 52px color-mix(in srgb, var(--card-tint) 42%, transparent),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.55),
+      0 0 5px #fff,
+      0 0 12px #fff,
+      0 0 30px #7b96b8,
+      0 0 65px #7b96b8,
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -56,10 +63,30 @@ body.is-confirmed .pay .panel {
 }
 
 body.is-confirmed .pay .card-stage {
-  transform:
-    translate(-50%, -50%)
-    translate(var(--dx, 0px), var(--dy, 0px))
-    scale(var(--scale, 1.08));
+  animation: confirmation-page-enter 0.9s cubic-bezier(0.22, 0.8, 0.24, 1) both;
+}
+
+@keyframes confirmation-page-enter {
+  from {
+    transform: translate(-50%, -50%) translate(var(--dx, 0px), calc(var(--dy, 0px) + 100vh)) scale(1.08);
+  }
+  to {
+    transform: translate(-50%, -50%) translate(var(--dx, 0px), var(--dy, 0px)) scale(1.08);
+  }
+}
+
+body.is-returning .pay .card-stage {
+  animation: confirmation-page-exit 0.65s cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+
+@keyframes confirmation-page-exit {
+  to {
+    transform: translate(-50%, -50%) translate(var(--dx, 0px), calc(var(--dy, 0px) + 100vh)) scale(1.08);
+  }
+}
+
+body.is-confirmed {
+  overflow: hidden;
 }
 
 /* 卡片置中後持續翻轉，讓正反面輪流出現 */
@@ -91,16 +118,29 @@ body.is-confirmed .pay .after-confirm-note {
   transition: opacity 0.6s ease 1.2s, transform 0.6s ease 1.2s, visibility 0s;
 }
 
+.pay .return-hint {
+  display: block;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+
 @keyframes confirmed-card-spin {
   from { transform: rotateY(0deg); }
   to { transform: rotateY(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pay .face {
+  body.is-confirmed .pay .card-stage {
+    animation: none;
+    transform: translate(-50%, -50%) translate(var(--dx, 0px), var(--dy, 0px)) scale(1.08);
+  }
+  body.is-confirmed .pay .face {
     animation: none;
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55),
-      0 0 22px color-mix(in srgb, var(--card-tint) 72%, transparent),
+      0 0 10px #fff,
+      0 0 34px #7b96b8,
       inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
   body.is-confirmed .pay .card {
