@@ -76,13 +76,34 @@ body.is-confirmed .pay .card-stage {
 }
 
 body.is-returning .pay .card-stage {
-  animation: confirmation-page-exit 0.65s cubic-bezier(0.7, 0, 0.84, 0) both;
+  animation: confirmation-page-exit 1.55s cubic-bezier(0.45, 0, 0.2, 1) both;
+}
+
+body.is-returning .pay .card {
+  animation: none;
+  transform: rotateY(0deg);
+  transition: transform 0.3s ease;
 }
 
 @keyframes confirmation-page-exit {
   to {
-    transform: translate(-50%, -50%) translate(var(--dx, 0px), calc(var(--dy, 0px) + 100vh)) scale(1.08);
+    transform: translate(-50%, -50%) translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--exit-scale, 5));
   }
+}
+
+.pay::after {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+body.is-returning .pay::after {
+  opacity: 1;
 }
 
 body.is-confirmed {
@@ -119,11 +140,31 @@ body.is-confirmed .pay .after-confirm-note {
 }
 
 .pay .return-hint {
-  display: block;
-  margin-top: 12px;
+  position: fixed;
+  z-index: 20;
+  right: 16px;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  left: 16px;
+  margin: 0;
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
   letter-spacing: 0.04em;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+body.is-confirmed .pay .return-hint {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease 1s, visibility 0s linear 1s;
+}
+
+body.is-returning .pay .return-hint {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
 }
 
 @keyframes confirmed-card-spin {
