@@ -51,7 +51,7 @@
     var T = iconTarget(), c = centerPoint();
     var icon = buildIcon(st, T); icon.style.left = (c.x - T / 2) + 'px'; icon.style.top = (c.y - T / 2) + 'px'; icon.style.transformOrigin = '50% 50%';
     var name = document.createElement('p'); name.className = 'az__name'; name.textContent = st.name;
-    name.style.fontFamily = st.nameFf; name.style.fontSize = (st.nameSize * NAME_SCALE) + 'px'; name.style.fontWeight = st.nameWeight; name.style.letterSpacing = st.nameLs;
+    name.style.fontFamily = st.nameFf; name.style.fontSize = (st.nameSize * (st.nameScale || NAME_SCALE)) + 'px'; name.style.fontWeight = st.nameWeight; name.style.letterSpacing = st.nameLs;
     name.style.left = c.x + 'px'; name.style.top = (c.y + T / 2 + 22) + 'px'; name.style.transform = 'translateX(-50%)';
     root.appendChild(base); root.appendChild(icon); root.appendChild(name);
     document.documentElement.appendChild(root);
@@ -121,8 +121,10 @@
     glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)' }], { duration: D, delay: 120, easing: EASE_OUT, fill: 'forwards' });
     var s = T / ir.width, dx = (c.x - T / 2) - ir.left, dy = (c.y - T / 2) - ir.top;
     icon.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: D, easing: EASE_POP, fill: 'forwards' });
-    var nw = name.getBoundingClientRect().width * NAME_SCALE, tx = c.x - nw / 2 - nr.left, ty = (c.y + T / 2 + 22) - nr.top;
-    name.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + NAME_SCALE + ')' }], { duration: D, easing: EASE_IO, fill: 'forwards' });
+    var w1 = name.getBoundingClientRect().width, NS = Math.min(NAME_SCALE, innerWidth * 0.86 / w1);   // 窄螢幕：名稱太長時縮小倍率，不超出畫面
+    st.nameScale = NS;
+    var nw = w1 * NS, tx = c.x - nw / 2 - nr.left, ty = (c.y + T / 2 + 22) - nr.top;
+    name.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + NS + ')' }], { duration: D, easing: EASE_IO, fill: 'forwards' });
 
     if (external) {
       /* 外部連結（Illustrator）：放大動畫播完後在新分頁開啟，原頁面淡出動畫、恢復原狀；被擋彈窗就改用本頁開啟 */

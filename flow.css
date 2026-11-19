@@ -437,3 +437,10 @@ body.is-camera-off .call-self__image { opacity: 0; }
   .call-return { grid-column: 1; grid-row: 3; justify-self: start; margin: clamp(6px, min(.694vw, 1.074svh), 12px) 0 0; }
   .flow-step[data-step="call"] { padding: calc(var(--nav-h) + 16px) 0 24px; }
 }
+
+/* 手機：拼組圖檔上傳框的「至多上傳四張照片」改成跟著內容排列，避免和說明文字重疊 */
+@media (max-width: 600px) {
+  .page[data-tool="group"] button.upload-box { aspect-ratio: auto; min-height: 225px; }
+  .page[data-tool="group"] .group-upload-limit { position: static; margin-top: 6px; }
+  .page[data-tool="group"] .group-upload-desc > span:first-child { display: block; text-wrap: balance; }
+}
