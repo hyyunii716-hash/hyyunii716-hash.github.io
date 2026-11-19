@@ -244,7 +244,11 @@
     --r: 13.3cqw; --glow: 20cqw;
     --glow-near: 0.62; --glow-mid: 0.42; --glow-far: 0.25;
   }
-  .slide[data-slot="0"] .slide__title { white-space: nowrap; }
+  /* Keep titles on one line while cards transition between slots. */
+  .slide .slide__title { white-space: nowrap; }
+  /* Hide the smallest card's description without affecting its footer label. */
+  .slide[data-slot="0"] .slide__desc { position: absolute; width: 0; height: 0; overflow: hidden; }
+  .slide[data-slot="0"] .slide__en { white-space: nowrap; font-size: 3cqw; }
   .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2;  --d: 4cqw; --e: 3.9cqw; }   /* 後方卡片：內文較小 */
   .slide[data-slot="2"] {
     left: 25.57%; top: 0; width: 44.51%; height: 100%; z-index: 4;
