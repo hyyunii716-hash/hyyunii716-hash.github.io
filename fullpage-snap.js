@@ -5,7 +5,7 @@
   }
   window.scrollTo(0, 0);
 
-  // ★ 2. 首頁專屬防護：阻斷共用腳本在首頁監聽 mousemove 產生掉落字（不改動 localStorage，切去其他頁依然有效）★
+  // ★ 2. 首頁專屬防護：阻斷共用腳本在首頁監聽 mousemove 產生掉落字 ★
   const origAddEventListener = EventTarget.prototype.addEventListener;
   EventTarget.prototype.addEventListener = function (type, listener, options) {
     if (
@@ -22,7 +22,7 @@
   // =========================================================================
   const CONFIG = {
     duration: 950, // 換頁滑動時間（毫秒）
-    cooldown: 300, // 換頁完成後的防連跳冷卻時間（毫秒）
+    cooldown: 350, // 換頁完成後的防連跳冷卻時間（毫秒）
     navOffset: 44, // 中間介紹區塊的垂直置中補償（扣除導覽列高度）
 
     // --- 第一屏三塊字卡浮出調整 ---
@@ -36,7 +36,7 @@
     sectionDuration: 0.75, // 單一元素進場浮現的動畫速度（秒）
 
     // --- 退場動畫調整區 ---
-    exitDuration: 0.45, // 離開該區塊時的淡出退場速度（秒，建議比進場快一點更俐落）
+    exitDuration: 0.45, // 離開該區塊時的淡出退場速度（秒）
     exitStagger: 0.08, // 退場時元素錯開淡出的時間差（秒）
     exitDistance: 28, // 退場時向上或向下飄移的距離（px）
   };
@@ -55,7 +55,7 @@
     const manifestoSec = allSections[0]; // 第 1 區：三行標語
     const valuesSec = allSections[1]; // 第 2 區：三塊理念卡片
     const middleSections = allSections.slice(2, -1); // 中間介紹區塊（不含最後的 QA）
-    const qaSec = allSections[allSections.length - 1]; // 最後一區：QA（完全保留原始版面）
+    const qaSec = allSections[allSections.length - 1]; // 最後一區：QA
 
     // 自動向下尋找包含 3 個子元素的卡片容器，精準抓出第一屏三塊字卡
     let valueCards = Array.from(
@@ -80,7 +80,7 @@
         card.setAttribute("data-spotlight", "");
       });
 
-    // 3. 注入樣式（包含進場、向上退場、向下退場狀態）
+    // 3. 注入樣式（包含進場、退場狀態與 QA 標題防裁切修復）
     const style = document.createElement("style");
     style.textContent = `
       body.has-cover main.page {
@@ -134,7 +134,7 @@
                     transform ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1) !important;
       }
 
-      /* ★ 下方所有區塊元素的通用進退場動畫（使用獨立 translate 屬性，不影響 3D 翻轉卡片） ★ */
+      /* ★ 下方所有區塊元素的通用進退場動畫 ★ */
       .js-reveal-item {
         opacity: 0;
         translate: 0 32px;
@@ -145,14 +145,12 @@
         opacity: 1;
         translate: 0 0;
       }
-      /* 往下翻頁時的向上退場 */
       .js-reveal-item.is-exit-up {
         opacity: 0;
         translate: 0 -${CONFIG.exitDistance}px;
         transition: opacity ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1),
                     translate ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1);
       }
-      /* 往回翻頁時的向下退場 */
       .js-reveal-item.is-exit-down {
         opacity: 0;
         translate: 0 ${CONFIG.exitDistance}px;
@@ -160,7 +158,7 @@
                     translate ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1);
       }
 
-      /* 中間介紹區塊（第 3 區到倒數第 2 區）：撐滿 100vh 並垂直置中（不影響最後一區 QA） */
+      /* 中間介紹區塊（第 3 區到倒數第 2 區） */
       main.page > section:nth-of-type(n+3):not(:last-of-type) {
         min-height: 100vh;
         display: flex;
@@ -170,12 +168,41 @@
         padding-top: calc(88px + ${CONFIG.navOffset}px);
         padding-bottom: 60px;
       }
-    /* 最後一區 QA：與上方各區保持一致的頂部導覽列安全距離，並保留下方 Footer 空間 */
+
+      /* 最後一區 QA：解除 SplitText 裁切，並精準向上微調對齊右側第一個 QA 框框頂端 */
       main.page > section:last-of-type {
         padding-top: calc(88px + ${CONFIG.navOffset}px);
         padding-bottom: 120px;
       }
-      `;
+      #qa-title {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        line-height: 1.15 !important;
+        transform: translateY(-6px); /* 若還差一點點，可微調 -4px ~ -10px */
+      }
+      #qa-title,
+      #qa-title * {
+        overflow: visible !important;
+      }
+      main.page > section:last-of-type h1,
+      main.page > section:last-of-type h2,
+      main.page > section:last-of-type .section-title,
+      main.page > section:last-of-type [class*="title"] {
+        line-height: 1.38 !important;
+        padding-top: 0.1em !important;
+        padding-bottom: 0.25em !important;
+        margin-bottom: 0.4em !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+      }
+      main.page > section:last-of-type > div:first-child,
+      main.page > section:last-of-type header {
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+      }
+    `;
     document.head.appendChild(style);
 
     // 4. .cover-stage 滑鼠互動光暈與隱藏彩蛋文字
@@ -285,7 +312,6 @@
       const items = sectionItemsMap.get(sec) || [];
       clearTimeout(sectionTimersMap.get(sec));
 
-      // 先清除退場狀態，讓元素準備好從下方或上方浮入
       items.forEach((item) => {
         item.classList.remove("is-exit-up", "is-exit-down");
       });
@@ -325,8 +351,9 @@
 
     lowerSections.forEach((sec) => lowerSectionsObserver.observe(sec));
 
-    // 7. 統一平滑翻頁核心（在翻頁出發瞬間觸發當前頁退場、目標頁進場）
+    // 7. 統一平滑翻頁核心
     let isAnimating = false;
+    let lockUntil = 0;
 
     function easeInOutQuart(t) {
       return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
@@ -354,6 +381,7 @@
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
+          lockUntil = Date.now() + CONFIG.cooldown + extraLock;
           setTimeout(() => {
             isAnimating = false;
           }, CONFIG.cooldown + extraLock);
@@ -372,12 +400,26 @@
     const slides = [manifestoSec, ...middleSections, qaSec];
     let hasStoppedAtTitle = false;
 
+    // 監聽開場動畫（.cover-title.show）出現的瞬間，給 650ms 緩衝，防止慣性滾輪直接跳過第一屏
+    if (coverTitle) {
+      const titleObserver = new MutationObserver(() => {
+        if (coverTitle.classList.contains("show")) {
+          hasStoppedAtTitle = true;
+          lockUntil = Date.now() + 650;
+        }
+      });
+      titleObserver.observe(coverTitle, {
+        attributes: true,
+        attributeFilter: ["class"],
+      });
+    }
+
     window.addEventListener(
       "wheel",
       (e) => {
         if (window.innerWidth <= 768) return;
 
-        if (isAnimating) {
+        if (isAnimating || Date.now() < lockUntil) {
           e.preventDefault();
           return;
         }
@@ -396,19 +438,18 @@
               ? coverTitle.classList.contains("show")
               : false;
 
-            if (
-              !hasStoppedAtTitle &&
-              (!isTitleShown || Math.abs(window.scrollY - titleStopY) > 40)
-            ) {
+            // 若還在開場動畫階段（還沒停在主標題定格），第一段先平滑定格到主標題並鎖定 650ms
+            if (!hasStoppedAtTitle && !isTitleShown) {
               e.preventDefault();
               hasStoppedAtTitle = true;
-              smoothScrollTo(titleStopY, 400);
+              smoothScrollTo(titleStopY, 650);
               return;
             }
 
+            // 已定格在主標題後，下一次明確滾輪才進入「三行標語＋理念卡片」第一屏
             e.preventDefault();
             triggerValueCards();
-            smoothScrollTo(manifestoSec.offsetTop);
+            smoothScrollTo(manifestoSec.offsetTop, 400);
             return;
           }
 
@@ -418,7 +459,6 @@
             window.scrollY <= manifestoSec.offsetTop + 80
           ) {
             e.preventDefault();
-            // 從第一屏往回滑向藍色主標題時，觸發第一屏三張字卡向下退場
             exitValueCards(-1);
             smoothScrollTo(titleStopY);
             return;
@@ -460,13 +500,11 @@
             const currentSec = slides[currentIndex];
             const nextSec = slides[currentIndex + 1];
 
-            // 觸發當前頁向上退場
             if (currentSec === manifestoSec) {
               exitValueCards(1);
             } else {
               triggerSectionExit(currentSec, 1);
             }
-            // 預備目標頁進場
             triggerSectionEnter(nextSec);
 
             smoothScrollTo(nextSec.offsetTop);
@@ -477,9 +515,7 @@
             const currentSec = slides[currentIndex];
             const prevSec = slides[currentIndex - 1];
 
-            // 觸發當前頁向下退場
             triggerSectionExit(currentSec, -1);
-            // 預備上一頁進場
             if (prevSec === manifestoSec) {
               triggerValueCards();
             } else {
@@ -499,5 +535,4 @@
   } else {
     initFullpageSnap();
   }
-  
 })();
