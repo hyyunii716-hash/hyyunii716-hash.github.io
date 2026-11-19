@@ -361,6 +361,16 @@ svg { display: block; }
   line-height: 24px;
 }
 
+/* 確保 QA 標題與所有大標題有足夠的垂直呼吸空間，中文字底不會被 overflow 削掉 */
+.qa-section h2,
+.faq-section h2,
+[class*="qa"] h2,
+[class*="faq"] h2 {
+  line-height: 1.3 !important;
+  padding-bottom: 0.15em;
+  overflow: visible !important;
+}
+
 /* ---------- Footer ---------- */
 .site-footer {
   display: flex;

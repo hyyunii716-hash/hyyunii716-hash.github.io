@@ -2,7 +2,7 @@
   "use strict";
 
   var stateKey = "abandon-page-transition";
-  var genericKey = "abandon-generic-transition";
+  var irisKey = "abandon-iris-origin";
   var easing = "cubic-bezier(0.76, 0, 0.24, 1)";
   var page = document.querySelector("main.page[data-tool]");
   var tool = page && page.getAttribute("data-tool");
@@ -16,29 +16,6 @@
       window.CSS &&
       CSS.supports("view-transition-name: none")
     );
-
-  // 判斷是否為四個主導覽分頁之一，並回傳順序（0~3）；若不是主分頁（回傳 -1）則視為「小頁面／子頁面」
-  function getMainNavOrder(pathname) {
-    var file = pathname.substring(pathname.lastIndexOf("/") + 1).toLowerCase();
-    // 排除子資料夾內的同名檔案，只把主層級頁面算進水平導覽順序
-    var isSubFolder = /\/(web-tools|tools|sub|pages|detail)\//i.test(pathname);
-    if (!file || file === "index.html") return 0; // 首頁
-    if (!isSubFolder && (file === "tools.html" || file === "web-tools.html"))
-      return 1; // 網頁工具
-    if (
-      !isSubFolder &&
-      (file === "programs.html" ||
-        file === "apps.html" ||
-        file === "web-programs.html")
-    )
-      return 2; // 網頁程式
-    if (
-      !isSubFolder &&
-      (file === "plans.html" || file === "pricing.html" || file === "buy.html")
-    )
-      return 3; // 購買方案
-    return -1; // 其餘一律判定為「小頁面」
-  }
 
   function readState() {
     try {
@@ -177,75 +154,110 @@
     };
   }
 
-  // ★ 雙層轉場路由器：主分頁走左右水平滑動，小頁面走「底部抽屜升起／收合」 ★
-  function smartNavigate(url) {
+  // 計算從點擊座標 (x, y) 到螢幕最遠角落的半徑，確保圓形能完整蓋滿全螢幕
+  function getMaxRadius(x, y) {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    var dx = Math.max(x, w - x);
+    var dy = Math.max(y, h - y);
+    return Math.ceil(Math.hypot(dx, dy));
+  }
+
+  // ★ 電影感光圈／圓形擴散揭幕導航 ★
+  function irisNavigate(url, clickX, clickY) {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
       location.href = url;
       return;
     }
-    var targetPath = new URL(url, location.href).pathname;
-    var currentOrder = getMainNavOrder(location.pathname);
-    var targetOrder = getMainNavOrder(targetPath);
-    var mode = "next";
 
-    if (currentOrder !== -1 && targetOrder === -1) {
-      // 從主分頁 ➔ 進入小頁面：底部抽屜升起 (sheet-up)
-      mode = "sheet-up";
-    } else if (currentOrder === -1 && targetOrder !== -1) {
-      // 從小頁面 ➔ 返回主分頁：底部抽屜向下收合 (sheet-down)
-      mode = "sheet-down";
-    } else if (currentOrder === -1 && targetOrder === -1) {
-      // 小頁面之間互切：同樣用抽屜升起切換
-      mode = "sheet-up";
-    } else {
-      // 主分頁之間切換：左右水平滑動 (next / prev)
-      mode = targetOrder >= currentOrder ? "next" : "prev";
-    }
+    var x =
+      typeof clickX === "number" && clickX > 0
+        ? Math.round(clickX)
+        : Math.round(window.innerWidth / 2);
+    var y =
+      typeof clickY === "number" && clickY > 0
+        ? Math.round(clickY)
+        : Math.round(window.innerHeight / 2);
+    var radius = getMaxRadius(x, y);
 
+    // 存下點擊座標，讓下一頁從同一個點圓形展開揭幕
     try {
-      sessionStorage.setItem(genericKey, mode);
+      sessionStorage.setItem(irisKey, JSON.stringify({ x: x, y: y }));
     } catch (_) {}
-    document.documentElement.classList.add("page-trans-exit-" + mode);
+
+    // 建立純色深邃遮罩層（不移動頁面本體，徹底杜絕斜飛或跑版）
+    var veil = document.createElement("div");
+    veil.className = "iris-transition-veil";
+    veil.style.setProperty("--ix", x + "px");
+    veil.style.setProperty("--iy", y + "px");
+    veil.style.setProperty("--ir", radius + "px");
+    document.body.appendChild(veil);
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        veil.classList.add("is-closing");
+      });
+    });
+
     window.setTimeout(function () {
       location.href = url;
     }, 360);
   }
 
-  // 頁面載入時執行對應模式的進場動畫
-  (function checkSmartEnter() {
-    var mode = null;
+  // 頁面載入時：從點擊座標圓形擴散揭開新頁面
+  (function checkIrisEnter() {
+    var origin = null;
     try {
-      mode = sessionStorage.getItem(genericKey);
-      sessionStorage.removeItem(genericKey);
+      origin = JSON.parse(sessionStorage.getItem(irisKey) || "null");
+      sessionStorage.removeItem(irisKey);
     } catch (_) {}
 
-    if (mode && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.documentElement.classList.add("page-trans-enter-" + mode);
+    if (!origin || matchMedia("(prefers-reduced-motion: reduce)").matches)
+      return;
+
+    var x = origin.x;
+    var y = origin.y;
+    var radius = getMaxRadius(x, y);
+    var root = document.documentElement;
+
+    root.style.setProperty("--ix", x + "px");
+    root.style.setProperty("--iy", y + "px");
+    root.style.setProperty("--ir", radius + "px");
+    root.classList.add("iris-page-reveal");
+
+    // 同步加一層極淡的品牌藍紫光環邊緣隨光圈擴散
+    var ring = document.createElement("div");
+    ring.className = "iris-reveal-ring";
+    ring.style.setProperty("--ix", x + "px");
+    ring.style.setProperty("--iy", y + "px");
+    ring.style.setProperty("--ir", radius + "px");
+    document.body.appendChild(ring);
+
+    requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        requestAnimationFrame(function () {
-          document.documentElement.classList.remove("page-trans-enter-" + mode);
-          document.documentElement.classList.add("page-trans-enter-active");
-          window.setTimeout(function () {
-            document.documentElement.classList.remove(
-              "page-trans-enter-active",
-            );
-          }, 640);
-        });
+        root.classList.add("iris-page-reveal-active");
+        ring.classList.add("is-expanding");
+        window.setTimeout(function () {
+          root.classList.remove("iris-page-reveal", "iris-page-reveal-active");
+          root.style.removeProperty("--ix");
+          root.style.removeProperty("--iy");
+          root.style.removeProperty("--ir");
+          if (ring.parentNode) ring.parentNode.removeChild(ring);
+        }, 620);
       });
-    }
+    });
   })();
 
   window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
+      document
+        .querySelectorAll(".iris-transition-veil, .iris-reveal-ring")
+        .forEach(function (el) {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        });
       document.documentElement.classList.remove(
-        "page-trans-exit-next",
-        "page-trans-exit-prev",
-        "page-trans-exit-sheet-up",
-        "page-trans-exit-sheet-down",
-        "page-trans-enter-next",
-        "page-trans-enter-prev",
-        "page-trans-enter-sheet-up",
-        "page-trans-enter-sheet-down",
+        "iris-page-reveal",
+        "iris-page-reveal-active",
         "page-transition-fallback-out",
       );
     }
@@ -265,7 +277,7 @@
       !sourceElement.animate ||
       matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
-      smartNavigate(url);
+      irisNavigate(url);
       return;
     }
     var from = readRect(sourceElement.getBoundingClientRect());
@@ -501,7 +513,15 @@
         sessionStorage.removeItem(stateKey);
       } catch (_) {}
       event.preventDefault();
-      smartNavigate(link.href);
+      // 若用鍵盤 Enter 觸發 (clientX === 0)，改抓該連結按鈕的幾何中心點
+      var clickX = event.clientX;
+      var clickY = event.clientY;
+      if (!clickX && !clickY) {
+        var box = link.getBoundingClientRect();
+        clickX = box.left + box.width / 2;
+        clickY = box.top + box.height / 2;
+      }
+      irisNavigate(link.href, clickX, clickY);
     }
   });
 })();
