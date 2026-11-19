@@ -305,7 +305,7 @@
   background: var(--media, none) center / cover no-repeat, var(--media-fallback, #151515);
 }
 .media--wave     { --media: url("assets/feature-wave.png");     --media-fallback: repeating-linear-gradient(115deg, #0a1a33 0 3px, #3d6fb5 3px 4px, #0c0c0c 4px 9px); }
-.media--illustrator { --media: url("assets/feature-illustrator.jpg"); --media-fallback: linear-gradient(135deg, #050505, #14213d); }
+.media--illustrator { --media: none; --media-fallback: radial-gradient(ellipse at 42% 52%, #5a3508 0%, #1c130a 46%, #0c0a08 82%); }   /* 與 Ps / Lr 同類的暗底光暈，互動光暈由 spotlight 疊上 */
 .media--mushroom { --media: url("assets/feature-mushroom.png"); --media-fallback: radial-gradient(circle at 60% 55%, #5b3a8a, #0f1a12 70%); }
 .media--abstract { --media: url("assets/feature-abstract.png"); --media-fallback: linear-gradient(135deg, #1f8a96, #f4f0e8 45%, #e2553b 80%); }
 
