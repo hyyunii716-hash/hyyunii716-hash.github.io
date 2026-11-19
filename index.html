@@ -14,9 +14,9 @@
   <script src="fullpage-snap.js"></script>
   <script src="spotlight.js"></script>
   
-<link rel="stylesheet" href="styleguide.css">
+<link rel="stylesheet" href="./dream-intro.css">
 </head>
-<body class="intro-lock page--home"></body>
+<body class="intro-lock">
 
   <!-- 箭頭 icon（Figma: arrow1，34px 寬） -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
@@ -76,8 +76,30 @@
     </g>
   </g>
 </svg>
-<section class="cover-track" id="coverTrack" aria-label="Abandon 封面"><div class="cover-stage"><div class="cover-title" id="coverTitle"><h1>Abandon</h1><p>Change your life</p></div><div class="cover-hint" id="coverHint">Scroll</div></div></section>
-
+<section class="cover-track" id="coverTrack" aria-label="Abandon 封面">
+  <div class="cover-stage">
+    <div class="cover-title" id="coverTitle">
+      <h1>Abandon</h1>
+      <p>Change your life</p>
+      <!-- 夢境副標 START（不喜歡整段刪除即可） -->
+      <svg class="dream-svg-defs" aria-hidden="true">
+        <defs>
+          <filter id="liquid-dream-vortex" x="-25%" y="-25%" width="150%" height="150%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.015 0.045" numOctaves="2" seed="3" result="noise">
+              <animate attributeName="baseFrequency" dur="7s" values="0.015 0.045; 0.028 0.075; 0.015 0.045" repeatCount="indefinite" />
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
+      <div class="dream-subtitle-wrap">
+        <p class="dream-subtitle">您進入了設計師的夢魘--ㄜ..Abandon</p>
+      </div>
+      <!-- 夢境副標 END -->
+    </div>
+    <div class="cover-hint" id="coverHint">Scroll</div>
+  </div>
+</section>
   <main class="page">
 
     <!-- 品牌宣言 -->
