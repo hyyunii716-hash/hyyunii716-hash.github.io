@@ -32,8 +32,38 @@
     if (!confirmBtn.classList.contains('done')) return; // 驗證沒過就不播
     played = true;
     if (document.activeElement) document.activeElement.blur();
+    window.scrollTo(0, 0);
     setOffsets();
     document.body.classList.add('is-confirmed');
+  });
+
+  var returning = false;
+  function goToPricing() {
+    if (!played || returning) return;
+    returning = true;
+    document.body.classList.add('is-returning');
+    window.setTimeout(function () {
+      window.location.href = 'pricing.html';
+    }, 650);
+  }
+
+  window.addEventListener('wheel', function (event) {
+    if (played && event.deltaY > 0) goToPricing();
+  }, { passive: true });
+
+  var touchStartY = null;
+  window.addEventListener('touchstart', function (event) {
+    if (played && event.touches.length) touchStartY = event.touches[0].clientY;
+  }, { passive: true });
+  window.addEventListener('touchend', function (event) {
+    if (!played || touchStartY === null || !event.changedTouches.length) return;
+    var swipeDistance = touchStartY - event.changedTouches[0].clientY;
+    if (swipeDistance > 40) goToPricing();
+    touchStartY = null;
+  }, { passive: true });
+
+  window.addEventListener('keydown', function (event) {
+    if (played && ['ArrowDown', 'PageDown', ' '].includes(event.key)) goToPricing();
   });
 
   window.addEventListener('resize', function () {
