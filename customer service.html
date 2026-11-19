@@ -486,7 +486,6 @@
   <div class="debug-pill" id="trackIndicator">WAITING</div>
 
   <script>
-    // 1. 將「正在為您接通客服...」拆成單字 span 以製作輪流跳動動畫
     const waveTextEl = document.getElementById("waveText");
     const rawText = waveTextEl.textContent.trim();
     waveTextEl.innerHTML = "";
@@ -497,7 +496,6 @@
       waveTextEl.appendChild(span);
     });
 
-    // 2. 直接讀取單一音檔「印度小哥.mp3」與六段起訖秒數
     const AUDIO_FILE = "印度小哥.mp3";
     const audioSegments = [
       { part: 1, start: 0,  end: 11 },
@@ -518,13 +516,16 @@
     const stage = document.getElementById("stage");
     const connectingView = document.getElementById("connectingView");
     const connectedView = document.getElementById("connectedView");
-    const chatInputBox = document.getElementById("chatForm");
+    const chatInputBox = document.getElementById("chatInputBox");
     const chatForm = document.getElementById("chatForm");
     const userInput = document.getElementById("userInput");
     const startBtn = document.getElementById("startBtn");
     const trackIndicator = document.getElementById("trackIndicator");
 
-    // 監聽播放進度，到達該段結束秒數時自動暫停
+    player.addEventListener("error", () => {
+      trackIndicator.textContent = `音檔載入失敗：請確認「${AUDIO_FILE}」路徑與檔名`;
+    });
+
     player.addEventListener("timeupdate", () => {
       if (!player.paused && player.currentTime >= currentEndTime) {
         player.pause();
@@ -536,35 +537,33 @@
       stage.classList.remove("is-speaking");
     });
 
-    // 播放指定段落區間
-    function playSegment(index) {
-      const safeIndex = index % audioSegments.length;
-      const seg = audioSegments[safeIndex];
+    function seekAndPlay(seg) {
       currentEndTime = seg.end;
       trackIndicator.textContent = `PART ${seg.part} / ${audioSegments.length} (${seg.start}s-${seg.end}s)`;
 
-      const startPlayback = () => {
-        player.currentTime = seg.start;
+      const runPlay = () => {
+        try {
+          player.currentTime = seg.start;
+        } catch (_) {}
         player.play()
           .then(() => {
             stage.classList.add("is-speaking");
           })
-          .catch(() => {
-            // 若瀏覽器尚未允許自動播放，仍模擬說話狀態 3 秒
+          .catch((err) => {
+            trackIndicator.textContent = `播放被阻擋（${err.name}）：請再點一下畫面`;
             stage.classList.add("is-speaking");
             setTimeout(() => stage.classList.remove("is-speaking"), 3000);
           });
       };
 
-      // 確保音檔 metadata 載入後再設定 currentTime
       if (player.readyState >= 1) {
-        startPlayback();
+        runPlay();
       } else {
-        player.addEventListener("loadedmetadata", startPlayback, { once: true });
+        player.addEventListener("loadedmetadata", runPlay, { once: true });
+        player.load();
       }
     }
 
-    // 切換至已接通畫面並播放第 1 段音檔
     function connectSupport() {
       if (isConnected) return;
       isConnected = true;
@@ -574,30 +573,31 @@
       chatInputBox.classList.add("is-visible");
 
       currentTrackIndex = 0;
-      playSegment(currentTrackIndex);
+      seekAndPlay(audioSegments[currentTrackIndex]);
       setTimeout(() => userInput.focus(), 700);
     }
 
-    // 點擊按鈕立即接通；若無點擊則 3.2 秒後自動轉場
-    startBtn.addEventListener("click", connectSupport);
-    setTimeout(connectSupport, 3200);
+    startBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      connectSupport();
+    });
 
-    // 3. 使用者送出任何問題：無視內容，直接播放下一段區間
     chatForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const text = userInput.value.trim();
       if (!text) return;
 
       userInput.value = "";
+      player.muted = false;
+      player.volume = 1;
 
-      // 推進到下一段；第 6 段播完後回到第 2 段無限鬼打牆循環
       if (currentTrackIndex < audioSegments.length - 1) {
         currentTrackIndex += 1;
       } else {
         currentTrackIndex = 1;
       }
 
-      playSegment(currentTrackIndex);
+      seekAndPlay(audioSegments[currentTrackIndex]);
     });
   </script>
 </body>
