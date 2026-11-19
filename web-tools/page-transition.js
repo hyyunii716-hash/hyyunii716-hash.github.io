@@ -204,4 +204,113 @@
       try { sessionStorage.removeItem(stateKey); } catch (_) {}
     }
   });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const carousel = document.querySelector(".carousel");
+    if (!carousel) return;
+
+    function goPrev() {
+      carousel.dispatchEvent(new CustomEvent("carousel:step", { detail: 1 }));
+    }
+
+    function goNext() {
+      carousel.dispatchEvent(new CustomEvent("carousel:step", { detail: -1 }));
+    }
+
+    const isDesktop = window.matchMedia("(min-width: 901px)");
+    let isDragging = false;
+    let movedDistance = 0;
+    let startX = 0;
+    let startY = 0;
+    let lockDirection = null; // "x" | "y" | null
+    let pointerId = null;
+    const threshold = 55; // 拖曳超過多少 px 算切換一張，可微調（45～80）
+    let suppressClick = false;
+    let clickSuppressionTimer;
+
+    carousel.style.userSelect = "none";
+
+    function onPointerDown(e) {
+      if (isDesktop.matches) return;
+      // 只處理滑鼠左鍵或觸控
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+
+      isDragging = true;
+      pointerId = e.pointerId;
+      movedDistance = 0;
+      lockDirection = null;
+      startX = e.clientX;
+      startY = e.clientY;
+      carousel.classList.add("is-dragging");
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging || e.pointerId !== pointerId) return;
+
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+
+      // 判斷使用者主要是水平拖曳還是垂直滑動頁面
+      if (!lockDirection && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+        lockDirection = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
+      }
+
+      if (lockDirection === "x") {
+        movedDistance = Math.abs(dx);
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+
+    function onPointerUp(e) {
+      if (!isDragging || e.pointerId !== pointerId) return;
+      const dx = e.clientX - startX;
+      const shouldPreventClick = movedDistance > 6;
+
+      isDragging = false;
+      pointerId = null;
+      carousel.classList.remove("is-dragging");
+
+      if (lockDirection === "x" && Math.abs(dx) >= threshold) {
+        // 往右拉（dx > 0）看左邊卡片；往左拉（dx < 0）看右邊卡片
+        if (dx > 0) {
+          goPrev();
+        } else {
+          goNext();
+        }
+      }
+
+      // 若有明顯拖曳，攔截緊接著的 click 事件避免誤觸連結。
+      if (shouldPreventClick) {
+        suppressClick = true;
+        clearTimeout(clickSuppressionTimer);
+        clickSuppressionTimer = setTimeout(() => {
+          suppressClick = false;
+        }, 50);
+      }
+
+      lockDirection = null;
+      movedDistance = 0;
+    }
+
+    function onPointerCancel(e) {
+      if (!isDragging || e.pointerId !== pointerId) return;
+      isDragging = false;
+      pointerId = null;
+      carousel.classList.remove("is-dragging");
+      lockDirection = null;
+      movedDistance = 0;
+    }
+
+    carousel.addEventListener("click", (e) => {
+      if (!suppressClick) return;
+      e.preventDefault();
+      e.stopPropagation();
+      suppressClick = false;
+    }, true);
+
+    carousel.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove, { passive: false });
+    window.addEventListener("pointerup", onPointerUp);
+    window.addEventListener("pointercancel", onPointerCancel);
+  });
 })();

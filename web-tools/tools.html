@@ -107,7 +107,7 @@
     </div>
 
     <!-- 更多功能 -->
-    <section class="container tools-more" id="more-features" aria-labelledby="mf-title" tabindex="-1">
+    <section class="container tools-more" id="more-features" data-subpage-snap-start aria-labelledby="mf-title" tabindex="-1">
       <div class="page-head tools-more__head">
         <h2 id="mf-title" class="sub-title">更多功能</h2>
         <p class="eyebrow">More Features</p>
@@ -230,6 +230,38 @@
           slides.forEach(function (el) { el.classList.remove('slide--jump'); });
         }, 600);
       }
+
+      carousel.addEventListener('carousel:step', function (e) {
+        if (e.detail !== 1 && e.detail !== -1) return;
+        if (desktop.matches) {
+          rotate(e.detail);
+          return;
+        }
+
+        var carouselRect = carousel.getBoundingClientRect();
+        var viewportCenter = carousel.scrollLeft + carousel.clientWidth / 2;
+        var currentIndex = 0;
+        var minDistance = Infinity;
+        slides.forEach(function (slide, index) {
+          var slideRect = slide.getBoundingClientRect();
+          var center = slideRect.left - carouselRect.left + carousel.scrollLeft + slideRect.width / 2;
+          var distance = Math.abs(viewportCenter - center);
+          if (distance < minDistance) {
+            minDistance = distance;
+            currentIndex = index;
+          }
+        });
+
+        var targetIndex = Math.max(0, Math.min(slides.length - 1, currentIndex - e.detail));
+        var target = slides[targetIndex];
+        var targetRect = target.getBoundingClientRect();
+        var targetScrollLeft = carousel.scrollLeft + targetRect.left - carouselRect.left
+          + targetRect.width / 2 - carousel.clientWidth / 2;
+        carousel.scrollTo({
+          left: Math.max(0, Math.min(carousel.scrollWidth - carousel.clientWidth, targetScrollLeft)),
+          behavior: 'smooth'
+        });
+      });
 
       // Figma 的透明按鈕：左右各一條固定的感應區（佔容器寬 9.3–22.4%、76–89.1%）。
       // 滑鼠「移入」感應區就輪轉一次；必須先離開再移入才會再轉，避免轉完又連環觸發。
@@ -355,6 +387,7 @@
       }
     })();
   </script>
+  <script src="../subpage-snap.js"></script>
   <script src="cursor-trail.js"></script>
   <script src="page-transition.js"></script>
 </body>

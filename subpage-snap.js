@@ -27,19 +27,28 @@
   function initSubpageSnap() {
     window.scrollTo(0, 0);
 
-    // 自動抓取分頁頂部頁首（若有）與 main 底下的所有 section
-    const pageHead = document.querySelector(
-      "main.page > .page-head, main > .page-head",
-    );
+    // 有 data-subpage-snap-start 時，只吸附起點及後續區塊。
+    // 沒有起點時保留原本的全頁吸附行為。
+    const snapStart = document.querySelector("[data-subpage-snap-start]");
     const sections = Array.from(document.querySelectorAll("main > section"));
     const slides = [];
 
-    if (pageHead && pageHead.offsetHeight > 60) {
-      slides.push(pageHead);
+    if (snapStart) {
+      const startIndex = sections.indexOf(snapStart);
+      sections.slice(startIndex >= 0 ? startIndex : 0).forEach((sec) => {
+        if (sec.offsetHeight > 40) slides.push(sec);
+      });
+    } else {
+      const pageHead = document.querySelector(
+        "main.page > .page-head, main > .page-head",
+      );
+      if (pageHead && pageHead.offsetHeight > 60) {
+        slides.push(pageHead);
+      }
+      sections.forEach((sec) => {
+        if (sec.offsetHeight > 40) slides.push(sec);
+      });
     }
-    sections.forEach((sec) => {
-      if (sec.offsetHeight > 40) slides.push(sec);
-    });
 
     if (slides.length < 2) return;
 
@@ -155,7 +164,7 @@
     }
 
     function getTargetScrollY(el, idx) {
-      if (idx === 0) return 0; // 第一屏永遠對齊最頂端
+      if (!snapStart && idx === 0) return 0; // 原本模式：第一屏永遠對齊最頂端
       return Math.max(0, el.offsetTop - CONFIG.navOffset);
     }
 
@@ -194,6 +203,13 @@
       "wheel",
       (e) => {
         if (window.innerWidth <= 768) return;
+
+        const snapStartTop = snapStart
+          ? snapStart.offsetTop - CONFIG.navOffset
+          : 0;
+        const atSnapRegion =
+          !snapStart || window.scrollY + 20 >= snapStartTop;
+        if (!atSnapRegion) return;
 
         if (isAnimating) {
           e.preventDefault();

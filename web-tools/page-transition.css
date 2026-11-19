@@ -127,3 +127,7 @@
 
 .page-transition-fallback-out .carousel .slide:nth-child(odd):not(.page-transition-source) { transform: translateX(-20px); }
 .page-transition-fallback-out .carousel .slide:nth-child(even):not(.page-transition-source) { transform: translateX(20px); }
+
+.carousel {
+  touch-action: pan-y;
+}
