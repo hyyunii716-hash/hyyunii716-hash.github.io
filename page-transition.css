@@ -7,10 +7,12 @@
 }
 
 ::view-transition-old(root) {
-  animation: page-transition-out 300ms cubic-bezier(.76, 0, .24, 1) both;
+  animation: page-deck-out 480ms cubic-bezier(0.76, 0, 0.24, 1) both;
 }
 
-::view-transition-new(root) { animation: none; }
+::view-transition-new(root) {
+  animation: page-deck-in 580ms cubic-bezier(0.22, 1, 0.36, 1) 40ms both;
+}
 
 ::view-transition-group(tool-surface) {
   animation-duration: 900ms;
@@ -51,7 +53,23 @@
 }
 
 @keyframes page-transition-out {
-  to { opacity: 0; transform: translateY(20px); }
+  to { opacity: 0; transform: translateY(20px); }}
+@keyframes page-deck-out {
+  to {
+    opacity: 0;
+    transform: translateX(-56px) scale(0.985);
+  }
+}
+
+@keyframes page-deck-in {
+  from {
+    opacity: 0;
+    transform: translateX(56px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes tool-surface-old {
@@ -121,13 +139,105 @@
 .page-transition-fallback-out .card--tool:not(.page-transition-source),
 .page-transition-fallback-out .carousel .slide:not(.page-transition-source) {
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 300ms cubic-bezier(.76, 0, .24, 1), transform 300ms cubic-bezier(.76, 0, .24, 1);
+  transform: translateX(-32px);
+  transition: opacity 400ms cubic-bezier(.76, 0, .24, 1), transform 400ms cubic-bezier(.76, 0, .24, 1);
 }
 .page-transition-fallback-out .carousel .slide:nth-child(odd):not(.page-transition-source) { transform: translateX(-20px); }
 .page-transition-fallback-out .carousel .slide:nth-child(even):not(.page-transition-source) { transform: translateX(20px); }
 
 .carousel { touch-action: pan-y; }
+/* =========================================================
+   雙層空間過渡：主分頁左右水平滑動 + 小頁面底部抽屜升起／收合
+   ========================================================= */
+html {
+  overflow-x: hidden;
+}
+
+/* 1. 主分頁往右前進：舊頁往左滑出 */
+html.page-trans-exit-next main,
+html.page-trans-exit-next footer,
+html.page-trans-exit-next .hero {
+  opacity: 0 !important;
+  transform: translateX(-64px) scale(0.985) !important;
+  transition:
+    opacity 360ms cubic-bezier(0.76, 0, 0.24, 1),
+    transform 360ms cubic-bezier(0.76, 0, 0.24, 1) !important;
+}
+
+/* 2. 主分頁往左返回：舊頁往右滑出 */
+html.page-trans-exit-prev main,
+html.page-trans-exit-prev footer,
+html.page-trans-exit-prev .hero {
+  opacity: 0 !important;
+  transform: translateX(64px) scale(0.985) !important;
+  transition:
+    opacity 360ms cubic-bezier(0.76, 0, 0.24, 1),
+    transform 360ms cubic-bezier(0.76, 0, 0.24, 1) !important;
+}
+
+/* 3. 進入小頁面（底部抽屜升起）：舊主頁微微向後退縮暗下 */
+html.page-trans-exit-sheet-up main,
+html.page-trans-exit-sheet-up footer,
+html.page-trans-exit-sheet-up .hero {
+  opacity: 0 !important;
+  transform: scale(0.96) translateY(-16px) !important;
+  transition:
+    opacity 360ms cubic-bezier(0.32, 0, 0.67, 1),
+    transform 360ms cubic-bezier(0.32, 0, 0.67, 1) !important;
+}
+
+/* 4. 離開小頁面返回主頁（底部抽屜向下收合）：小頁面往下滑出 */
+html.page-trans-exit-sheet-down main,
+html.page-trans-exit-sheet-down footer,
+html.page-trans-exit-sheet-down .hero {
+  opacity: 0 !important;
+  transform: translateY(48px) !important;
+  transition:
+    opacity 360ms cubic-bezier(0.32, 0, 0.67, 1),
+    transform 360ms cubic-bezier(0.32, 0, 0.67, 1) !important;
+}
+
+/* --- 新頁面初始預備位置 --- */
+html.page-trans-enter-next main,
+html.page-trans-enter-next footer,
+html.page-trans-enter-next .hero {
+  opacity: 0 !important;
+  transform: translateX(64px) !important;
+}
+
+html.page-trans-enter-prev main,
+html.page-trans-enter-prev footer,
+html.page-trans-enter-prev .hero {
+  opacity: 0 !important;
+  transform: translateX(-64px) !important;
+}
+
+/* 小頁面進場：從下方 48px 處準備往上抽屜升起 */
+html.page-trans-enter-sheet-up main,
+html.page-trans-enter-sheet-up footer,
+html.page-trans-enter-sheet-up .hero {
+  opacity: 0 !important;
+  transform: translateY(48px) !important;
+}
+
+/* 從小頁面回到主分頁：主分頁從微縮小狀態清晰浮回原位 */
+html.page-trans-enter-sheet-down main,
+html.page-trans-enter-sheet-down footer,
+html.page-trans-enter-sheet-down .hero {
+  opacity: 0 !important;
+  transform: scale(0.965) translateY(-14px) !important;
+}
+
+/* --- 所有模式最終滑入定位 --- */
+html.page-trans-enter-active main,
+html.page-trans-enter-active footer,
+html.page-trans-enter-active .hero {
+  opacity: 1 !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
+  transition:
+    opacity 560ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 560ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
 
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*) { animation-duration: 1ms !important; }
