@@ -20,6 +20,7 @@
 }
 .pricing-hero {
   position: relative;
+  perspective: 1200px;
   height: max(47.5vw, 560px);
   display: flex;
   flex-direction: column;
@@ -153,6 +154,44 @@
   margin: 0;
   font-family: Orbitron, "Michroma", "Eurostile", sans-serif;
   font-weight: 400;
+}
+.pricing-brand-stage {
+  position: relative;
+  display: block;
+  width: max-content;
+}
+.pricing-brand-shard {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  animation: pricing-shard-arrive 1220ms cubic-bezier(.36,.1,.16,1) var(--shard-delay, 0ms) both;
+  transform-style: preserve-3d;
+}
+.pricing-brand-stage.is-assembling > .pricing-brand {
+  visibility: visible;
+  animation: pricing-logo-arrive 1220ms cubic-bezier(.36,.1,.16,1) both;
+}
+.pricing-hero-title-text span,
+.pricing-hero-copy span {
+  display: inline-block;
+  animation: pricing-letter-arrive 1000ms cubic-bezier(.36,.1,.16,1) var(--letter-delay, 0ms) both;
+  transform-style: preserve-3d;
+}
+@keyframes pricing-shard-arrive {
+  0% { opacity: 0; transform: translate3d(var(--shard-x), var(--shard-y), var(--shard-z)) rotateX(var(--shard-rx)) rotateY(var(--shard-ry)) rotateZ(var(--shard-rz)); }
+  18% { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
+}
+@keyframes pricing-logo-arrive {
+  0% { opacity: 0; transform: translate3d(-70px, 40px, -700px) rotateY(-55deg) rotateX(20deg); }
+  100% { opacity: 1; transform: translate3d(0,0,0) rotateY(0) rotateX(0); }
+}
+@keyframes pricing-letter-arrive {
+  0% { opacity: 0; transform: translate3d(var(--letter-x), var(--letter-y), var(--letter-z)) rotateX(var(--letter-rx)) rotateY(var(--letter-ry)) rotateZ(var(--letter-rz)); }
+  100% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
 }
 .pricing-title-logo {
   display: block;

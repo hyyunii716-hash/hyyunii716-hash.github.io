@@ -445,6 +445,10 @@
     )
       return;
 
+    if (/(?:^|\/)pricing\.html$/.test(new URL(link.href, location.href).pathname)) {
+      try { sessionStorage.setItem("pricing-cover-assemble", "1"); } catch (_) {}
+    }
+
     var slug = slugFromLink(link);
     if (slug) {
       var source = link.closest(".slide, .card--tool, .tool-option") || link;
