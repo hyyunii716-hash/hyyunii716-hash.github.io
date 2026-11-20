@@ -10,7 +10,7 @@
   display: inline-flex; align-items: center; justify-content: center; gap: 12px;
   padding: var(--btn-pad); border: 1px solid var(--color-stroke); border-radius: var(--radius-card);
   background: #0b0b0b; color: var(--color-text); font: 500 var(--btn-fs)/1.25 var(--font-zh);
-  white-space: nowrap; text-decoration: none;
+  white-space: nowrap; text-decoration: none; transform: scale(.8);
   transition: color .2s, border-color .2s, background-color .2s;
 }
 .back-button svg { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
@@ -630,7 +630,7 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 .cover-hint.ready { opacity: .75; } .cover-hint.hide { opacity: 0; }
 .cover-hint::after { content: ""; display: block; width: 1px; height: 36px; margin: 12px auto 0; background: #fff; transform-origin: top; animation: cover-drip 1.8s infinite ease-in-out; }
 @keyframes cover-drip { 0%{transform:scaleY(0)} 50%{transform:scaleY(1)} 100%{transform:scaleY(1);opacity:0} }
-@media(max-width:700px) { :root{--cover-nav-h:64px;--cover-pad-x:20px} .cover-nav .site-nav{padding-inline:20px;min-height:64px} .cover-nav .site-nav__brand{display:none} .cover-nav .site-nav__list{gap:14px} }
+@media(max-width:700px) { :root{--cover-nav-h:64px;--cover-pad-x:20px} .cover-nav .site-nav{padding-inline:20px;min-height:64px} .cover-nav .site-nav__brand{display:none} .cover-nav .site-nav__list{margin-left:auto;gap:clamp(4px,1.4vw,8px);font-size:clamp(10px,2vw,12px)} }
 @media(prefers-reduced-motion:reduce) { .cover-nav,.cover-title{transition:none} }
 /* The animated SVG takes the brand's place once it settles into the nav. */
 .cover-nav .site-nav__brand { visibility: hidden; }

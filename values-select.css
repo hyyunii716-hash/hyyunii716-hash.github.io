@@ -1,0 +1,27 @@
+/* index.html：三張理念卡並排，水平選擇（點擊／拖曳／方向鍵／橫向滾輪）
+   注意：fullpage-snap.js 用 !important 佔用了 .js-value-card 的 opacity / transform / transition，
+   所以這裡的縮放、傾斜、變暗改用獨立屬性 scale / rotate / filter，並用 !important 補上它們的 transition。 */
+.values-viewport{position:relative;overflow:hidden;overflow:clip;padding:48px 0 24px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
+          mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.values--hselect{display:flex!important;flex-wrap:nowrap;gap:clamp(16px,2.4vw,36px);margin:0;padding:0;list-style:none;
+  position:relative;width:max-content;perspective:1400px;
+  transition:transform .7s cubic-bezier(.76,0,.24,1);cursor:grab;touch-action:pan-y;user-select:none}
+.values--hselect.is-dragging{transition:none;cursor:grabbing}
+.values--hselect>li{flex:0 0 min(420px,72vw);box-sizing:border-box;
+  scale:.88;rotate:y var(--tilt,0deg);filter:brightness(.45);
+  transition:scale .7s cubic-bezier(.76,0,.24,1),rotate .7s cubic-bezier(.76,0,.24,1),filter .5s ease}
+.values--hselect>li.is-prev{--tilt:14deg}
+.values--hselect>li.is-next{--tilt:-14deg}
+.values--hselect>li.is-active{scale:1;rotate:y 0deg;filter:none}
+/* 有 fullpage-snap.js 時：把它的進場 opacity/transform 與我們的 scale/rotate/filter 合併成同一份 transition */
+.values--hselect>li.js-value-card{
+  transition:opacity .85s cubic-bezier(.22,1,.36,1) calc(var(--vi,0)*.08s),
+             transform .85s cubic-bezier(.22,1,.36,1) calc(var(--vi,0)*.08s),
+             scale .7s cubic-bezier(.76,0,.24,1) 0s,rotate .7s cubic-bezier(.76,0,.24,1) 0s,filter .5s ease 0s !important}
+.values--hselect>li.js-value-card.is-card-shown{
+  transition-delay:calc(var(--vi,0)*.16s),calc(var(--vi,0)*.16s),0s,0s,0s !important}
+.values-dots{display:flex;justify-content:center;gap:10px;margin-top:8px}
+.values-dots button{width:8px;height:8px;padding:0;border:0;border-radius:50%;background:rgb(255 255 255/.3);cursor:pointer;transition:background .3s,transform .3s}
+.values-dots button[aria-current="true"]{background:#fff;transform:scale(1.4)}
+@media (prefers-reduced-motion:reduce){.values--hselect,.values--hselect>li{transition:none!important}}
