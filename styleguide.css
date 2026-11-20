@@ -1,0 +1,183 @@
+/* ==========================================================================
+   ABANDON 全站 Style Guide（100% 排除首頁 index.html，僅統一其餘分頁）
+   ========================================================================== */
+
+/* 1. 全站統一變數（排除首頁 .page--home 與折價券本體 .cp） */
+body:not(.page--home):not(.cp),
+body:not(.page--home) .page,
+body:not(.page--home) .page--sub,
+body:not(.page--home) .pricing-redesign,
+body:not(.page--home) .pay {
+  --font-zh: "Inter", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif !important;
+  --font-en: "Inter", "Noto Sans TC", system-ui, -apple-system, "Segoe UI", sans-serif !important;
+  --font-ui: var(--font-zh) !important;
+  --pr-font: var(--font-zh) !important;
+
+  /* 鎖定子頁別名變數，使子頁卡片標題與內文完全對齊首頁的 --fs-title (24px) 與 --fs-body (16px) */
+  --fs-h3: var(--fs-title) !important;
+  --fs-lead: var(--fs-body) !important;
+}
+
+/* 2. H1 頁面主大標（對齊首頁 --fs-hero: 48px~96px / 700 Bold） */
+body:not(.page--home):not(.cp) .hero__title,
+body:not(.page--home):not(.cp) .stage-title,
+body:not(.page--home):not(.cp) .checkout__title {
+  font-family: var(--font-en) !important;
+  font-size: var(--fs-hero) !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+/* 3. H2 區塊大標題（對齊首頁 .section-title: --fs-h2 32px~74px / 700 Bold） */
+body:not(.page--home):not(.cp) .section-title,
+body:not(.page--home):not(.cp) .flow-title,
+body:not(.page--home):not(.cp) .flow-h2,
+body:not(.page--home):not(.cp) .donate__title,
+body:not(.page--home):not(.cp) .pricing-hero h1,
+body:not(.page--home):not(.cp) .cover__title,
+body:not(.page--home):not(.cp) .title-sub,
+body:not(.page--home):not(.cp) .gs-title,
+body:not(.page--home):not(.cp) .pricing-success h2,
+body:not(.page--home):not(.cp) .received__text {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-h2) !important;
+  font-weight: 700 !important;
+  line-height: 1.35 !important;
+}
+
+/* 4. Sub 頁面副標（對齊首頁 --fs-hero-sub: 18px~28px） */
+body:not(.page--home):not(.cp) .hero__tagline,
+body:not(.page--home):not(.cp) .stage-sub,
+body:not(.page--home):not(.cp) .sub-title,
+body:not(.page--home):not(.cp) .page-head__sub,
+body:not(.page--home):not(.cp) .pricing-hero p,
+body:not(.page--home):not(.cp) .cover__sub {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-hero-sub) !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+}
+
+/* 5. H3 卡片標題 / 軟體名稱 / QA 問題（對齊首頁 --fs-title: 20px~24px） */
+body:not(.page--home):not(.cp) .card__title,
+body:not(.page--home):not(.cp) .qa__q,
+body:not(.page--home):not(.cp) .feature__headline,
+body:not(.page--home):not(.cp) .choice__title {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-title) !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+}
+body:not(.page--home):not(.cp) .program__name,
+body:not(.page--home):not(.cp) .feature__name,
+body:not(.page--home):not(.cp) .app-card__name {
+  font-family: var(--font-en) !important;
+  font-size: var(--fs-title) !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+
+/* 6. Body 全站一般說明內文（對齊首頁 --fs-body: 16px / Regular 400） */
+body:not(.page--home):not(.cp) .card__text,
+body:not(.page--home):not(.cp) .program__desc,
+body:not(.page--home):not(.cp) .program__link,
+body:not(.page--home):not(.cp) .feature__text,
+body:not(.page--home):not(.cp) .feature__link,
+body:not(.page--home):not(.cp) .app-card__desc,
+body:not(.page--home):not(.cp) .checkout__why,
+body:not(.page--home):not(.cp) .choice__desc,
+body:not(.page--home):not(.cp) .donate__sub,
+body:not(.page--home):not(.cp) .step-card p,
+body:not(.page--home):not(.cp) .pricing-card li,
+body:not(.page--home):not(.cp) .qa__a,
+body:not(.page--home):not(.cp) .tool-option__desc {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-body) !important;
+  font-weight: 400 !important;
+  line-height: 1.6 !important;
+}
+
+/* 7. 表單標籤與輸入框（對齊首頁內文 --fs-body: 16px / Regular 400） */
+body:not(.page--home):not(.cp) .pay label,
+body:not(.page--home):not(.cp) .pay .legend,
+body:not(.page--home):not(.cp) .pay .control,
+body:not(.page--home):not(.cp) .field input {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-body) !important;
+  font-weight: 400 !important;
+}
+
+/* 8. 導覽列、標籤 Pill、免責聲明、頁尾（對齊首頁 --fs-nav: 14px） */
+body:not(.page--home):not(.cp) .site-nav__list a,
+body:not(.page--home):not(.cp) .pill,
+body:not(.page--home):not(.cp) .disclaimer,
+body:not(.page--home):not(.cp) .site-footer li,
+body:not(.page--home):not(.cp) .site-footer a,
+body:not(.page--home):not(.cp) .site-footer__copy {
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-nav) !important;
+  font-weight: 400 !important;
+}
+
+/* 9. 價格與金額大數字（主頁 32px Bold / 幫助小彈窗 26px Bold） */
+body:not(.page--home):not(.cp) .pricing-card__price,
+body:not(.page--home):not(.cp) .price-card__price,
+body:not(.page--home):not(.cp) .donate__amount {
+  font-family: var(--font-en) !important;
+  font-size: 32px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+body:not(.page--home):not(.cp) .help-pop__price {
+  font-family: var(--font-en) !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+}
+
+/* 10. 互動工具輪播卡片（保留 cqw 動態縮放，統一字重與柔灰白內文） */
+body:not(.page--home):not(.cp) .slide__title {
+  font-weight: 500 !important;
+}
+body:not(.page--home):not(.cp) .slide__desc {
+  font-weight: 400 !important;
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+/* 11. 主行動大按鈕（立即購買、完成選購及結帳：24px × 500） */
+body:not(.page--home):not(.cp) .btn--lg,
+body:not(.page--home):not(.cp) .pricing-buy {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 16px 40px !important;
+  border-radius: 999px !important;
+  font-family: var(--font-zh) !important;
+  font-size: var(--fs-title) !important;
+  font-weight: 500 !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+}
+
+/* 12. 全站一般功能按鈕（含折價券「返回購買」與 received「返回首頁」） */
+body:not(.page--home):not(.cp) .btn:not(.btn--lg):not(.price-card__cta),
+body:not(.page--home):not(.cp) .pill-btn,
+body:not(.page--home):not(.cp) .back-button,
+body:not(.page--home):not(.cp) .received__home,
+html body.cp a.back-btn,
+html body.cp button.back-btn,
+html body.cp .back-btn,
+html body.cp .back-button {
+  width: auto !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 13px 28px !important;
+  border-radius: var(--radius-card, 20px) !important;
+  font-family: var(--font-zh, "Noto Sans TC", sans-serif) !important;
+  font-size: var(--fs-body, 16px) !important;
+  font-weight: 500 !important;
+  line-height: 1.25 !important;
+  white-space: nowrap !important;
+}

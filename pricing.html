@@ -28,47 +28,61 @@
     </nav>
   </header>
 
-  <main class="page page--sub" style="gap:0;padding-bottom:clamp(56px,7vw,120px)"></main>
-
-<div class="pricing-redesign">
+  <main class="page page--sub" style="gap:0;padding-bottom:clamp(56px,7vw,120px)">
+    <div class="pricing-redesign">
       <section class="pricing-hero" aria-labelledby="pricing-hero-title">
-        <div class="pricing-hero__bg" aria-hidden="true"></div>
-        <h1 id="pricing-hero-title" aria-label="Abandon應用程式的計劃與價格"><img class="pricing-title-logo" src="assets/abandon-title.png" alt="Abandon"><span class="pricing-title-sub">應用程式的計劃與價格</span></h1>
+        <div class="pricing-hero__bg" aria-hidden="true">
+          <svg class="pricing-hero__filters" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <filter id="pricing-goo">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur" />
+              <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo" />
+              <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+          </svg>
+          <div class="pricing-hero__blobs">
+            <span class="pricing-blob pricing-blob--purple"></span>
+            <span class="pricing-blob pricing-blob--violet"></span>
+            <span class="pricing-blob pricing-blob--pink"></span>
+            <span class="pricing-blob pricing-blob--rose"></span>
+            <span class="pricing-blob pricing-blob--light"></span>
+            <span class="pricing-blob pricing-blob--interactive"></span>
+          </div>
+        </div>
+        <h1 id="pricing-hero-title"><img class="pricing-brand" src="assets/pricing-abandon-logo.svg" alt="Abandon"><span>應用程式的計劃與價格</span></h1>
         <p>安心開始使用，14 天內不確定可以隨時取消並獲得全額退款</p>
       </section>
+
       <section class="pricing-plans" id="plans" aria-label="方案介紹">
         <div class="pricing-tabs" role="tablist" aria-label="計費週期">
           <button class="pricing-tab" role="tab" type="button" data-plan="yearly">年度方案</button>
           <button class="pricing-tab" role="tab" type="button" data-plan="quarterly">季度方案</button>
           <button class="pricing-tab" role="tab" type="button" data-plan="monthly">月度方案</button>
-  </div>
-      <div class="pricing-cards" id="pricing-cards" aria-live="polite"></div>
-      <div class="pricing-buy-wrap"><button class="pricing-buy" id="pricing-buy" type="button">立即購買</button></div>
+        </div>
+        <div class="pricing-cards" id="pricing-cards" aria-live="polite"></div>
+        <div class="pricing-buy-wrap"><button class="pricing-buy" id="pricing-buy" type="button">立即購買</button></div>
       </section>
-</div>
+    </div>
 
- <dialog class="pricing-success" id="pricing-success" aria-labelledby="pricing-success-title">
+    <dialog class="pricing-success" id="pricing-success" aria-labelledby="pricing-success-title">
       <h2 id="pricing-success-title">購買成功</h2>
       <p>感謝您的購買！</p>
       <button class="pricing-success__close" type="button">確定</button>
     </dialog>
 
-<!-- 贊助 -->
- <section class="donate" aria-labelledby="donate-title">
-  <h2 id="donate-title" class="donate__title">您的支持會給予我們莫大的鼓勵</h2>
-        <p class="donate__sub">投資理財有賺有賠，但贊助我們，你只會獲得我們真摯的感謝</p>
-        <ul class="donate__list">
-          <li><a class="donate__btn" href="donate.html?amount=888"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$888</span></a></li>
-          <li><a class="donate__btn" href="donate.html?amount=1314"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$1314</span></a></li>
-          <li><a class="donate__btn" href="donate.html?amount=2026"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$2026</span></a></li>
-        </ul>
- </section>
+    <!-- 贊助 -->
+    <section class="donate" aria-labelledby="donate-title">
+      <h2 id="donate-title" class="donate__title">您的支持會給予我們莫大的鼓勵</h2>
+      <p class="donate__sub">投資理財有賺有賠，但贊助我們，你只會獲得我們真摯的感謝</p>
+      <ul class="donate__list">
+        <li><a class="donate__btn" href="donate.html?amount=888"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$888</span></a></li>
+        <li><a class="donate__btn" href="donate.html?amount=1314"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$1314</span></a></li>
+        <li><a class="donate__btn" href="donate.html?amount=2026"><span class="donate__label"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M6.5 15h4"/></svg>Donate Us</span><span class="donate__amount">$2026</span></a></li>
+      </ul>
+    </section>
+  </main>
 
-
- </main>
-
- <footer class="site-footer">
-  <div class="site-footer__cols">
+  <footer class="site-footer">
+    <div class="site-footer__cols">
       <section class="footer-col footer-col--plain" aria-labelledby="f-support">
         <h2 id="f-support" class="footer-col__title">支援</h2>
         <ul>
@@ -106,15 +120,14 @@
       </section>
     </div>
     <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
- </footer>
+  </footer>
 
- <script src="pricing.js"></script>
- <script src="wordmark.js"></script>
- <script src="cursor-trail.js"></script>
- <script>
+  <script src="pricing.js"></script>
+  <script src="wordmark.js"></script>
+  <script src="cursor-trail.js"></script>
+  <script>
 (function () {
   function initGlobalMagnetButtons() {
-    // 1. 自動抓出該頁面所有按鍵（排除頂部導覽列連結）
     const candidateSelectors = [
       'a.btn',
       'button.btn',
@@ -134,7 +147,6 @@
 
     if (!allBtns.length) return;
 
-    // 2. 抓出所有主按鈕（包含 .btn--primary、.btn-primary、表單送出鈕，或按鈕文字包含「購買」的主行動按鈕）
     const primaryBtns = allBtns.filter(function (btn) {
       const isPrimaryClass = btn.classList.contains('btn--primary') || btn.classList.contains('btn-primary');
       const isSubmit = btn.getAttribute('type') === 'submit';
@@ -143,7 +155,6 @@
     });
 
     primaryBtns.forEach(function (btn, index) {
-      // 強制設為 inline-flex，確保瀏覽器允許它做 rotation 旋轉
       btn.style.setProperty('display', 'inline-flex', 'important');
       btn.style.setProperty('align-items', 'center', 'important');
       btn.style.setProperty('justify-content', 'center', 'important');
@@ -166,10 +177,8 @@
       });
     });
 
-    // 3. 全頁按鍵建立「外框位移 + 內層文字視差」磁吸與 Q 彈回調
     allBtns.forEach(function (btn) {
       const isCompactGroup = btn.closest('.pill-nav, .app-card__actions, .btn-row') !== null;
-
       const triggerPadding = isCompactGroup ? 32 : 75;
       const btnStrength = isCompactGroup ? 0.36 : 0.45;
       const textStrength = isCompactGroup ? 0.22 : 0.25;
@@ -215,7 +224,6 @@
           const x = gsap.utils.mapRange(left, right, -(right - left) / 2, (right - left) / 2, e.clientX);
           const y = gsap.utils.mapRange(top, bottom, -(bottom - top) / 2, (bottom - top) / 2, e.clientY);
 
-          // 僅覆蓋 x / y 屬性（overwrite: 'auto' 只會覆蓋同樣動到 x/y 的動畫，完全不干擾 rotation 搖擺）
           gsap.to(btn, {
             x: x * btnStrength,
             y: y * btnStrength,
@@ -279,8 +287,7 @@
     document.head.appendChild(s);
   }
 })();
-</script>
-<script src="page-transition.js"></script>
+  </script>
+  <script src="page-transition.js"></script>
 </body>
 </html>
-

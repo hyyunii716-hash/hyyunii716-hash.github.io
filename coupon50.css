@@ -252,12 +252,13 @@
 }
 .cp .back-btn {
   appearance: none;
-  font: 500 max(16px, 1.85vw)/1 var(--font-text);
+  font-size: 16px;
+  font-weight: 500;
   color: var(--fg);
   background: var(--btn);
   border: 1px solid var(--btn-line);
-  border-radius: 999px;
-  padding: 0.62em 1.2em;
+  border-radius: 20px;
+  padding: 13px 28px;
   cursor: pointer;
   transition:
     filter 0.2s,

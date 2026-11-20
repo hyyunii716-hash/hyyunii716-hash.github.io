@@ -9,12 +9,12 @@
 .received__text {
   margin: 0;
   font-weight: 700;
-  font-size: clamp(28px, 5.6vw, 80px);
+  font-size: var(--fs-h2);
   line-height: 1.25;
   letter-spacing: .02em;
 }
 .received__home { opacity: 0; transform: translateY(8px); transition: opacity .5s .1s, transform .5s .1s; pointer-events: none; }
-.received.is-clear .received__home { opacity: 1; transform: none; pointer-events: auto; }
+.received.is-clear .received__home { opacity: 1; transform: none; pointer-events: auto;padding: var(--btn-pad); font-size: var(--btn-fs); font-weight: 500; border-radius: var(--radius-card); }
 
 .ad {
   position: fixed; inset: 0; z-index: 200;

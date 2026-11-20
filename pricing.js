@@ -243,3 +243,33 @@ select("monthly", false);
 document.querySelectorAll('a[href="#"]').forEach((a) => {
   a.addEventListener("click", (e) => e.preventDefault());
 });
+
+// Smoothly move a colored gradient bubble with the pointer, like the CodePen demo.
+const pricingHero = document.querySelector(".pricing-hero");
+const interactiveBlob = document.querySelector(".pricing-blob--interactive");
+if (pricingHero && interactiveBlob) {
+  let targetX = 0;
+  let targetY = 0;
+  let currentX = 0;
+  let currentY = 0;
+
+  pricingHero.addEventListener("pointermove", (event) => {
+    const bounds = pricingHero.getBoundingClientRect();
+    targetX = event.clientX - bounds.left - bounds.width / 2;
+    targetY = event.clientY - bounds.top - bounds.height / 2;
+  });
+
+  pricingHero.addEventListener("pointerleave", () => {
+    targetX = 0;
+    targetY = 0;
+  });
+
+  function moveInteractiveBlob() {
+    currentX += (targetX - currentX) / 7;
+    currentY += (targetY - currentY) / 7;
+    interactiveBlob.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+    requestAnimationFrame(moveInteractiveBlob);
+  }
+
+  requestAnimationFrame(moveInteractiveBlob);
+}
