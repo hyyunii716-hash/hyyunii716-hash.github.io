@@ -1,11 +1,9 @@
 (function () {
-  // ★ 1. 關閉瀏覽器自動記憶捲動位置，重整永遠從最頂端乾淨開場開始 ★
   if ("scrollRestoration" in history) {
     history.scrollRestoration = "manual";
   }
   window.scrollTo(0, 0);
 
-  // ★ 2. 首頁專屬防護：阻斷共用腳本在首頁監聽 mousemove 產生掉落字 ★
   const origAddEventListener = EventTarget.prototype.addEventListener;
   EventTarget.prototype.addEventListener = function (type, listener, options) {
     if (
@@ -17,28 +15,19 @@
     return origAddEventListener.call(this, type, listener, options);
   };
 
-  // =========================================================================
-  // ★ 快速調整區（進場、退場動畫與換頁速度都在這裡改）★
-  // =========================================================================
   const CONFIG = {
-    duration: 950, // 換頁滑動時間（毫秒）
-    cooldown: 350, // 換頁完成後的防連跳冷卻時間（毫秒）
-    navOffset: 44, // 中間介紹區塊的垂直置中補償（扣除導覽列高度）
-
-    // --- 第一屏三塊字卡浮出調整 ---
-    cardsRevealDelay: 600, // 進到第一屏後，等幾毫秒才開始浮出三塊字卡
-    cardsStagger: 0.16, // 第一屏三張字卡錯開的時間差（秒）
-    cardsDuration: 0.85, // 第一屏單張字卡浮上來的動畫速度（秒）
-
-    // --- 下方所有 Section（程式卡片、工具、QA）通用進退場調整 ---
-    sectionRevealDelay: 180, // 滑進該區塊後，延遲幾毫秒開始浮出（毫秒）
-    sectionStagger: 0.12, // 區塊內每個元素錯開進場的時間差（秒）
-    sectionDuration: 0.75, // 單一元素進場浮現的動畫速度（秒）
-
-    // --- 退場動畫調整區 ---
-    exitDuration: 0.45, // 離開該區塊時的淡出退場速度（秒）
-    exitStagger: 0.08, // 退場時元素錯開淡出的時間差（秒）
-    exitDistance: 28, // 退場時向上或向下飄移的距離（px）
+    duration: 950,
+    cooldown: 350,
+    navOffset: 44,
+    cardsRevealDelay: 250,
+    cardsStagger: 0.16,
+    cardsDuration: 0.85,
+    sectionRevealDelay: 180,
+    sectionStagger: 0.12,
+    sectionDuration: 0.75,
+    exitDuration: 0.45,
+    exitStagger: 0.08,
+    exitDistance: 28,
   };
 
   function initFullpageSnap() {
@@ -52,12 +41,11 @@
     const coverTitle = document.querySelector(".cover-title");
     if (allSections.length < 2) return;
 
-    const manifestoSec = allSections[0]; // 第 1 區：三行標語
-    const valuesSec = allSections[1]; // 第 2 區：三塊理念卡片
-    const middleSections = allSections.slice(2, -1); // 中間介紹區塊（不含最後的 QA）
-    const qaSec = allSections[allSections.length - 1]; // 最後一區：QA
+    const manifestoSec = allSections[0];
+    const valuesSec = allSections[1];
+    const middleSections = allSections.slice(2, -1);
+    const qaSec = allSections[allSections.length - 1];
 
-    // 自動向下尋找包含 3 個子元素的卡片容器，精準抓出第一屏三塊字卡
     let valueCards = Array.from(
       valuesSec.querySelectorAll(".card--value, .value-card, article"),
     );
@@ -80,14 +68,12 @@
         card.setAttribute("data-spotlight", "");
       });
 
-    // 3. 注入樣式（包含進場、退場狀態與 QA 標題防裁切修復）
     const style = document.createElement("style");
     style.textContent = `
       body.has-cover main.page {
         margin-top: 0 !important;
       }
 
-      /* 首頁第一屏（三行標語 + 三塊理念卡片合為一頁，整體垂直置中） */
       main.page > section:nth-of-type(1) {
         min-height: 52vh;
         display: flex;
@@ -110,7 +96,6 @@
         padding-bottom: 60px;
       }
 
-      /* 第一屏三塊字卡進退場動畫 */
       .js-value-card {
         opacity: 0 !important;
         transform: translateY(36px) scale(0.97) !important;
@@ -134,7 +119,6 @@
                     transform ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1) !important;
       }
 
-      /* ★ 下方所有區塊元素的通用進退場動畫 ★ */
       .js-reveal-item {
         opacity: 0;
         translate: 0 32px;
@@ -158,7 +142,6 @@
                     translate ${CONFIG.exitDuration}s cubic-bezier(0.4, 0, 1, 1);
       }
 
-      /* 中間介紹區塊（第 3 區到倒數第 2 區） */
       main.page > section:nth-of-type(n+3):not(:last-of-type) {
         min-height: 100vh;
         display: flex;
@@ -169,7 +152,6 @@
         padding-bottom: 60px;
       }
 
-      /* 最後一區 QA：解除 SplitText 裁切，並精準向上微調對齊右側第一個 QA 框框頂端 */
       main.page > section:last-of-type {
         padding-top: calc(88px + ${CONFIG.navOffset}px);
         padding-bottom: 120px;
@@ -178,7 +160,7 @@
         margin-top: 0 !important;
         padding-top: 0 !important;
         line-height: 1.15 !important;
-        transform: translateY(-6px); /* 若還差一點點，可微調 -4px ~ -10px */
+        transform: translateY(-6px);
       }
       #qa-title,
       #qa-title * {
@@ -205,7 +187,6 @@
     `;
     document.head.appendChild(style);
 
-    // 4. .cover-stage 滑鼠互動光暈與隱藏彩蛋文字
     if (coverStage) {
       const secretLayer = document.createElement("div");
       secretLayer.className = "cover-secret-text";
@@ -234,7 +215,6 @@
       });
     }
 
-    // 5. 第一屏三塊卡片進退場控制
     let revealTimer = null;
 
     function triggerValueCards() {
@@ -278,7 +258,6 @@
     );
     firstSlideObserver.observe(manifestoSec);
 
-    // 6. ★ 下方所有 Section 通用來回進退場設定 ★
     const lowerSections = [...middleSections, qaSec];
     const sectionItemsMap = new Map();
     const sectionTimersMap = new Map();
@@ -351,7 +330,6 @@
 
     lowerSections.forEach((sec) => lowerSectionsObserver.observe(sec));
 
-    // 7. 統一平滑翻頁核心
     let isAnimating = false;
     let lockUntil = 0;
 
@@ -396,11 +374,9 @@
       triggerValueCards();
     }
 
-    // 8. 全頁投影片清單（包含最後的 QA 區塊）
     const slides = [manifestoSec, ...middleSections, qaSec];
     let hasStoppedAtTitle = false;
 
-    // 監聽開場動畫（.cover-title.show）出現的瞬間，給 650ms 緩衝，防止慣性滾輪直接跳過第一屏
     if (coverTitle) {
       const titleObserver = new MutationObserver(() => {
         if (coverTitle.classList.contains("show")) {
@@ -438,7 +414,6 @@
               ? coverTitle.classList.contains("show")
               : false;
 
-            // 若還在開場動畫階段（還沒停在主標題定格），第一段先平滑定格到主標題並鎖定 650ms
             if (!hasStoppedAtTitle && !isTitleShown) {
               e.preventDefault();
               hasStoppedAtTitle = true;
@@ -446,7 +421,6 @@
               return;
             }
 
-            // 已定格在主標題後，下一次明確滾輪才進入「三行標語＋理念卡片」第一屏
             e.preventDefault();
             triggerValueCards();
             smoothScrollTo(manifestoSec.offsetTop, 400);

@@ -11,12 +11,11 @@
   <script>document.documentElement.classList.add('js');</script>
   <link rel="stylesheet" href="flip-card.css">
   <link rel="stylesheet" href="page-transition.css">
+  <link rel="stylesheet" href="dream-intro.css">
   <script src="fullpage-snap.js"></script>
   <script src="spotlight.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<link rel="stylesheet" href="dream-intro.css">
-<script src="liquid-water-dream.js" defer></script>
-<link rel="stylesheet" href="./dream-intro.css">
+  <script src="liquid-water-dream.js" defer></script>
 </head>
 <body class="intro-lock">
 
@@ -78,6 +77,7 @@
     </g>
   </g>
 </svg>
+
 <section class="cover-track" id="coverTrack" aria-label="Abandon 封面">
   <div class="cover-stage">
     <div class="cover-title" id="coverTitle">
@@ -85,26 +85,26 @@
       <p>Change your life</p>
     </div>
 
-   <!-- 夢境副標 START（不喜歡整段刪除即可） -->
-<svg class="dream-svg-defs" aria-hidden="true">
-  <defs>
-    <filter id="liquid-dream-vortex" x="-25%" y="-25%" width="150%" height="150%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.028" numOctaves="2" seed="3" result="noise">
-        <animate attributeName="baseFrequency" dur="14s" values="0.011 0.028; 0.017 0.042; 0.011 0.028" repeatCount="indefinite" />
-      </feTurbulence>
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </defs>
-</svg>
-<div class="dream-subtitle-wrap" id="dreamSubtitleWrap">
-  <p class="dream-subtitle">您已進入設計師的夢魘</p>
-</div>
-<!-- 夢境副標 END -->
+    <!-- 夢境副標 START -->
+    <svg class="dream-svg-defs" aria-hidden="true">
+      <defs>
+        <filter id="liquid-dream-vortex" x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.028" numOctaves="2" seed="3" result="noise">
+            <animate attributeName="baseFrequency" dur="14s" values="0.011 0.028; 0.017 0.042; 0.011 0.028" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="dream-subtitle-wrap" id="dreamSubtitleWrap">
+      <p class="dream-subtitle">您已進入設計師的夢魘</p>
+    </div>
+    <!-- 夢境副標 END -->
 
     <div class="cover-hint" id="coverHint">Scroll</div>
   </div>
 </section>
-</section>
+
   <main class="page">
 
     <!-- 品牌宣言 -->
@@ -301,7 +301,6 @@
     <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
   </footer>
 
-  <!-- GSAP（3.13 起 SplitText 與 ScrollTrigger 皆免費） -->
   <script>
 (() => {
   const mark   = document.getElementById('mark');
@@ -321,48 +320,20 @@
   const seg   = (p,a,b) => clamp((p-a)/(b-a));
   const ease  = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
 
-  // ── 筆畫粗細參數 ──────────────────────────
-  const STROKE_THIN = 7;     // 進場起始細線
-  const STROKE_PEAK = 42;    // 進場變到最粗
-  const STROKE_LOGO = 29;    // 最終第四張圖 logo 粗細
-  const INTRO_MS    = 2400;  // 進場自動變形總時長 (2.4秒)
-  // ──────────────────────────────────────────
+  const STROKE_THIN = 7;
+  const STROKE_PEAK = 42;
+  const STROKE_LOGO = 29;
+  const INTRO_MS    = 2400;
 
   let introStart = null;
   let introDone = false;
-  let finishRequested = false;
-  let finishStart = null, finishFrom = 0, currentIntroP = 0;
   let targetScroll = 0, curScroll = 0;
 
-  // 偵測使用者開始捲動，將目前動畫平順收尾後立即解鎖頁面。
-  let touchStartY = null;
-  function requestIntroFinish(){
-    if (introDone || finishRequested) return;
-    finishRequested = true;
-    finishStart = performance.now();
-    finishFrom = currentIntroP;
-  }
-  addEventListener('wheel', e => {
-    if (!introDone && e.deltaY > 8) requestIntroFinish();
-  }, {passive:true});
-  addEventListener('touchstart', e => {
-    if (!introDone && e.touches.length) touchStartY = e.touches[0].clientY;
-  }, {passive:true});
-  addEventListener('touchend', e => {
-    if (!introDone && touchStartY !== null && e.changedTouches.length) {
-      const deltaY = touchStartY - e.changedTouches[0].clientY;
-      if (deltaY > 24) requestIntroFinish();
-    }
-    touchStartY = null;
-  }, {passive:true});
-
   const readScroll = () => {
-    if (!introDone) {
-      targetScroll = 0;
-      return;
-    }
     const max = Math.max(1, track.offsetHeight - innerHeight);
-    targetScroll = clamp(scrollY / max);
+    const p = clamp(scrollY / max);
+    if (p > 0.02) introDone = true;
+    targetScroll = p;
   };
 
   function render(introP, scrollP){
@@ -370,17 +341,14 @@
     const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cover-nav-h')) || 88;
     const padX = vw <= 700 ? 20 : vw * .08;
 
-    // 1) 進場階段微幅細長伸縮張力（先修長拉高 -> 變粗微壓 -> 回到標準比例）
     let scaleY = 1;
     if (introP < 0.45) {
       scaleY = lerp(1.18, 0.94, ease(seg(introP, 0, 0.45)));
     } else {
       scaleY = lerp(0.94, 1.0, ease(seg(introP, 0.45, 1.0)));
     }
-    // 開始往上滑進 nav 時恢復 1:1 比例
     scaleY = lerp(scaleY, 1.0, ease(seg(scrollP, 0, 0.3)));
 
-    // 2) 字標位置與大小：進場時滿版置中 -> 往上滑動(scrollP)後縮小吸頂至左上角 nav
     const W0 = vw * .92, X0 = (vw - W0)/2, Y0 = (vh - W0*RATIO)/2;
     const W1 = clamp(vw*.15, 130, 240), X1 = padX, Y1 = (navH - W1*RATIO)/2;
 
@@ -393,7 +361,6 @@
     mark.style.height = (W * RATIO) + 'px';
     mark.style.transform = `translate(${X}px, ${Y}px) scaleY(${scaleY})`;
 
-    // 3) 筆畫粗細：進場時自動從「細 -> 極粗 -> 最終 logo 粗細」
     let sw;
     if (introP < 0.45) {
       sw = lerp(STROKE_THIN, STROKE_PEAK, ease(seg(introP, 0, 0.45)));
@@ -403,7 +370,6 @@
     strokes.style.strokeWidth = sw;
     strokePaths.forEach(el => el.style.strokeWidth = sw);
 
-    // 4) 第一個字母：進場後段自動擦掉一般 A，畫出特殊字首（定格為第四張圖）
     const m = seg(introP, 0.42, 0.92);
     const erase = ease(seg(m, 0, 0.55));
     const draw  = 1 - ease(seg(m, 0.35, 1));
@@ -416,15 +382,11 @@
       el.style.opacity = draw >= .999 ? 0 : 1;
     });
 
-    // 5) 進場完成後顯示 Scroll 提示；往上滑動後隱藏提示並顯示 nav 與主視覺文字
-    if (introDone) {
-      hint.classList.add('ready');
-      hint.classList.toggle('hide', scrollP > 0.04);
-    } else {
-      hint.classList.remove('ready', 'hide');
-    }
-    nav.classList.toggle('show', introDone && scrollP > 0.78);
-    heroTx.classList.toggle('show', introDone && scrollP > 0.82);
+    hint.classList.add('ready');
+    hint.classList.toggle('hide', scrollP > 0.04);
+    nav.classList.toggle('show', scrollP > 0.78);
+    heroTx.classList.toggle('show', scrollP > 0.82);
+
     if (dreamSub) {
       const fadeOut = ease(seg(scrollP, 0, 0.35));
       dreamSub.style.setProperty('--dream-y', `${lerp(0, -140, fadeOut)}px`);
@@ -437,23 +399,9 @@
   function loop(now){
     if (!introStart) introStart = now;
 
-    // 尚未上滑時，進場動畫以正反向循環持續播放，避免停在完成畫面
     const elapsed = Math.max(0, now - introStart);
     const cycleP = (elapsed % (INTRO_MS * 2)) / INTRO_MS;
     let introP = cycleP <= 1 ? cycleP : 2 - cycleP;
-
-    // 將當下的動畫位置在 520ms 內收至定格，避免等待下一輪循環。
-    if (finishRequested && !introDone) {
-      const finishP = clamp((now - finishStart) / 520);
-      introP = lerp(finishFrom, 1, ease(finishP));
-      if (finishP >= 1) {
-        introDone = true;
-        document.body.classList.remove('intro-lock');
-        window.scrollTo(0, 0);
-        readScroll();
-      }
-    }
-    currentIntroP = introP;
     if (introDone) introP = 1;
 
     curScroll += (targetScroll - curScroll) * .14;
@@ -465,17 +413,17 @@
 
   addEventListener('scroll', readScroll, {passive:true});
   addEventListener('resize', readScroll);
+  readScroll();
   requestAnimationFrame(loop);
 })();
-</script>
+  </script>
+
   <script src="wordmark.js"></script>
-  <!-- 品牌宣言動畫：純 JS，不需要網路 -->
   <script src="manifesto.js"></script>
-  
+
   <script>
 (function () {
   function initGlobalMagnetButtons() {
-    // 自動抓出該頁面所有按鍵（排除頂部導覽列連結，避免破壞 header 排版）
     const candidateSelectors = [
       'a.btn',
       'button.btn',
@@ -495,7 +443,6 @@
 
     if (!allBtns.length) return;
 
-    // 所有紫底主按鈕（.btn--primary）加上 8 下衰減搖擺循環
     const primaryBtns = allBtns.filter(function (btn) {
       return btn.classList.contains('btn--primary');
     });
@@ -519,7 +466,6 @@
       });
     });
 
-    // 全頁按鍵建立「外框位移 + 內層文字視差」磁吸與 Q 彈回調
     allBtns.forEach(function (btn) {
       const isCompactGroup = btn.closest('.pill-nav, .app-card__actions, .btn-row') !== null;
 
@@ -628,10 +574,9 @@
     document.head.appendChild(s);
   }
 })();
-</script>
-<script src="flip-card.js"></script>
+  </script>
+
+  <script src="flip-card.js"></script>
   <script src="page-transition.js"></script>
-  <script src="spotlight.js"></script>
-  
 </body>
 </html>

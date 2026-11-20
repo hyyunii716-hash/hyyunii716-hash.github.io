@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Three.js 水波物理模擬 + 現有 #mark 本尊水紋扭曲擴散 + 副標 & 彩蛋小字波動
+   Three.js 水波物理模擬 + #mark 水紋扭曲 + 隨 scroll 淡出的副標與彩蛋小字
    ========================================================================== */
 (() => {
   if (typeof THREE === "undefined") return;
@@ -16,27 +16,23 @@
     document.body.appendChild(container);
   }
   container.innerHTML = "";
-  container.style.position = "fixed";
-  container.style.inset = "0";
-  container.style.zIndex = "25";
-  container.style.pointerEvents = "none";
-  container.style.overflow = "hidden";
+  container.style.cssText =
+    "position:fixed;inset:0;z-index:25;pointer-events:none;overflow:hidden;";
 
-  const simScale = window.innerWidth < 768 ? 0.45 : 0.65;
+  const simScale = window.innerWidth < 768 ? 0.35 : 0.45;
   const waveSpeed = 0.9;
   const rippleSize = 24;
 
-  // 【可自行微調參數】
-  const SUBTITLE_Y_RATIO = 0.68; // 副標垂直比例（建議 0.62 ~ 0.72）
-  const INTRO_AUTO_WAVE_MS = 4200; // 進場自然水波持續時間（毫秒）
-  const MARK_RIPPLE_MS = 2200; // 現有 #mark 由中模糊往外擴散並水紋扭曲的時間（毫秒）
+  const SUBTITLE_Y_RATIO = 0.68;
+  const INTRO_AUTO_WAVE_MS = 3800;
+  const MARK_RIPPLE_MS = 1800;
 
   const rawMouse = { x: -9999, y: -9999 };
   const introStartTime = performance.now();
   let userHasMovedMouse = false;
   let lastAmbientPulseTime = -9999;
 
-  /* --- 0. 針對現有 #mark 本尊做水紋扭曲 + 由中模糊往外擴散清晰 --- */
+  /* --- 0. #mark 水紋扭曲與由中往外清晰 --- */
   let svgFilterHost = null;
   let feTurb = null;
   let feDisp = null;
@@ -80,7 +76,7 @@
     );
     feDisp.setAttribute("in", "SourceGraphic");
     feDisp.setAttribute("in2", "noise");
-    feDisp.setAttribute("scale", "28");
+    feDisp.setAttribute("scale", "24");
     feDisp.setAttribute("xChannelSelector", "R");
     feDisp.setAttribute("yChannelSelector", "G");
     feDisp.setAttribute("result", "displaced");
@@ -90,7 +86,7 @@
       "feGaussianBlur",
     );
     feBlur.setAttribute("in", "displaced");
-    feBlur.setAttribute("stdDeviation", "6");
+    feBlur.setAttribute("stdDeviation", "5");
 
     filter.appendChild(feTurb);
     filter.appendChild(feDisp);
@@ -123,20 +119,17 @@
     const eased = 1 - Math.pow(1 - p, 2.2);
     const remain = 1 - eased;
 
-    // 隨時間推進水波紋理相位，讓現有 #mark 線條跟著水紋波動
     if (feTurb && feDisp && feBlur) {
-      const phaseX = 0.01 + Math.sin(elapsedMs * 0.004) * 0.004;
-      const phaseY = 0.032 + Math.cos(elapsedMs * 0.006) * 0.012;
+      const phaseX = 0.01 + Math.sin(elapsedMs * 0.004) * 0.003;
+      const phaseY = 0.032 + Math.cos(elapsedMs * 0.006) * 0.01;
       feTurb.setAttribute(
         "baseFrequency",
         `${phaseX.toFixed(4)} ${phaseY.toFixed(4)}`,
       );
-      feTurb.setAttribute("seed", String(7 + Math.floor(elapsedMs / 180)));
-      feDisp.setAttribute("scale", (remain * 34).toFixed(1));
-      feBlur.setAttribute("stdDeviation", (remain * 7.5).toFixed(2));
+      feDisp.setAttribute("scale", (remain * 28).toFixed(1));
+      feBlur.setAttribute("stdDeviation", (remain * 6).toFixed(2));
     }
 
-    // 由中間往外擴散、漸漸顯示完整標題
     const spreadX = 12 + eased * 125;
     const spreadY = 18 + eased * 125;
     const softEdge = Math.min(150, spreadX + remain * 28 + 12);
@@ -161,7 +154,6 @@
     textCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     textCtx.clearRect(0, 0, w, h);
 
-    // 彩蛋小字：隨游標靠近顯現、緩慢浮動並一起進水波波動
     const secretSpans = document.querySelectorAll(".cover-secret-text span");
     secretSpans.forEach((span, idx) => {
       const label = (span.textContent || "").trim();
@@ -189,7 +181,6 @@
       textCtx.restore();
     });
 
-    // 夢境副標：直接讀取全站 styles.css / body 字體與字重
     const bodyStyle = getComputedStyle(document.body);
     const subStyle = domText ? getComputedStyle(domText) : bodyStyle;
     const fontFamily =
@@ -199,8 +190,7 @@
     const fontWeight = bodyStyle.fontWeight || "500";
 
     const text =
-      (domText && domText.textContent.trim()) ||
-      "您進入了設計師的夢魘--ㄜ..Abandon";
+      (domText && domText.textContent.trim()) || "您已進入設計師的夢魘";
     const fs = Math.min(34, Math.max(22, w * 0.02));
     const tx = w * 0.5;
     const ty = h * SUBTITLE_Y_RATIO;
@@ -364,7 +354,7 @@
     `,
   });
 
-  /* --- 4. 顯示 Shader（文字水波折射 + 收斂 RGB 色散 + 液態玻璃高光） --- */
+  /* --- 4. 顯示 Shader --- */
   const displayMaterial = new THREE.ShaderMaterial({
     uniforms: {
       uTexture: { value: null },
@@ -498,10 +488,13 @@
     const elapsedIntro = currentTime - introStartTime;
     updateExistingMarkWave(elapsedIntro);
 
-    container.style.visibility = fade <= 0.01 ? "hidden" : "visible";
-    if (fade <= 0.01) return;
+    if (fade <= 0.01) {
+      container.style.visibility = "hidden";
+      return;
+    }
+    container.style.visibility = "visible";
 
-    if (currentTime - lastSecretUpdate > 90) {
+    if (currentTime - lastSecretUpdate > 200) {
       lastSecretUpdate = currentTime;
       drawContent(currentTime * 0.001);
       textTexture.needsUpdate = true;
@@ -516,20 +509,18 @@
     let currentStrength = 1.1;
 
     if (inAutoIntro) {
-      currentDamping = 0.991;
+      currentDamping = 0.99;
       currentStrength = 0.55;
 
       if (
         elapsedIntro < INTRO_AUTO_WAVE_MS * 0.72 &&
-        currentTime - lastAmbientPulseTime > 550
+        currentTime - lastAmbientPulseTime > 600
       ) {
         lastAmbientPulseTime = currentTime;
         const spot = ambientSpots[ambientSpotIndex % ambientSpots.length];
         ambientSpotIndex++;
-        const jitterX = Math.sin(currentTime * 0.003 + ambientSpotIndex) * 35;
-        const jitterY = Math.cos(currentTime * 0.0025 + ambientSpotIndex) * 10;
-        const sx = window.innerWidth * spot.xRatio + jitterX;
-        const sy = window.innerHeight * spot.yRatio + jitterY;
+        const sx = window.innerWidth * spot.xRatio;
+        const sy = window.innerHeight * spot.yRatio;
         inputX = sx * simScale;
         inputY = (window.innerHeight - sy) * simScale;
         activeInput = true;
