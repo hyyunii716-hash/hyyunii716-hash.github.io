@@ -1,0 +1,15 @@
+/* tools.html：更多功能的三個區塊，滑到時帶 3D 傾斜浮入（疊加在原本的 scroll-reveal.js / subpage-snap.js 上）
+   只用獨立的 rotate 屬性，不碰它們用的 opacity / transform / translate，所以不會打架。 */
+.tools-features{perspective:1600px}
+.tools-features .feature[data-reveal]{
+  rotate:y -16deg;transform-origin:0% 50%;
+  transition:opacity .9s cubic-bezier(.22,1,.36,1),translate .9s cubic-bezier(.22,1,.36,1),
+             transform .9s cubic-bezier(.22,1,.36,1),rotate 1s cubic-bezier(.22,1,.36,1)}
+.tools-features .feature--reverse[data-reveal]{rotate:y 16deg;transform-origin:100% 50%}
+.tools-features .feature[data-reveal].is-visible{rotate:y 0deg}
+/* 離場（subpage-snap 的 is-exit-*）維持原本的快速淡出 */
+.tools-features .feature[data-reveal].is-exit-up,
+.tools-features .feature[data-reveal].is-exit-down{
+  transition:opacity .45s cubic-bezier(.4,0,1,1),translate .45s cubic-bezier(.4,0,1,1),
+             transform .45s cubic-bezier(.4,0,1,1),rotate .45s cubic-bezier(.4,0,1,1)}
+@media (prefers-reduced-motion:reduce){.tools-features .feature[data-reveal]{rotate:none;transition:none}}

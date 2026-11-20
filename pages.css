@@ -245,10 +245,10 @@
     --glow-near: 0.62; --glow-mid: 0.42; --glow-far: 0.25;
   }
   /* Keep titles on one line while cards transition between slots. */
-  .slide .slide__title { white-space: nowrap; }
+  .slide .slide__title { white-space: nowrap; margin: 0; }
   /* Hide the smallest card's description without affecting its footer label. */
   .slide[data-slot="0"] .slide__desc { position: absolute; width: 0; height: 0; overflow: hidden; }
-  .slide[data-slot="0"] .slide__en { white-space: nowrap; font-size: 3cqw; }
+  .slide[data-slot="0"] .slide__en { white-space: nowrap; font-size: 5cqw; margin-top: 40px; margin-bottom: 5px; }
   .slide[data-slot="1"] { left: 10.34%; top: 16.67%; width: 30.43%; height: 66.66%; z-index: 2;  --d: 4cqw; --e: 3.9cqw; }   /* 後方卡片：內文較小 */
   .slide[data-slot="2"] {
     left: 25.57%; top: 0; width: 44.51%; height: 100%; z-index: 4;
@@ -628,8 +628,11 @@
 .tool-option__title { position: relative; z-index: 1; max-width: 58%; font-size: clamp(20px, 2.2vw, 38px); font-weight: 700; line-height: 1.35; }
 .tool-option__desc { position: relative; z-index: 1; max-width: 55%; margin-top: clamp(12px, 1.8vw, 26px); color: var(--color-tool-desc); font-size: clamp(13px, 1.15vw, 20px); line-height: 1.55; }
 .tool-option__en { position: relative; z-index: 1; margin-top: auto; font-family: var(--font-en); font-size: clamp(11px, 1vw, 16px); font-weight: 300; letter-spacing: .05em; }
-.tool-option__icon { position: absolute; top: 19%; right: 8%; width: 37%; height: auto; object-fit: contain; pointer-events: none; user-select: none; }
-.tool-option__icon--compress { top: 14%; width: 34%; }
+.tool-option__icon { position: absolute; top: var(--icon-top, 25%); right: var(--icon-right, 8%); width: 37%; height: auto; object-fit: contain; pointer-events: none; user-select: none; transform-origin: right center; }
+.tool-option--flip .tool-option__icon { --icon-scale: 0.8; --icon-top: 10%; --icon-right: 10%; transform: scale(var(--icon-scale)); }
+.tool-option--groups .tool-option__icon { --icon-scale: 1.2; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }
+.tool-option--backless .tool-option__icon { --icon-scale: 1; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }
+.tool-option--compress .tool-option__icon { --icon-scale: 1; --icon-top: 14%; --icon-right: 15%; width: 34%; transform: scale(var(--icon-scale)); }
 .tools-wordmark { display: block; width: clamp(150px, 18vw, 250px); height: auto; }
 @media (max-width: 700px) {
   .tools-dropdown { grid-template-columns: 1fr; }

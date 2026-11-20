@@ -8,7 +8,7 @@
   position:relative;width:max-content;perspective:1400px;
   transition:transform .7s cubic-bezier(.76,0,.24,1);cursor:grab;touch-action:pan-y;user-select:none}
 .values--hselect.is-dragging{transition:none;cursor:grabbing}
-.values--hselect>li{flex:0 0 min(420px,72vw);box-sizing:border-box;
+.values--hselect>li{flex:0 0 min(460px,72vw);box-sizing:border-box;
   scale:.88;rotate:y var(--tilt,0deg);filter:brightness(.45);
   transition:scale .7s cubic-bezier(.76,0,.24,1),rotate .7s cubic-bezier(.76,0,.24,1),filter .5s ease}
 .values--hselect>li.is-prev{--tilt:14deg}

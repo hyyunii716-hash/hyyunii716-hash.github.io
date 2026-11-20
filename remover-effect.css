@@ -1,0 +1,369 @@
+/* =========================================================
+   Abandon — 去背結果頁專屬樣式與消散特效（remover-effect.css）
+   ========================================================= */
+
+body.remover-page {
+  background-color: var(--color-bg, #0c0c0c);
+}
+
+html.remover-page,
+body.remover-page {
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.remover-page [data-step="download"] {
+  background-color: var(--color-bg, #0c0c0c);
+}
+
+/* 棋盤格底層 + 延伸到 nav 與 footer 之下的全版黑底 */
+.remover-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  display: none;
+  top: -300px;
+  right: -300px;
+  bottom: -300px;
+  left: -300px;
+}
+
+body.is-remover-result .remover-bg {
+  display: block;
+}
+
+.remover-bg__checker {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-color: #d9d9d9;
+  background-image:
+    linear-gradient(45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(-45deg, #ffffff 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ffffff 75%),
+    linear-gradient(-45deg, transparent 75%, #ffffff 75%);
+  background-size: 28px 28px;
+  background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+}
+
+.remover-bg__dark {
+  position: fixed;
+  top: -300px;
+  right: -300px;
+  bottom: -300px;
+  left: -300px;
+  z-index: -1;
+  background-color: #0c0c0c !important;
+  opacity: 1 !important;
+  transition: opacity 2s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+body.is-remover-result .site-footer {
+  display: none !important;
+}
+
+body.remover-page .site-header,
+body.remover-page .site-header .site-nav,
+body.remover-page .site-header--overlay .site-nav,
+body.remover-page .site-footer {
+  position: relative;
+  z-index: 10 !important;
+  background-color: transparent;
+  transition: background-color 1.2s ease, color 0.8s ease;
+}
+
+/* 初始狀態：強制 nav 文字、連結、Logo 為白色 */
+body.remover-page .site-header .site-nav__list,
+body.remover-page .site-header .site-nav__list a {
+  color: #ffffff !important;
+}
+
+body.remover-page .site-header .site-nav__list a:hover,
+body.remover-page .site-header .site-nav__list a:focus-visible,
+body.remover-page .site-header .site-nav__list a[aria-current="page"] {
+  border-bottom-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* 初始狀態：footer 文字、連結、標題為白色 */
+body.remover-page .site-footer,
+body.remover-page .site-footer p,
+body.remover-page .site-footer a,
+body.remover-page .footer-col li,
+body.remover-page .footer-col a,
+body.remover-page .footer-col__title,
+body.remover-page .site-footer__copy {
+  color: #ffffff !important;
+}
+
+/* 結果頁但未消散前：覆蓋 flow.css 規則，保持白字 */
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-header .site-nav__list,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-header .site-nav__list a {
+  color: #ffffff !important;
+}
+
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer p,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer a,
+body.is-remover-result:not(.is-remover-bg-dissolving) .footer-col li,
+body.is-remover-result:not(.is-remover-bg-dissolving) .footer-col a,
+body.is-remover-result:not(.is-remover-bg-dissolving) .footer-col__title,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer__copy {
+  color: #ffffff !important;
+}
+
+/* 結果頁但未消散前的 hover/focus 狀態 */
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-header .site-nav__list a:hover,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-header .site-nav__list a:focus-visible,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-header .site-nav__list a[aria-current="page"] {
+  border-bottom-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer a:hover,
+body.is-remover-result:not(.is-remover-bg-dissolving) .site-footer a:focus-visible,
+body.is-remover-result:not(.is-remover-bg-dissolving) .footer-col a:hover,
+body.is-remover-result:not(.is-remover-bg-dissolving) .footer-col a:focus-visible {
+  color: #ffffff !important;
+}
+
+/* 進入結果頁 1 秒後觸發消散：黑底淡出，nav 透明且 Logo/文字/底線轉黑 */
+body.is-remover-bg-dissolving [data-step="download"] {
+  background-color: transparent;
+  transition: background-color 2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body.is-remover-bg-dissolving .remover-bg__dark {
+  opacity: 0 !important;
+}
+
+body.is-remover-bg-dissolving .site-header,
+body.is-remover-bg-dissolving .site-header .site-nav,
+body.is-remover-bg-dissolving .site-header--overlay .site-nav,
+body.is-remover-bg-dissolving .site-footer {
+  background: transparent !important;
+  background-color: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+body.is-remover-bg-dissolving .site-header .site-nav__logo {
+  filter: brightness(0) !important;
+  transition: filter 0.8s ease;
+}
+
+body.remover-page.is-remover-bg-dissolving .site-header .site-nav__list,
+body.remover-page.is-remover-bg-dissolving .site-header .site-nav__list a {
+  color: #0c0c0c !important;
+}
+
+body.remover-page.is-remover-bg-dissolving .site-header .site-nav__list a:hover,
+body.remover-page.is-remover-bg-dissolving .site-header .site-nav__list a:focus-visible,
+body.remover-page.is-remover-bg-dissolving .site-header .site-nav__list a[aria-current="page"] {
+  border-bottom-color: #0c0c0c !important;
+}
+
+body.remover-page.is-remover-bg-dissolving .site-footer,
+body.remover-page.is-remover-bg-dissolving .site-footer p,
+body.remover-page.is-remover-bg-dissolving .site-footer a,
+body.remover-page.is-remover-bg-dissolving .footer-col li,
+body.remover-page.is-remover-bg-dissolving .footer-col a,
+body.remover-page.is-remover-bg-dissolving .footer-col__title,
+body.remover-page.is-remover-bg-dissolving .site-footer__copy {
+  color: #0c0c0c !important;
+}
+
+[data-step="download"] .stage-head,
+[data-step="download"] .result {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+/* 結果區：底層文字、貼合比例的相片卡片、白光沿邊流動、反彈亂飄 */
+.remover-stage {
+  position: relative;
+  width: min(640px, 88vw);
+  min-height: clamp(240px, 36vh, 360px);
+  height: clamp(240px, 36vh, 360px);
+  margin-inline: auto;
+  display: grid;
+  place-items: center;
+}
+
+.remover-secret {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--font-zh);
+  font-size: clamp(28px, 4vw, 52px);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #4f46e5;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+body.is-remover-chaotic .remover-secret {
+  opacity: 1;
+}
+
+/* 消散時隱藏所有不必要的視覺元素背景 */
+body.is-remover-bg-dissolving .remover-photo-card {
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+.remover-photo-card {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: min(420px, 76vw);
+  max-height: 46vh;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: #141414;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32);
+  animation: removerPhotoLure 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.remover-photo-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+@property --remover-rim-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.remover-photo-card::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 19px;
+  padding: 3px;
+  background: conic-gradient(
+    from var(--remover-rim-angle, 0deg),
+    rgba(255, 255, 255, 0.15) 0deg,
+    rgba(255, 255, 255, 1) 50deg,
+    rgba(220, 244, 255, 1) 95deg,
+    rgba(255, 255, 255, 0.15) 170deg,
+    rgba(255, 255, 255, 0.85) 260deg,
+    rgba(255, 255, 255, 0.15) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: removerRimSpin 2s linear infinite;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes removerRimSpin {
+  to { --remover-rim-angle: 360deg; }
+}
+
+@keyframes removerPhotoLure {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-0.5deg) scale(1); }
+  50%      { transform: translate3d(0, -5px, 0) rotate(0.7deg) scale(1.02); }
+}
+
+.remover-photo-card.is-bouncing {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 35;
+  animation: removerRimSpin 2.2s linear infinite;
+}
+
+/* 返回上頁與下載檔案按鈕統一深黑膠囊白字 + 確保文字與圖示清楚顯示 */
+.remover-actions .back-button,
+.remover-actions [data-download] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 999px;
+  background-color: #0b0b0b;
+  color: #ffffff;
+  opacity: 1;
+  border: 1px solid var(--color-stroke, #434343);
+  transform: scale(0.8);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 2s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 2s ease,
+    transform 2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.remover-actions .back-button span,
+.remover-actions [data-download] span,
+.remover-actions .back-button svg,
+.remover-actions [data-download] svg {
+  color: #ffffff;
+  stroke: currentColor;
+  opacity: 1;
+}
+
+.remover-actions .back-button:is(:hover, :focus-visible),
+.remover-actions [data-download]:is(:hover, :focus-visible) {
+  background-color: #161616;
+  border-color: #686868;
+  color: #ffffff;
+  filter: none;
+}
+
+.remover-actions .back-button.thanos-gone,
+.remover-actions [data-download].thanos-gone,
+.thanos-gone {
+  opacity: 0 !important;
+  filter: blur(10px) !important;
+  transform: scale(1.04) !important;
+  pointer-events: none !important;
+  transition:
+    opacity 2s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 2s ease,
+    transform 2s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.back-button.is-restored {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: scale(0.8) !important;
+  pointer-events: auto !important;
+  transition:
+    opacity 0.6s ease,
+    filter 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.remover-particle-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 25;
+  pointer-events: none;
+}
