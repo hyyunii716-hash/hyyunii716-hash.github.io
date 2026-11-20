@@ -273,3 +273,68 @@ if (pricingHero && interactiveBlob) {
 
   requestAnimationFrame(moveInteractiveBlob);
 }
+
+// Read the arrival marker written by the shared page transition handler.
+let shouldAssemblePricingCover = false;
+try {
+  shouldAssemblePricingCover = sessionStorage.getItem("pricing-cover-assemble") === "1";
+  sessionStorage.removeItem("pricing-cover-assemble");
+} catch (_) {}
+
+if (pricingHero && shouldAssemblePricingCover && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const logoStage = pricingHero.querySelector(".pricing-brand-stage");
+  const logo = logoStage?.querySelector(".pricing-brand");
+  const title = pricingHero.querySelector(".pricing-hero-title-text");
+  const copy = pricingHero.querySelector(".pricing-hero-copy");
+  const wrapCharacters = (element, startDelay, step) => {
+    if (!element) return 0;
+    const content = element.textContent;
+    element.textContent = "";
+    [...content].forEach((character, index) => {
+      const span = document.createElement("span");
+      span.textContent = character === " " ? "\u00a0" : character;
+      const stagger = index * step + Math.random() * step * 0.45;
+      span.style.setProperty("--letter-delay", `${startDelay + stagger}ms`);
+      span.style.setProperty("--letter-x", `${Math.round(Math.random() * 600 - 300)}px`);
+      span.style.setProperty("--letter-y", `${Math.round(Math.random() * 600 - 300)}px`);
+      span.style.setProperty("--letter-z", `${Math.round(Math.random() * -1800 - 200)}px`);
+      span.style.setProperty("--letter-rx", `${Math.round(Math.random() * 720 - 360)}deg`);
+      span.style.setProperty("--letter-ry", `${Math.round(Math.random() * 720 - 360)}deg`);
+      span.style.setProperty("--letter-rz", `${Math.round(Math.random() * 180 - 90)}deg`);
+      element.append(span);
+    });
+    return [...content].length;
+  };
+
+  // Let the destination begin rendering before assembling the cover.
+  window.setTimeout(() => {
+    if (!logoStage || !logo) return;
+    pricingHero.classList.add("is-assembling");
+    logoStage.classList.add("is-assembling");
+    const columns = 8;
+    const rows = 4;
+    for (let row = 0; row < rows; row++) {
+      for (let column = 0; column < columns; column++) {
+        const shard = logo.cloneNode();
+        shard.removeAttribute("alt");
+        shard.classList.add("pricing-brand-shard");
+        shard.style.clipPath = `inset(${row * 25}% ${(columns - column - 1) * 12.5}% ${(rows - row - 1) * 25}% ${column * 12.5}%)`;
+        shard.style.setProperty("--shard-delay", `${Math.random() * 120}ms`);
+        shard.style.setProperty("--shard-x", `${Math.round(Math.random() * 900 - 450)}px`);
+        shard.style.setProperty("--shard-y", `${Math.round(Math.random() * 700 - 350)}px`);
+        shard.style.setProperty("--shard-z", `${Math.round(Math.random() * -2200 - 300)}px`);
+        shard.style.setProperty("--shard-rx", `${Math.round(Math.random() * 720 - 360)}deg`);
+        shard.style.setProperty("--shard-ry", `${Math.round(Math.random() * 720 - 360)}deg`);
+        shard.style.setProperty("--shard-rz", `${Math.round(Math.random() * 180 - 90)}deg`);
+        logoStage.append(shard);
+      }
+    }
+    wrapCharacters(title, 0, 12);
+    wrapCharacters(copy, 0, 5);
+    window.setTimeout(() => {
+      logoStage.querySelectorAll(".pricing-brand-shard").forEach((shard) => shard.remove());
+      logoStage.classList.remove("is-assembling");
+      pricingHero.classList.remove("is-assembling");
+    }, 1650);
+  }, 80);
+}
