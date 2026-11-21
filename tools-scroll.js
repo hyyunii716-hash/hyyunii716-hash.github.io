@@ -99,7 +99,9 @@
     else goTo(positions()[1]);
   }
 
+  var featsHidden = feats.length && getComputedStyle(feats[0]).visibility === 'hidden';   // 直排功能區塊已收起：不再用滾輪吸附、也不會滑到底自動開展示，只能按「全螢幕展示」
   window.addEventListener('wheel', function (e) {
+    if (featsHidden) return;
     if (e.ctrlKey || !wide.matches) return;                               // 縮放手勢、手機版：交給瀏覽器
     if (doc.classList.contains('sc-lock')) return;                        // 全螢幕展示開著：它自己處理
     if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;                // 橫向滑動不管
@@ -147,6 +149,7 @@
 
   /* 全螢幕展示裡直向滑動離開 */
   document.addEventListener('showcase:leave', function (ev) {
+    if (featsHidden) return;                                              // 直排區塊已收起：由 showcase.js 自己處理要停在哪
     var pos = positions();
     window.scrollTo(0, ev.detail && ev.detail.dir < 0 ? pos[0] : pos[1]);  // 在淡出的展示後面先擺好位置
     needFresh = true; lastWheelT = Date.now(); holdUntil = lastWheelT + CONFIG.hold;
