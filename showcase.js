@@ -144,7 +144,7 @@
     var it = items[k];
     $('.sc__d-title').textContent = it.title; $('.sc__d-text').textContent = it.text;
     $('.sc__m-cat').textContent = it.label; $('.sc__m-no').textContent = pad(k + 1) + ' / ' + pad(n);
-    var go = $('.sc__go'); go.setAttribute('href', it.href); go.firstChild.textContent = it.linkText;
+    var go = $('.sc__go'); go.setAttribute('data-k', k); go.setAttribute('href', it.href); go.firstChild.textContent = it.linkText;
     if (it.ext) { go.target = '_blank'; go.rel = 'noopener noreferrer'; } else { go.removeAttribute('target'); go.removeAttribute('rel'); }
     $('.sc__media-wrap').innerHTML = it.media;
   }
