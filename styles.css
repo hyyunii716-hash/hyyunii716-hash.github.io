@@ -782,10 +782,7 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
   margin-top: 0;
   padding-top: 14px; /* 可依實際視覺差微調 12px ~ 18px */
 }
-/* 消除 h2 預設行高造成的上方透明留白，讓文字頂端切齊右側邊框線 */
-section.qa .section-title.section-title--left {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  line-height: 1.05 !important; /* 大字體預設行高 1.4~1.5 會在字體上方多出約 15px 空白 */
+section.qa {
+  padding-top: 220px !important;   /* 把紅框往下推到藍框位置，若還差一點可在 200px ~ 260px 間微調 */
+  padding-bottom: 60px !important; /* 保持與底下 footer 的距離，footer 不會消失 */
 }
-
