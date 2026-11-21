@@ -1,0 +1,61 @@
+.floating-words-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.floating-word {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0;
+  border: none;
+  background: transparent;
+  /* 直接繼承 styles.css 設定的字體與大小，不寫死 font-family */
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.24);
+  white-space: nowrap;
+  will-change: transform, opacity;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.floating-word:hover {
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
+}
+
+.floating-word.is-dragging {
+  cursor: grabbing;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* 內容區塊高於浮動文字層（在內容後方穿過） */
+main.page > section,
+main.page .page-head,
+.card,
+.qa__item,
+.program,
+.app-card,
+.feature,
+.disclaimer {
+  position: relative;
+  z-index: 3;
+}
+
+/* 整個 footer 壓在浮動文字上方，且保有底色才能遮住字 */
+.site-footer {
+  position: relative;
+  z-index: 10;
+  background-color: var(--bg-page, var(--bg, #0d0d10));
+}
