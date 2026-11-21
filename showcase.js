@@ -13,7 +13,10 @@
     var m = f.querySelector('.tools-media') || f.querySelector('.media'), l = f.querySelector('.feature__link'), b = f.querySelector('.tools-wordmark');
     var nm = f.querySelector('.feature__name'), mh = f.querySelector('a.media');      // 網頁程式：軟體名稱、圖片連結（進入該軟體頁面）
     var appName = nm ? nm.textContent.trim() : '';
+    var ic = f.querySelector('.app-icon'), ics = ic ? getComputedStyle(ic) : null, icr = ic ? ic.getBoundingClientRect() : null;
     return {
+      appName: appName,
+      icon: ic && icr.width ? { abbr: ic.textContent.trim(), bg: ics.backgroundColor, fg: ics.color, ff: ics.fontFamily, size: icr.width, radius: parseFloat(ics.borderTopLeftRadius) || icr.width * .2 } : null,
       label: pills[f.id] || appName, brand: b ? b.getAttribute('src') : '',
       ext: !!(mh && mh.target === '_blank'),
       title: f.querySelector('.feature__headline').textContent.trim(),
@@ -136,10 +139,6 @@
     render(); raf = requestAnimationFrame(tickLoop);
   }
   function animate() { if (reduce.matches) { pos = target; render(); return; } if (!raf) { last = performance.now(); raf = requestAnimationFrame(tickLoop); } }
-<<<<<<< Updated upstream
-  function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); animate(); }
-  function step(dir) { target = Math.round(target) + dir; animate(); }
-=======
   /* ---- 切換軟體時的轉場：光暈 + APP 圖示 + 名稱從畫面中央帶過（只有網頁程式有圖示資料） ---- */
   var lastBurst = 0, burstEl = null;
   function rgba(c, a) { var m = String(c).match(/rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/); return m ? 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + a + ')' : 'rgba(120,120,255,' + a + ')'; }
@@ -166,7 +165,6 @@
   function burstIfChanged() { var k = ((Math.round(target) % n) + n) % n; if (k !== lastBurst) burst(k); }
   function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); burstIfChanged(); animate(); }
   function step(dir) { target = Math.round(target) + dir; burstIfChanged(); animate(); }
->>>>>>> Stashed changes
 
   /* ---- 詳細內容 ---- */
   function fill(k) {
@@ -190,7 +188,7 @@
     if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
     lastWheelT = Date.now(); fresh = false;                        // 從頁面滑進來的那一下慣性，不算「再往下滑」
     root.hidden = false; document.documentElement.classList.add('sc-lock');
-    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount();
+    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount(); lastBurst = ((Math.round(target) % n) + n) % n;
     requestAnimationFrame(function () { root.classList.add('is-open'); });
     $('.sc__exit').focus({ preventScroll: true });
     
@@ -245,7 +243,7 @@
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag; drag = null; stage.classList.remove('is-drag');
-    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); animate(); return; }
+    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); burstIfChanged(); animate(); return; }
     var hit = d.t.closest && d.t.closest('[data-k]');
     if (hit) { var k = +hit.getAttribute('data-k'); if (k === idx) openDetail(); else goTo(k); }
   }
