@@ -13,7 +13,10 @@
     var m = f.querySelector('.tools-media') || f.querySelector('.media'), l = f.querySelector('.feature__link'), b = f.querySelector('.tools-wordmark');
     var nm = f.querySelector('.feature__name'), mh = f.querySelector('a.media');      // 網頁程式：軟體名稱、圖片連結（進入該軟體頁面）
     var appName = nm ? nm.textContent.trim() : '';
+    var ic = f.querySelector('.app-icon'), ics = ic ? getComputedStyle(ic) : null, icr = ic ? ic.getBoundingClientRect() : null;
     return {
+      appName: appName,
+      icon: ic && icr.width ? { abbr: ic.textContent.trim(), bg: ics.backgroundColor, fg: ics.color, ff: ics.fontFamily, size: icr.width, radius: parseFloat(ics.borderTopLeftRadius) || icr.width * .2 } : null,
       label: pills[f.id] || appName, brand: b ? b.getAttribute('src') : '',
       ext: !!(mh && mh.target === '_blank'),
       title: f.querySelector('.feature__headline').textContent.trim(),
@@ -136,8 +139,32 @@
     render(); raf = requestAnimationFrame(tickLoop);
   }
   function animate() { if (reduce.matches) { pos = target; render(); return; } if (!raf) { last = performance.now(); raf = requestAnimationFrame(tickLoop); } }
-  function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); animate(); }
-  function step(dir) { target = Math.round(target) + dir; animate(); }
+  /* ---- 切換軟體時的轉場：光暈 + APP 圖示 + 名稱從畫面中央帶過（只有網頁程式有圖示資料） ---- */
+  var lastBurst = 0, burstEl = null;
+  function rgba(c, a) { var m = String(c).match(/rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/); return m ? 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + a + ')' : 'rgba(120,120,255,' + a + ')'; }
+  function burst(k) {
+    var it = items[k]; lastBurst = k;
+    if (!it.icon || reduce.matches || inDetail || !isOpen) return;
+    if (burstEl) burstEl.remove();
+    var ic = it.icon, T = Math.round(Math.max(96, Math.min(160, Math.min(root.clientWidth, root.clientHeight) * 0.2)));
+    var box = document.createElement('div'); box.className = 'sc__burst'; box.setAttribute('aria-hidden', 'true');
+    box.innerHTML = '<div class="sc__burst-glow"></div><div class="sc__burst-icon"></div><p class="sc__burst-name"></p>';
+    var glow = box.children[0], icon = box.children[1], name = box.children[2];
+    glow.style.background = 'radial-gradient(circle at 50% 48%, ' + rgba(ic.fg, .55) + ' 0%, ' + rgba(ic.fg, .18) + ' 34%, transparent 62%)';
+    icon.textContent = ic.abbr;
+    icon.style.cssText += ';width:' + T + 'px;height:' + T + 'px;margin:' + (-T / 2 - 26) + 'px 0 0 ' + (-T / 2) + 'px;border-radius:' + (ic.radius / ic.size * T) + 'px;background:' + ic.bg + ';color:' + ic.fg + ';font-family:' + ic.ff + ';font-weight:700;letter-spacing:-.04em;font-size:' + (T * .69) + 'px;padding:0 .04em .06em 0;box-sizing:border-box';
+    name.textContent = it.appName; name.style.marginTop = (T / 2 - 14) + 'px';
+    stage.appendChild(box); burstEl = box;
+    var E = 'cubic-bezier(0.16, 1, 0.3, 1)', POP = 'cubic-bezier(0.2, 0.9, 0.25, 1.15)', D = 1000;
+    box.animate([{ backgroundColor: 'rgba(19,19,21,0)' }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .28 }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .62 }, { backgroundColor: 'rgba(19,19,21,0)' }], { duration: D, easing: 'ease-out', fill: 'forwards' });
+    glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)', offset: .4 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: D, easing: E, fill: 'forwards' });
+    icon.animate([{ opacity: 0, transform: 'scale(.45)' }, { opacity: 1, transform: 'scale(1.06)', offset: .32 }, { opacity: 1, transform: 'scale(1)', offset: .62 }, { opacity: 0, transform: 'scale(.7)' }], { duration: D, easing: POP, fill: 'forwards' });
+    name.animate([{ opacity: 0, transform: 'translateX(-50%) translateY(14px)' }, { opacity: 1, transform: 'translateX(-50%) translateY(0)', offset: .38 }, { opacity: 1, transform: 'translateX(-50%) translateY(0)', offset: .62 }, { opacity: 0, transform: 'translateX(-50%) translateY(-10px)' }], { duration: D, easing: E, fill: 'forwards' });
+    setTimeout(function () { if (burstEl === box) burstEl = null; box.remove(); }, D + 60);
+  }
+  function burstIfChanged() { var k = ((Math.round(target) % n) + n) % n; if (k !== lastBurst) burst(k); }
+  function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); burstIfChanged(); animate(); }
+  function step(dir) { target = Math.round(target) + dir; burstIfChanged(); animate(); }
 
   /* ---- 詳細內容 ---- */
   function fill(k) {
@@ -161,7 +188,7 @@
     if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
     lastWheelT = Date.now(); fresh = false;                        // 從頁面滑進來的那一下慣性，不算「再往下滑」
     root.hidden = false; document.documentElement.classList.add('sc-lock');
-    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount();
+    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount(); lastBurst = ((Math.round(target) % n) + n) % n;
     requestAnimationFrame(function () { root.classList.add('is-open'); });
     $('.sc__exit').focus({ preventScroll: true });
     
@@ -211,7 +238,7 @@
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag; drag = null; stage.classList.remove('is-drag');
-    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); animate(); return; }
+    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); burstIfChanged(); animate(); return; }
     var hit = d.t.closest && d.t.closest('[data-k]');
     if (hit) { var k = +hit.getAttribute('data-k'); if (k === idx) openDetail(); else goTo(k); }
   }
