@@ -1,0 +1,242 @@
+/* =========================================================
+   Abandon — 首頁漣漪封面雙軌音效（cover-dream-audio.js）
+   - 底層：神秘首頁.mp3 循環播放
+   - 疊加：滑鼠移動時，shiny.mp3 以「隨機音量 + 隨機間隔 + 前後交疊淡入淡出」連續播放；
+           滑鼠停下來就收尾，離開封面（漣漪淡出）也會停
+
+   為什麼之前聽不到 shiny：
+   1. fullpage-snap.js 為了擋掉別處的「掉落字」，把 window / document / body 上的 mousemove
+      監聽整個丟掉了，所以原本 window.addEventListener('mousemove') 根本沒有生效。
+      → 改用 pointermove（漣漪 liquid-water-dream.js 也是用它）。
+   2. 就算觸發了，備援播放用 audio.volume = 1~5，瀏覽器只收 0~1，會丟錯誤把整個循環中斷。
+   3. shiny.mp3 前 0.3 秒幾乎無聲（約 -50dB），每 90~230ms 就從頭重播並馬上切掉，等於一直在播靜音。
+      → 現在每一聲從檔案的「聲音本體」隨機切一段，前後疊著淡入淡出。
+   ========================================================= */
+(() => {
+  'use strict';
+
+  // ★ 快速調整區 ★
+  const BGM_CANDIDATES = [
+    'audio/神秘首頁.mp3',
+    './audio/神秘首頁.mp3',
+    '神秘首頁.mp3',
+    './神秘首頁.mp3'
+  ];
+  const SHINY_CANDIDATES = [
+    'audio/shiny.mp3',
+    './audio/shiny.mp3',
+    'shiny.mp3',
+    './shiny.mp3'
+  ];
+
+  const BGM_VOLUME = 0.72;       // 背景音樂音量（0~1）
+  const MIN_GAIN = 0.9;          // 每一聲 shiny 的隨機音量下限／上限。
+  const MAX_GAIN = 2.0;          //   shiny.mp3 本身偏小聲（最大約 -10.8dB），3 倍左右才不會爆；有限幅器保底
+  const MIN_GAP_MS = 300;         // 兩聲之間的隨機間隔
+  const MAX_GAP_MS = 400;
+  const SLICE_MIN = 1.0;         // 每一聲播放的長度（秒，隨機）
+  const SLICE_MAX = 1.2;
+  const OFFSET_MIN = 0;       // 從 shiny.mp3 第幾秒開始切（隨機；前 0.3 秒幾乎無聲所以避開）
+  const OFFSET_MAX = null;
+  const FADE_IN = 0.15;          // 每一聲的淡入／淡出（秒），疊起來就是順暢的銜接
+  const FADE_OUT = 0.28;
+  const MAX_VOICES = 4;          // 同時最多疊幾聲，超過就把最舊的快速淡掉
+  const RATE_JITTER = 0.025;     // 每一聲音高隨機偏移 ±2.5%，聽起來比較自然
+  const IDLE_MS = 220;           // 滑鼠停超過這麼久就不再觸發
+  const COVER_FADE_END = 0.34;   // 捲動到封面的這個比例後（漣漪已淡出）就停
+
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  /* ---------- 工具 ---------- */
+  async function firstAvailable(candidates, method) {
+    for (const raw of candidates) {
+      const url = encodeURI(raw);
+      try {
+        const res = await fetch(url, { method, cache: 'no-store' });
+        if (res.ok) return url;
+      } catch (_) { /* 試下一個路徑 */ }
+    }
+    return encodeURI(candidates[0]);
+  }
+
+  // 只下載一次 shiny.mp3 的原始資料（解碼等 AudioContext 建好再做）
+  const shinyData = (async () => {
+    for (const raw of SHINY_CANDIDATES) {
+      try {
+        const res = await fetch(encodeURI(raw));
+        if (res.ok) return await res.arrayBuffer();
+      } catch (_) { /* 試下一個路徑 */ }
+    }
+    console.warn('[cover-dream-audio] 找不到 shiny.mp3，已嘗試：', SHINY_CANDIDATES.join('、'));
+    return null;
+  })();
+
+  function decode(ctx, ab) {
+    return new Promise((resolve, reject) => {
+      const p = ctx.decodeAudioData(ab, resolve, reject);   // 舊版 Safari 只支援 callback
+      if (p && typeof p.then === 'function') p.then(resolve, reject);
+    });
+  }
+
+  /* ---------- 背景音樂（用原生 audio，不經過 AudioContext，互不影響） ---------- */
+  let bgmEl = null;
+  let bgmPlaying = false;
+
+  async function initBgm() {
+    const url = await firstAvailable(BGM_CANDIDATES, 'HEAD');
+    bgmEl = new Audio(url);
+    bgmEl.loop = true;
+    bgmEl.preload = 'auto';
+    bgmEl.volume = BGM_VOLUME;
+    bgmEl.addEventListener('error', () => {
+      console.warn('[cover-dream-audio] 找不到或無法讀取音檔:', url);
+    });
+    tryPlayBgm();
+  }
+
+  function tryPlayBgm() {
+    if (!bgmEl || bgmPlaying) return;
+    const p = bgmEl.play();
+    if (p && typeof p.then === 'function') {
+      p.then(() => { bgmPlaying = true; maybeDone(); }).catch(() => { /* 等使用者互動解鎖 */ });
+    }
+  }
+
+  /* ---------- shiny：WebAudio ---------- */
+  let ctx = null;
+  let master = null;
+  let shinyBuffer = null;
+  let decoding = false;
+  const voices = [];            // { fader, endT }
+
+  function ensureCtx() {
+    if (ctx) return ctx;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    ctx = new Ctx();
+
+    master = ctx.createGain();
+    master.gain.value = 0.9;
+    const limiter = ctx.createDynamicsCompressor();       // 多聲疊起來時防爆音
+    limiter.threshold.value = -10;
+    limiter.knee.value = 6;
+    limiter.ratio.value = 12;
+    limiter.attack.value = 0.003;
+    limiter.release.value = 0.2;
+    master.connect(limiter);
+    limiter.connect(ctx.destination);
+
+    prepareBuffer();
+    return ctx;
+  }
+
+  async function prepareBuffer() {
+    if (shinyBuffer || decoding || !ctx) return;
+    decoding = true;
+    try {
+      const data = await shinyData;
+      if (data) shinyBuffer = await decode(ctx, data.slice(0));
+    } catch (err) {
+      console.warn('[cover-dream-audio] shiny.mp3 解碼失敗：', err);
+    } finally {
+      decoding = false;
+    }
+  }
+
+  function resumeCtx() {
+    const c = ensureCtx();
+    if (c && c.state !== 'running') c.resume().catch(() => {});
+  }
+
+  function playVoice() {
+    const now = ctx.currentTime;
+    const start = now + 0.005;
+    const len = Math.min(rand(SLICE_MIN, SLICE_MAX), shinyBuffer.duration - 0.1);
+    const offset = rand(OFFSET_MIN, Math.max(OFFSET_MIN, Math.min(OFFSET_MAX, shinyBuffer.duration - len - 0.05)));
+    const peak = rand(MIN_GAIN, MAX_GAIN);                 // 這一聲的隨機音量
+
+    const src = ctx.createBufferSource();
+    src.buffer = shinyBuffer;
+    src.playbackRate.value = 1 + rand(-RATE_JITTER, RATE_JITTER);
+
+    const env = ctx.createGain();                           // 這一聲自己的淡入淡出
+    const fadeIn = Math.min(FADE_IN, len / 3), fadeOut = Math.min(FADE_OUT, len / 2);
+    env.gain.setValueAtTime(0, start);
+    env.gain.linearRampToValueAtTime(peak, start + fadeIn);
+    env.gain.setValueAtTime(peak, start + len - fadeOut);
+    env.gain.linearRampToValueAtTime(0, start + len);
+
+    const fader = ctx.createGain();                         // 另外一層：被擠掉時才動它，不跟 env 的排程打架
+    src.connect(env);
+    env.connect(fader);
+    fader.connect(master);
+
+    src.start(start, offset, len + 0.05);
+    src.stop(start + len + 0.1);
+
+    const voice = { fader, endT: start + len };
+    voices.push(voice);
+    src.onended = () => {
+      const i = voices.indexOf(voice);
+      if (i >= 0) voices.splice(i, 1);
+      try { src.disconnect(); env.disconnect(); fader.disconnect(); } catch (_) {}
+    };
+
+    // 疊太多聲：把最舊的那聲快速淡掉（交叉淡出，不是硬切）
+    const active = voices.filter((v) => v.endT > now && !v.dying);
+    if (active.length > MAX_VOICES) {
+      const oldest = active[0];
+      oldest.dying = true;
+      oldest.fader.gain.setTargetAtTime(0.0001, now, 0.05);
+    }
+  }
+
+  /* ---------- 觸發：滑鼠移動 ---------- */
+  const track = document.getElementById('coverTrack');
+  function coverActive() {
+    if (!track) return true;
+    const max = Math.max(1, track.offsetHeight - window.innerHeight);
+    return Math.min(1, Math.max(0, (window.scrollY || 0) / max)) < COVER_FADE_END;
+  }
+
+  let lastMoveT = -1e9;
+  let timer = null;
+
+  function shouldPlay() {
+    return !!(ctx && ctx.state === 'running' && shinyBuffer && !document.hidden &&
+              performance.now() - lastMoveT < IDLE_MS && coverActive());
+  }
+
+  function loop() {
+    timer = null;
+    if (!shouldPlay()) return;                              // 滑鼠停了／離開封面：不再排下一聲，已在播的自然收尾
+    playVoice();
+    timer = setTimeout(loop, rand(MIN_GAP_MS, MAX_GAP_MS)); // 隨機間隔
+  }
+
+  let lastResumeTry = 0;
+  window.addEventListener('pointermove', () => {
+    const now = performance.now();
+    lastMoveT = now;
+    if (!ctx || ctx.state !== 'running') {                  // 還沒解鎖：順便試著喚醒（有些瀏覽器不需要點擊）
+      if (now - lastResumeTry > 400) { lastResumeTry = now; resumeCtx(); }
+    }
+    if (!timer) loop();
+  }, { passive: true });
+
+  /* ---------- 解鎖自動播放限制 ---------- */
+  const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'keydown', 'touchend', 'click', 'wheel', 'touchstart'];
+  function unlock() {
+    resumeCtx();
+    tryPlayBgm();
+    maybeDone();
+  }
+  function maybeDone() {
+    if (bgmPlaying && ctx && ctx.state === 'running') {
+      UNLOCK_EVENTS.forEach((ev) => window.removeEventListener(ev, unlock));
+    }
+  }
+  UNLOCK_EVENTS.forEach((ev) => window.addEventListener(ev, unlock, { passive: true }));
+
+  initBgm();
+})();
