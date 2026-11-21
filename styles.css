@@ -202,7 +202,7 @@ svg { display: block; }
   line-height: 1.4;
 }
 
-/* 品牌宣言動畫：JS 切字完成前先隱藏，避免閃一下 */
+/* 品牌宣言動畫：JS */
 .js .manifesto p { visibility: hidden; }
 .manifesto .split-line { padding-block: 0.08em; }   /* 遮罩不裁到字的上下緣 */
 
@@ -475,7 +475,7 @@ svg { display: block; }
 }
 
 /* ==========================================================
-   Hover / Focus（首頁；設計稿影片沒示範，這是我補的一致性效果）
+   Hover / Focus
    ========================================================== */
 :focus-visible { outline: 2px solid var(--color-text); outline-offset: 3px; }
 
@@ -688,10 +688,10 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 .tools .tools__grid > li:nth-child(4).is-revealed .card--tool { animation-delay: 0.61s; }
 
 /* =========================================================
-   「現在可以使用的工具」卡片：絲滑上浮（不與進場動畫打架）
+   「現在可以使用的工具」卡片：上浮（不與進場動畫打架）
    ========================================================= */
 
-/* 1. 進場搖晃改用獨立的 translate / rotate 屬性，完全不佔用 transform */
+/* 1. 進場搖晃改用獨立的 translate  */
 .tools .tools__grid > li.is-revealed .card--tool {
   animation: wobble-hor-top 0.8s both;
 }
@@ -784,6 +784,11 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
   padding-top: 14px; /* 可依實際視覺差微調 12px ~ 18px */
 }
 section.qa {
-  padding-top: 220px !important;   /* 把紅框往下推到藍框位置，若還差一點可在 200px ~ 260px 間微調 */
+  padding-top: 240px !important;   /* 把紅框往下推到藍框位置，若還差一點可在 200px ~ 260px 間微調 */
   padding-bottom: 60px !important; /* 保持與底下 footer 的距離，footer 不會消失 */
+}
+.manifesto {
+  padding-top: 240px !important;    /* 數字越大，品牌宣言越往下推（原本約 172px） */
+  padding-bottom: 0px !important;
+  margin-bottom: -32px !important;  /* 維持跟下面三張字卡拉近的距離，可依視覺微調 */
 }
