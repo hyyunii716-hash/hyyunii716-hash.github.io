@@ -74,23 +74,28 @@
   }
 
   /* ---------- 離開：apps.html ---------- */
-  function leave(card, link, external) {
+  function leave(card, link, external, sc) {          // sc：從全螢幕展示的「前往」按鈕出發
     if (document.documentElement.classList.contains('az-leaving')) return;
     styleTag();
-    var feat = card.classList.contains('feature');                  // 下方介紹列：以圖片為放大起點
+    var feat = !sc && card.classList.contains('feature');                  // 下方介紹列：以圖片為放大起點
     var icon0 = card.querySelector('.app-icon'), nameEl = card.querySelector('.app-card__name, .feature__name');
     if (!icon0 || !nameEl) return false;
-    var ics = getComputedStyle(icon0), ns = getComputedStyle(nameEl), cs = getComputedStyle(feat ? link : card);
-    var ir = icon0.getBoundingClientRect(), nr = nameEl.getBoundingClientRect(), cr = (feat ? link : card).getBoundingClientRect();
+    var ics = getComputedStyle(icon0), ns = getComputedStyle(nameEl), cs = getComputedStyle(feat || sc ? link : card);
+    var ir = icon0.getBoundingClientRect(), nr = nameEl.getBoundingClientRect(), cr = (feat || sc ? link : card).getBoundingClientRect();
     var rng = document.createRange(); rng.selectNodeContents(nameEl);
     var tr = rng.getBoundingClientRect();
     nr = { left: tr.left, top: nr.top, width: tr.width };            // 文字實際寬度，放大後才會真正置中
+    var realSize = ir.width;
+    if (sc) {                                                        // 圖示與名稱從按鈕中心冒出來
+      ir = { left: cr.left + cr.width / 2 - 24, top: cr.top + cr.height / 2 - 24, width: 48 };
+      nr = { left: cr.left + cr.width / 2 - tr.width / 2, top: cr.top + cr.height / 2 - 12, width: tr.width };
+    }
     var st = { abbr: icon0.textContent.trim(), name: nameEl.textContent.trim(), bg: ics.backgroundColor, fg: ics.color, ff: ics.fontFamily,
-      size: ir.width, radius: parseFloat(ics.borderTopLeftRadius) || ir.width * .0864, nameFf: ns.fontFamily, nameSize: parseFloat(ns.fontSize), nameWeight: ns.fontWeight, nameLs: ns.letterSpacing, t: Date.now() };
+      size: realSize, radius: parseFloat(ics.borderTopLeftRadius) || realSize * .0864, nameFf: ns.fontFamily, nameSize: parseFloat(ns.fontSize), nameWeight: ns.fontWeight, nameLs: ns.letterSpacing, t: Date.now() };
 
     var root = document.createElement('div'); root.className = 'az'; root.setAttribute('aria-hidden', 'true');
     var base = document.createElement('div'); base.className = 'az__base';
-    var bgNow = cs.backgroundColor === 'rgba(0, 0, 0, 0)' ? '#121212' : cs.backgroundColor;
+    var bgNow = sc ? '#131315' : (cs.backgroundColor === 'rgba(0, 0, 0, 0)' ? '#121212' : cs.backgroundColor);
     base.style.cssText += ';left:' + cr.left + 'px;top:' + cr.top + 'px;width:' + cr.width + 'px;height:' + cr.height + 'px;border-radius:' + cs.borderTopLeftRadius + ';background:' + bgNow + ';border:' + cs.borderTopWidth + ' solid ' + cs.borderTopColor + ';box-sizing:border-box';
     var glow = document.createElement('div'); glow.className = 'az__glow'; glow.style.background = glowCss(st.fg);
     var veil = null;
@@ -120,11 +125,11 @@
     base.animate([{ backgroundColor: bgNow }, { backgroundColor: BG }], { duration: D, easing: 'ease-out', fill: 'forwards' });
     glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)' }], { duration: D, delay: 120, easing: EASE_OUT, fill: 'forwards' });
     var s = T / ir.width, dx = (c.x - T / 2) - ir.left, dy = (c.y - T / 2) - ir.top;
-    icon.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')' }], { duration: D, easing: EASE_POP, fill: 'forwards' });
+    icon.animate([{ transform: 'translate(0,0) scale(1)', opacity: sc ? 0 : 1 }, { transform: 'translate(' + (dx * .2) + 'px,' + (dy * .2) + 'px) scale(' + (1 + (s - 1) * .2) + ')', opacity: 1, offset: .2 }, { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')', opacity: 1 }], { duration: D, easing: EASE_POP, fill: 'forwards' });
     var w1 = name.getBoundingClientRect().width, NS = Math.min(NAME_SCALE, innerWidth * 0.86 / w1);   // 窄螢幕：名稱太長時縮小倍率，不超出畫面
     st.nameScale = NS;
     var nw = w1 * NS, tx = c.x - nw / 2 - nr.left, ty = (c.y + T / 2 + 22) - nr.top;
-    name.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + NS + ')' }], { duration: D, easing: EASE_IO, fill: 'forwards' });
+    name.animate([{ transform: 'translate(0,0) scale(1)', opacity: sc ? 0 : 1 }, { transform: 'translate(' + (tx * .25) + 'px,' + (ty * .25) + 'px) scale(' + (1 + (NS - 1) * .25) + ')', opacity: 1, offset: .25 }, { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + NS + ')', opacity: 1 }], { duration: D, easing: EASE_IO, fill: 'forwards' });
 
     if (external) {
       /* 外部連結（Illustrator）：放大動畫播完後在新分頁開啟，原頁面淡出動畫、恢復原狀；被擋彈窗就改用本頁開啟 */
@@ -154,6 +159,14 @@
 
   document.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0) return;
+    var go = e.target.closest && e.target.closest('.sc__go');          // 全螢幕展示詳細頁的「前往 ○○」
+    if (go) {
+      var gf = document.querySelectorAll('.apps-features .feature')[+go.getAttribute('data-k')], gh = go.getAttribute('href') || '', gx = go.target === '_blank';
+      if (!gf || !(gx || /^[\w.-]+\.html?$/i.test(gh))) return;
+      e.preventDefault();
+      if (leave(gf, go, gx, true) === false) { if (gx) window.open(go.href, '_blank'); else location.href = go.href; }
+      return;
+    }
     var card = e.target.closest && e.target.closest('.app-card');
     var hit = e.target.closest('a');
     var link;
