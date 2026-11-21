@@ -155,7 +155,7 @@
     icon.style.cssText += ';width:' + T + 'px;height:' + T + 'px;margin:' + (-T / 2 - 26) + 'px 0 0 ' + (-T / 2) + 'px;border-radius:' + (ic.radius / ic.size * T) + 'px;background:' + ic.bg + ';color:' + ic.fg + ';font-family:' + ic.ff + ';font-weight:700;letter-spacing:-.04em;font-size:' + (T * .69) + 'px;padding:0 .04em .06em 0;box-sizing:border-box';
     name.textContent = it.appName; name.style.marginTop = (T / 2 - 14) + 'px';
     stage.appendChild(box); burstEl = box;
-    var E = 'cubic-bezier(0.16, 1, 0.3, 1)', POP = 'cubic-bezier(0.2, 0.9, 0.25, 1.15)', D = 1000;
+    var E = 'cubic-bezier(0.16, 1, 0.3, 1)', POP = 'cubic-bezier(0.2, 0.9, 0.25, 1.15)', D = 1900;   // 轉場總長（毫秒）：越大越慢
     box.animate([{ backgroundColor: 'rgba(19,19,21,0)' }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .28 }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .62 }, { backgroundColor: 'rgba(19,19,21,0)' }], { duration: D, easing: 'ease-out', fill: 'forwards' });
     glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)', offset: .4 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: D, easing: E, fill: 'forwards' });
     icon.animate([{ opacity: 0, transform: 'scale(.45)' }, { opacity: 1, transform: 'scale(1.06)', offset: .32 }, { opacity: 1, transform: 'scale(1)', offset: .62 }, { opacity: 0, transform: 'scale(.7)' }], { duration: D, easing: POP, fill: 'forwards' });
