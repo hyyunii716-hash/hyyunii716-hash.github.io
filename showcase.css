@@ -1,5 +1,18 @@
 /* 更多功能：全螢幕展示（橫向滑動 + 點進去看詳細）
    版面參考「作品展示」網站：大標題疊在圖上、兩側露出相鄰標題、拖曳 / 滾輪 / 方向鍵切換，點中間進入詳細內容。 */
+
+/* 字體進場動畫 */
+html.js-fx .sc__title .fx-word { display: inline-block; white-space: nowrap; }
+html.js-fx .sc__title .fx-char {
+  display: inline-block;
+  opacity: 0;
+  translate: .8em 1.1em;
+  transition:
+    opacity .6s var(--fx-ease, ease) calc(var(--i, 0) * var(--fx-stagger, 34ms) + var(--fx-delay, 0ms)),
+    translate .8s var(--fx-ease, ease) calc(var(--i, 0) * var(--fx-stagger, 34ms) + var(--fx-delay, 0ms));
+}
+html.js-fx .sc__title.is-in .fx-char { opacity: 1; translate: 0 0; }
+
 .sc-open { margin-top: 18px; }
 
 .sc {
@@ -8,9 +21,9 @@
   position: fixed; inset: 0; z-index: 400; overflow: hidden;
   background: var(--sc-bg); color: var(--sc-fg);
   font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  opacity: 0; visibility: hidden; transition: opacity .45s var(--sc-ease), visibility 0s .45s;
+  opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .45s var(--sc-ease), visibility 0s .45s;
 }
-.sc.is-open { opacity: 1; visibility: visible; transition: opacity .45s var(--sc-ease); }
+.sc.is-open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .88s var(--sc-ease); }
 .sc[hidden] { display: none; }
 .sc button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .sc button:focus-visible { outline: 2px solid #8b7bff; outline-offset: 4px; }

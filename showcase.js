@@ -56,7 +56,55 @@
   var titles = [].slice.call(root.querySelectorAll('.sc__title')), medias = [].slice.call(root.querySelectorAll('.sc__media'));
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  /* 字體進場動畫：拆分字符並添加樣式 */
+  function splitChars(el, startIdx) {
+    var text = el.textContent.trim(), tokens = text.match(/[A-Za-z0-9]+(?:[-''][A-Za-z0-9]+)*|\s+|[\s\S]/g) || [];
+    var closers = /^[，。、；：！？）」』》〉,.!?;:)\]]$/, units = [], idx = startIdx, frag = document.createDocumentFragment();
+    tokens.forEach(function (t) {
+      if (/^\s+$/.test(t)) units.push({ sp: true });
+      else if (closers.test(t) && units.length && !units[units.length - 1].sp) units[units.length - 1].t += t;
+      else units.push({ t: t });
+    });
+    function charSpan(ch) {
+      var s = document.createElement('span');
+      s.className = 'fx-char'; s.setAttribute('aria-hidden', 'true');
+      s.style.setProperty('--i', idx++); s.textContent = ch; return s;
+    }
+    units.forEach(function (u) {
+      if (u.sp) { frag.appendChild(document.createTextNode(' ')); return; }
+      if (/^[A-Za-z0-9]/.test(u.t)) {
+        var w = document.createElement('span'); w.className = 'fx-word'; w.setAttribute('aria-hidden', 'true');
+        u.t.split('').forEach(function (ch) { w.appendChild(charSpan(ch)); });
+        frag.appendChild(w);
+      } else frag.appendChild(charSpan(u.t));
+    });
+    el.setAttribute('aria-label', text);
+    el.textContent = ''; el.appendChild(frag);
+    return idx;
+  }
+
+  /* 設置進場動畫的 CSS 變數 */
+  function setupAnimationVars(titleEl, k) {
+    titleEl.style.setProperty('--fx-stagger', '34ms');  // 標題逐字間隔
+    titleEl.style.setProperty('--fx-delay', (k * 200) + 'ms');  // 每個標題的延遲
+  }
+
+  /* 重置進場動畫（移除 is-in 以便重新播放） */
+  function resetAnimations() {
+    titles.forEach(function (t) { t.classList.remove('is-in'); });
+  }
+
+  /* 播放進場動畫 */
+  function playEntranceAnimation() {
+    if (reduce.matches) return;
+    // 稍微延遲，確保動畫能被瀏覽器重新觸發
+    setTimeout(function () {
+      titles.forEach(function (t) { t.classList.add('is-in'); });
+    }, 50);
+  }
+
   var pos = 0, target = 0, S = 800, raf = 0, last = 0, idx = 0, isOpen = false, inDetail = false, lastFocus = null;
+  var lastWheelT = 0, fresh = false;                              // 判斷「新的一次滑動」用（見滾輪段落）
   function wrap(d) { var h = n / 2; return ((d + h) % n + n) % n - h; }
   function measure() {
     var W = root.clientWidth || window.innerWidth, avg = 0;
@@ -106,10 +154,26 @@
   /* ---- 開啟 / 關閉 ---- */
   function open(startK) {
     if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
+    lastWheelT = Date.now(); fresh = false;                        // 從頁面滑進來的那一下慣性，不算「再往下滑」
     root.hidden = false; document.documentElement.classList.add('sc-lock');
     measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount();
     requestAnimationFrame(function () { root.classList.add('is-open'); });
     $('.sc__exit').focus({ preventScroll: true });
+    
+    /* 重新設置並播放字體進場動畫 */
+    document.documentElement.classList.add('js-fx');
+    titles.forEach(function (t, k) {
+      t.classList.remove('is-in');  // 重置動畫狀態
+      splitChars(t, 0);  // 重新拆分字符
+      setupAnimationVars(t, k);  // 設置 CSS 變數
+    });
+    playEntranceAnimation();  // 播放進場動畫
+  }
+  /* 直向滑動離開展示：dir = 1 往下（回到下方三個直排功能）、-1 往上（回到「更多功能」標題）。
+     先照一般關閉淡出，再發出 showcase:leave，讓頁面（tools-scroll.js）把捲動位置擺好 */
+  function leave(dir) {
+    close();
+    document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
   }
   function close() {
     if (!isOpen) return; isOpen = false; closeDetail();
@@ -152,9 +216,15 @@
   var wheelLock = 0;
   stage.addEventListener('wheel', function (e) {
     e.preventDefault();
-    var d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY, now = Date.now();
-    if (Math.abs(d) < 8 || now - wheelLock < 450) return;
-    wheelLock = now; step(d > 0 ? 1 : -1);
+    if (!isOpen) return;
+    var now = Date.now(), gap = now - lastWheelT; lastWheelT = now;
+    if (gap > 140) fresh = true;                                  // 手指停過再滑，才算新的一次
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {                // 直向：離開展示（橫向仍然是左右切換）
+      if (!fresh || Math.abs(e.deltaY) < 8) return;
+      fresh = false; leave(e.deltaY > 0 ? 1 : -1); return;
+    }
+    if (Math.abs(e.deltaX) < 8 || now - wheelLock < 450) return;
+    wheelLock = now; step(e.deltaX > 0 ? 1 : -1);
   }, { passive: false });
   document.addEventListener('keydown', function (e) {
     if (!isOpen) return;
