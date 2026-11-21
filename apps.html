@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="flow.css">
   <link rel="stylesheet" href="spotlight.css">
   <link rel="stylesheet" href="page-transition.css">
+  <link rel="stylesheet" href="showcase.css">
 <script src="app-zoom.js"></script>
 <link rel="stylesheet" href="styleguide.css">
 </head>
@@ -104,7 +105,10 @@
     </section>
 
     <!-- 介紹列 -->
-    <section class="container features" aria-label="應用程式介紹">
+    <div class="container apps-features-head">
+      <button type="button" class="btn btn--outline sc-open" data-showcase-open>全螢幕展示</button>
+    </div>
+    <section class="container features apps-features" aria-label="應用程式介紹">
 
       <article class="feature">
         <a class="media media--illustrator" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer" aria-label="前往 Abandon illustrator（新分頁開啟 ChatGPT）— 黑色底與藍色細線條組成的波浪紋理"></a>
@@ -203,6 +207,7 @@
   </footer>
 
   <script src="app-filter.js"></script>
+  <script src="showcase.js"></script>
   <script src="cursor-trail.js"></script>
   <script>
 (function () {
