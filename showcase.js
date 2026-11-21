@@ -34,6 +34,7 @@
 
   var root = document.createElement('div');
   root.className = 'sc'; root.hidden = true;
+  if (isApps) root.classList.add('sc--apps');
   root.setAttribute('role', 'dialog'); root.setAttribute('aria-modal', 'true'); root.setAttribute('aria-label', isApps ? '網頁程式全螢幕展示' : '更多功能全螢幕展示');
   root.innerHTML =
     '<div class="sc__bar">' +
@@ -139,32 +140,8 @@
     render(); raf = requestAnimationFrame(tickLoop);
   }
   function animate() { if (reduce.matches) { pos = target; render(); return; } if (!raf) { last = performance.now(); raf = requestAnimationFrame(tickLoop); } }
-  /* ---- 切換軟體時的轉場：光暈 + APP 圖示 + 名稱從畫面中央帶過（只有網頁程式有圖示資料） ---- */
-  var lastBurst = 0, burstEl = null;
-  function rgba(c, a) { var m = String(c).match(/rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/); return m ? 'rgba(' + m[1] + ',' + m[2] + ',' + m[3] + ',' + a + ')' : 'rgba(120,120,255,' + a + ')'; }
-  function burst(k) {
-    var it = items[k]; lastBurst = k;
-    if (!it.icon || reduce.matches || inDetail || !isOpen) return;
-    if (burstEl) burstEl.remove();
-    var ic = it.icon, T = Math.round(Math.max(96, Math.min(160, Math.min(root.clientWidth, root.clientHeight) * 0.2)));
-    var box = document.createElement('div'); box.className = 'sc__burst'; box.setAttribute('aria-hidden', 'true');
-    box.innerHTML = '<div class="sc__burst-glow"></div><div class="sc__burst-icon"></div><p class="sc__burst-name"></p>';
-    var glow = box.children[0], icon = box.children[1], name = box.children[2];
-    glow.style.background = 'radial-gradient(circle at 50% 48%, ' + rgba(ic.fg, .55) + ' 0%, ' + rgba(ic.fg, .18) + ' 34%, transparent 62%)';
-    icon.textContent = ic.abbr;
-    icon.style.cssText += ';width:' + T + 'px;height:' + T + 'px;margin:' + (-T / 2 - 26) + 'px 0 0 ' + (-T / 2) + 'px;border-radius:' + (ic.radius / ic.size * T) + 'px;background:' + ic.bg + ';color:' + ic.fg + ';font-family:' + ic.ff + ';font-weight:700;letter-spacing:-.04em;font-size:' + (T * .69) + 'px;padding:0 .04em .06em 0;box-sizing:border-box';
-    name.textContent = it.appName; name.style.marginTop = (T / 2 - 14) + 'px';
-    stage.appendChild(box); burstEl = box;
-    var E = 'cubic-bezier(0.16, 1, 0.3, 1)', POP = 'cubic-bezier(0.2, 0.9, 0.25, 1.15)', D = 1000;
-    box.animate([{ backgroundColor: 'rgba(19,19,21,0)' }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .28 }, { backgroundColor: 'rgba(19,19,21,.9)', offset: .62 }, { backgroundColor: 'rgba(19,19,21,0)' }], { duration: D, easing: 'ease-out', fill: 'forwards' });
-    glow.animate([{ opacity: 0, transform: 'scale(.5)' }, { opacity: 1, transform: 'scale(1)', offset: .4 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: D, easing: E, fill: 'forwards' });
-    icon.animate([{ opacity: 0, transform: 'scale(.45)' }, { opacity: 1, transform: 'scale(1.06)', offset: .32 }, { opacity: 1, transform: 'scale(1)', offset: .62 }, { opacity: 0, transform: 'scale(.7)' }], { duration: D, easing: POP, fill: 'forwards' });
-    name.animate([{ opacity: 0, transform: 'translateX(-50%) translateY(14px)' }, { opacity: 1, transform: 'translateX(-50%) translateY(0)', offset: .38 }, { opacity: 1, transform: 'translateX(-50%) translateY(0)', offset: .62 }, { opacity: 0, transform: 'translateX(-50%) translateY(-10px)' }], { duration: D, easing: E, fill: 'forwards' });
-    setTimeout(function () { if (burstEl === box) burstEl = null; box.remove(); }, D + 60);
-  }
-  function burstIfChanged() { var k = ((Math.round(target) % n) + n) % n; if (k !== lastBurst) burst(k); }
-  function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); burstIfChanged(); animate(); }
-  function step(dir) { target = Math.round(target) + dir; burstIfChanged(); animate(); }
+  function goTo(k) { var base = Math.round(target); target = base + wrap(k - (((base % n) + n) % n)); animate(); }
+  function step(dir) { target = Math.round(target) + dir; animate(); }
 
   /* ---- 詳細內容 ---- */
   function fill(k) {
@@ -188,7 +165,7 @@
     if (isOpen) return; isOpen = true; lastFocus = document.activeElement;
     lastWheelT = Date.now(); fresh = false;                        // 從頁面滑進來的那一下慣性，不算「再往下滑」
     root.hidden = false; document.documentElement.classList.add('sc-lock');
-    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount(); lastBurst = ((Math.round(target) % n) + n) % n;
+    measure(); pos = target = typeof startK === 'number' ? startK : 0; idx = -1; render(); updateCount();
     requestAnimationFrame(function () { root.classList.add('is-open'); });
     $('.sc__exit').focus({ preventScroll: true });
     
@@ -206,6 +183,11 @@
   function leave(dir) {
     close();
     document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
+    /* 直排介紹已收起（只能從展示看）：往下滑 → 接到頁尾；往上滑 → 回到「全螢幕展示」按鈕 */
+    if (getComputedStyle(feats[0]).visibility === 'hidden') {
+      if (dir > 0) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+      else if (openers[0]) openers[0].scrollIntoView({ block: 'center', behavior: 'instant' });
+    }
   }
   function close() {
     if (!isOpen) return; isOpen = false; closeDetail();
@@ -238,11 +220,18 @@
   function endDrag(e) {
     if (!drag || e.pointerId !== drag.id) return;
     var d = drag; drag = null; stage.classList.remove('is-drag');
-    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); burstIfChanged(); animate(); return; }
+    if (d.moved) { target = Math.round(pos - d.vx * 0.9 / 1); animate(); return; }
     var hit = d.t.closest && d.t.closest('[data-k]');
     if (hit) { var k = +hit.getAttribute('data-k'); if (k === idx) openDetail(); else goTo(k); }
   }
   stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag);
+  /* 手機：直向滑動離開（往上滑 = 往下看 → 頁尾；往下滑 → 回到按鈕）。橫向仍然是切換 */
+  var tch = null;
+  stage.addEventListener('touchstart', function (e) { var t = e.touches[0]; tch = e.touches.length === 1 ? { x: t.clientX, y: t.clientY } : null; }, { passive: true });
+  stage.addEventListener('touchend', function (e) {
+    if (!tch || !isOpen) return; var t = e.changedTouches[0], dx = t.clientX - tch.x, dy = t.clientY - tch.y; tch = null;
+    if (Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx) * 1.6) leave(dy < 0 ? 1 : -1);
+  }, { passive: true });
 
   /* ---- 滾輪 / 鍵盤 ---- */
   var wheelLock = 0;

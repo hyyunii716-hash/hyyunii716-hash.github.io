@@ -20,6 +20,9 @@ html.js-fx .sc__title.is-in .fx-char { opacity: 1; translate: 0 0; }
 .sc__burst-name { position: absolute; left: 50%; top: 50%; margin: 0; white-space: nowrap; color: #fff; font-family: var(--font-en, inherit); font-size: clamp(22px, 3vw, 42px); opacity: 0; will-change: transform, opacity; }
 .apps-features-head { display: flex; justify-content: center; margin-top: clamp(8px, 2vw, 32px); }
 .apps-features-head .sc-open { margin-top: 0; }
+/* 介紹內容只在「全螢幕展示」裡看：頁面上的直排區塊收起來，不能往下滑看到。
+   （區塊還留在頁面裡，因為展示是從這裡讀文字與圖示；要整個移除的話，展示程式要一起改） */
+.tools-features, .apps-features { position: absolute !important; left: -9999px !important; top: 0 !important; width: 1200px !important; height: 0 !important; overflow: hidden !important; visibility: hidden !important; pointer-events: none !important; margin: 0 !important; padding: 0 !important; }
 
 .sc {
   --sc-bg: #131315; --sc-fg: #f4f4f2; --sc-muted: #8c8c93; --sc-line: #2c2c31;
@@ -112,3 +115,6 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .sc, .sc * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
 }
+
+/* 網頁程式：詳細頁不放下方大圖（往下滑不會再出現一張圖） */
+.sc--apps .sc__big { display: none; }
