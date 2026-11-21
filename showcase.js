@@ -179,6 +179,11 @@
   function leave(dir) {
     close();
     document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
+    /* 直排介紹已收起（只能從展示看）：往下滑 → 接到頁尾；往上滑 → 回到「全螢幕展示」按鈕 */
+    if (getComputedStyle(feats[0]).visibility === 'hidden') {
+      if (dir > 0) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+      else if (openers[0]) openers[0].scrollIntoView({ block: 'center', behavior: 'instant' });
+    }
   }
   function close() {
     if (!isOpen) return; isOpen = false; closeDetail();
@@ -216,6 +221,13 @@
     if (hit) { var k = +hit.getAttribute('data-k'); if (k === idx) openDetail(); else goTo(k); }
   }
   stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag);
+  /* 手機：直向滑動離開（往上滑 = 往下看 → 頁尾；往下滑 → 回到按鈕）。橫向仍然是切換 */
+  var tch = null;
+  stage.addEventListener('touchstart', function (e) { var t = e.touches[0]; tch = e.touches.length === 1 ? { x: t.clientX, y: t.clientY } : null; }, { passive: true });
+  stage.addEventListener('touchend', function (e) {
+    if (!tch || !isOpen) return; var t = e.changedTouches[0], dx = t.clientX - tch.x, dy = t.clientY - tch.y; tch = null;
+    if (Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx) * 1.6) leave(dy < 0 ? 1 : -1);
+  }, { passive: true });
 
   /* ---- 滾輪 / 鍵盤 ---- */
   var wheelLock = 0;
