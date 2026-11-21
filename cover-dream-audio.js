@@ -30,18 +30,21 @@
   ];
 
   const BGM_VOLUME = 0.72;       // 背景音樂音量（0~1）
-  const MIN_GAIN = 0.9;          // 每一聲 shiny 的隨機音量下限／上限。
-  const MAX_GAIN = 2.0;          //   shiny.mp3 本身偏小聲（最大約 -10.8dB），3 倍左右才不會爆；有限幅器保底
-  const MIN_GAP_MS = 300;         // 兩聲之間的隨機間隔
-  const MAX_GAP_MS = 400;
-  const SLICE_MIN = 1.0;         // 每一聲播放的長度（秒，隨機）
-  const SLICE_MAX = 1.2;
-  const OFFSET_MIN = 0;       // 從 shiny.mp3 第幾秒開始切（隨機；前 0.3 秒幾乎無聲所以避開）
-  const OFFSET_MAX = null;
-  const FADE_IN = 0.15;          // 每一聲的淡入／淡出（秒），疊起來就是順暢的銜接
-  const FADE_OUT = 0.28;
-  const MAX_VOICES = 4;          // 同時最多疊幾聲，超過就把最舊的快速淡掉
-  const RATE_JITTER = 0.025;     // 每一聲音高隨機偏移 ±2.5%，聽起來比較自然
+  const MIN_GAIN = 1.6;          // 每一聲 shiny 的隨機音量下限／上限。
+  const MAX_GAIN = 3.6;          //   shiny.mp3 本身偏小聲（最大約 -10.8dB）；高頻收掉之後整體會小一些，所以比之前大
+  const LOWPASS_HZ = 6000;       // 柔化：高於這個頻率的聲音會被快速削掉（24dB/oct）。
+                                 //   shiny.mp3 約 70% 的能量在 6kHz 以上、最強的一根在 9.4kHz，連續疊起來就是「割玻璃」的感覺。
+                                 //   覺得太悶就調高（7000、8000），還是尖就調低（5000、4500）
+  const MIN_GAP_MS = 90;         // 兩聲之間的隨機間隔
+  const MAX_GAP_MS = 230;
+  const SLICE_MIN = 0.6;         // 每一聲播放的長度（秒，隨機）
+  const SLICE_MAX = 1.1;
+  const OFFSET_MIN = 0.25;       // 從 shiny.mp3 第幾秒開始切（隨機；前 0.3 秒幾乎無聲所以避開）
+  const OFFSET_MAX = 1.6;
+  const FADE_IN = 0.12;          // 每一聲的淡入／淡出（秒），疊起來就是順暢的銜接
+  const FADE_OUT = 0.4;
+  const MAX_VOICES = 3;          // 同時最多疊幾聲，超過就把最舊的快速淡掉（疊越多越刺耳）
+  const RATE_JITTER = 0;         // 每一聲音高隨機偏移幅度。預設關閉：音高只差一點點的高頻疊在一起會互相「拍頻」，變得很尖；想要更多變化可設 0.01
   const IDLE_MS = 220;           // 滑鼠停超過這麼久就不再觸發
   const COVER_FADE_END = 0.34;   // 捲動到封面的這個比例後（漣漪已淡出）就停
 
@@ -123,7 +126,13 @@
     limiter.ratio.value = 12;
     limiter.attack.value = 0.003;
     limiter.release.value = 0.2;
-    master.connect(limiter);
+    // 柔化：兩級低通疊起來 = 24dB/oct，把 shiny.mp3 偏刺耳的 6~12kHz 收掉，保留中高頻的閃爍感
+    const lp1 = ctx.createBiquadFilter();
+    const lp2 = ctx.createBiquadFilter();
+    [lp1, lp2].forEach((f) => { f.type = 'lowpass'; f.frequency.value = LOWPASS_HZ; f.Q.value = 0.707; });
+    master.connect(lp1);
+    lp1.connect(lp2);
+    lp2.connect(limiter);
     limiter.connect(ctx.destination);
 
     prepareBuffer();
