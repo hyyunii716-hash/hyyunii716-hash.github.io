@@ -12,7 +12,7 @@
 
 /* 標題區（Welcome to …） */
 .stage-head { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-.stage-title { font-family: var(--font-en); font-weight: 700; font-size: var(--fs-hero); line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
+.stage-title { font-family: var(--font-sans); font-weight: 700; font-size: var(--fs-hero); line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
 .stage-sub { font-weight: 500; font-size: clamp(20px, 2.3vw, 40px); line-height: 1.4; }
 .flow-title { font-weight: 700; font-size: var(--fs-h2); line-height: 1.35; text-align: center; outline: none; }
 .flow-h2 { font-weight: 700; font-size: var(--fs-h2); line-height: 1.45; }
@@ -115,7 +115,7 @@ button.upload-box:is(:hover, :focus-visible, .is-dragover) .up-icon { color: #38
 .how__side .flow-h2 { text-align: left; align-self: flex-start; }
 .faq { display: grid; grid-template-columns: minmax(0, 592fr) minmax(0, 680fr); column-gap: clamp(32px, 9.7vw, 168px); align-items: stretch; }
 .faq__side { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; gap: 24px; }
-.more-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.more-link { display: inline-flex; align-items: center; gap: 8px; font-weight: 300; }
 .more-link u { text-underline-offset: 4px; }
 .more-link:is(:hover, :focus-visible) { color: var(--color-text-muted); }
 

@@ -22,7 +22,7 @@ body:not(.page--home) .pay {
 body:not(.page--home):not(.cp) .hero__title,
 body:not(.page--home):not(.cp) .stage-title,
 body:not(.page--home):not(.cp) .checkout__title {
-  font-family: var(--font-en) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-hero) !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
@@ -39,7 +39,7 @@ body:not(.page--home):not(.cp) .title-sub,
 body:not(.page--home):not(.cp) .gs-title,
 body:not(.page--home):not(.cp) .pricing-success h2,
 body:not(.page--home):not(.cp) .received__text {
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-h2) !important;
   font-weight: 700 !important;
   line-height: 1.35 !important;
@@ -52,7 +52,7 @@ body:not(.page--home):not(.cp) .sub-title,
 body:not(.page--home):not(.cp) .page-head__sub,
 body:not(.page--home):not(.cp) .pricing-hero p,
 body:not(.page--home):not(.cp) .cover__sub {
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-hero-sub) !important;
   font-weight: 500 !important;
   line-height: 1.4 !important;
@@ -63,15 +63,13 @@ body:not(.page--home):not(.cp) .card__title,
 body:not(.page--home):not(.cp) .qa__q,
 body:not(.page--home):not(.cp) .feature__headline,
 body:not(.page--home):not(.cp) .choice__title {
-  font-family: var(--font-zh) !important;
   font-size: var(--fs-title) !important;
-  font-weight: 700 !important;
   line-height: 1.4 !important;
 }
 body:not(.page--home):not(.cp) .program__name,
 body:not(.page--home):not(.cp) .feature__name,
 body:not(.page--home):not(.cp) .app-card__name {
-  font-family: var(--font-en) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-title) !important;
   font-weight: 400 !important;
   line-height: 1.4 !important;
@@ -91,9 +89,9 @@ body:not(.page--home):not(.cp) .step-card p,
 body:not(.page--home):not(.cp) .pricing-card li,
 body:not(.page--home):not(.cp) .qa__a,
 body:not(.page--home):not(.cp) .tool-option__desc {
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-body) !important;
-  font-weight: 400 !important;
+  font-weight: 300 !important;
   line-height: 1.6 !important;
 }
 
@@ -102,7 +100,7 @@ body:not(.page--home):not(.cp) .pay label,
 body:not(.page--home):not(.cp) .pay .legend,
 body:not(.page--home):not(.cp) .pay .control,
 body:not(.page--home):not(.cp) .field input {
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-body) !important;
   font-weight: 400 !important;
 }
@@ -114,7 +112,7 @@ body:not(.page--home):not(.cp) .disclaimer,
 body:not(.page--home):not(.cp) .site-footer li,
 body:not(.page--home):not(.cp) .site-footer a,
 body:not(.page--home):not(.cp) .site-footer__copy {
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-nav) !important;
   font-weight: 400 !important;
 }
@@ -123,13 +121,13 @@ body:not(.page--home):not(.cp) .site-footer__copy {
 body:not(.page--home):not(.cp) .pricing-card__price,
 body:not(.page--home):not(.cp) .price-card__price,
 body:not(.page--home):not(.cp) .donate__amount {
-  font-family: var(--font-en) !important;
+  font-family: var(--font-sans) !important;
   font-size: 32px !important;
   font-weight: 700 !important;
   line-height: 1.2 !important;
 }
 body:not(.page--home):not(.cp) .help-pop__price {
-  font-family: var(--font-en) !important;
+  font-family: var(--font-sans) !important;
   font-size: 26px !important;
   font-weight: 700 !important;
   line-height: 1.25 !important;
@@ -153,7 +151,7 @@ body:not(.page--home):not(.cp) .pricing-buy {
   min-height: 0 !important;
   padding: 16px 40px !important;
   border-radius: 999px !important;
-  font-family: var(--font-zh) !important;
+  font-family: var(--font-sans) !important;
   font-size: var(--fs-title) !important;
   font-weight: 500 !important;
   line-height: 1.25 !important;
@@ -175,9 +173,9 @@ html body.cp .back-button {
   min-height: 0 !important;
   padding: 13px 28px !important;
   border-radius: var(--radius-card, 20px) !important;
-  font-family: var(--font-zh, "Noto Sans TC", sans-serif) !important;
+  font-family: var(--font-sans, "Noto Sans TC", sans-serif) !important;
   font-size: var(--fs-body, 16px) !important;
-  font-weight: 500 !important;
+  font-weight: 300 !important;
   line-height: 1.25 !important;
   white-space: nowrap !important;
 }
