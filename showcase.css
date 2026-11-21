@@ -115,3 +115,6 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .sc, .sc * { transition-duration: .01s !important; transition-delay: 0s !important; animation: none !important; }
 }
+
+/* 網頁程式：詳細頁不放下方大圖（往下滑不會再出現一張圖） */
+.sc--apps .sc__big { display: none; }
