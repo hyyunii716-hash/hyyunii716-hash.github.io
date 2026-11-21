@@ -635,7 +635,8 @@ body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-
 .cover-nav .site-nav { min-height: var(--cover-nav-h); background: #0a0a0a; border-radius: 0 0 40px 0; }
 .cover-title { position: absolute; right: var(--cover-pad-x); top: 57%; transform: translateY(-50%) translateY(24px); text-align: right; opacity: 0; transition: opacity .7s .1s,transform .8s .1s cubic-bezier(.2,.8,.2,1); }
 .cover-title.show { opacity: 1; transform: translateY(-50%); }
-.cover-title h1 { font-family: "Inter",sans-serif; font-weight: 700; font-size: clamp(56px,10vw,150px); line-height: 1; letter-spacing: -.02em; }
+.cover-title h1 { line-height: 0; }
+.cover-title__logo { display: block; width: clamp(280px, 44vw, 1180px); height: auto; }
 .cover-title p { margin-top: .5em; font-family: "Inter",sans-serif; font-size: clamp(16px,2.2vw,32px); letter-spacing: .08em; }
 .cover-hint { position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); font-family: "Inter",sans-serif; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity .45s; }
 .cover-hint.ready { opacity: .75; } .cover-hint.hide { opacity: 0; }
