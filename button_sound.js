@@ -196,26 +196,21 @@
     }
 
     // 【可調整參數】
-    const SHINY_OFFSET_MIN = 0.25;      // ← 起始位置最小值（秒）
-    const SHINY_OFFSET_MAX = 1.6;       // ← 起始位置最大值（秒）
-    const SHINY_DURATION_MIN = 0.6;     // ← 播放長度最小值（秒）
-    const SHINY_DURATION_MAX = 1.1;     // ← 播放長度最大值（秒）
     const SHINY_GAIN_MIN = 2.2;         // ← 音量倍增最小值
     const SHINY_GAIN_MAX = 4.8;         // ← 音量倍增最大值
     const SHINY_FADE_IN = 0.05;         // ← 淡入時間（秒）
     const SHINY_FADE_OUT = 0.15;        // ← 淡出時間（秒）
 
-    // 有 Buffer 就播放（隨機起點和音量，模仿首頁互動音效）
+    // 有 Buffer 就播放完整音檔
     if (shinyBuffer) {
       try {
         const src = ctx.createBufferSource();
         src.buffer = shinyBuffer;
         
-        // 隨機選擇片段和起點
-        const offset = SHINY_OFFSET_MIN + Math.random() * (SHINY_OFFSET_MAX - SHINY_OFFSET_MIN);
-        const duration = SHINY_DURATION_MIN + Math.random() * (SHINY_DURATION_MAX - SHINY_DURATION_MIN);
-        const sliceStart = Math.min(offset, shinyBuffer.duration - 0.1);
-        const sliceEnd = Math.min(sliceStart + duration, shinyBuffer.duration);
+        // 播放完整音檔（從 0 秒開始，播到結尾）
+        const sliceStart = 0;
+        const sliceEnd = shinyBuffer.duration;
+        const duration = sliceEnd - sliceStart;
         
         // 隨機音量
         const randomGain = SHINY_GAIN_MIN + Math.random() * (SHINY_GAIN_MAX - SHINY_GAIN_MIN);
@@ -226,16 +221,14 @@
         // 淡入淡出效果
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(randomGain * 0.5, now + SHINY_FADE_IN);
-        gain.gain.linearRampToValueAtTime(0, now + (sliceEnd - sliceStart) - SHINY_FADE_OUT);
+        gain.gain.linearRampToValueAtTime(0, now + duration - SHINY_FADE_OUT);
         
         src.connect(gain);
         gain.connect(ctx.destination);
         
-        src.start(ctx.currentTime, sliceStart, sliceEnd - sliceStart);
-        console.log('[button-sound] 播放 shiny.mp3 片段：', {
-          起點: sliceStart.toFixed(2) + '秒',
-          終點: sliceEnd.toFixed(2) + '秒',
-          長度: (sliceEnd - sliceStart).toFixed(2) + '秒',
+        src.start(ctx.currentTime, sliceStart);
+        console.log('[button-sound] 播放完整 shiny.mp3：', {
+          長度: duration.toFixed(2) + '秒',
           淡入: SHINY_FADE_IN + '秒',
           淡出: SHINY_FADE_OUT + '秒',
           音量: (randomGain * 0.5).toFixed(2)
