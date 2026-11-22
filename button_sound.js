@@ -229,8 +229,8 @@
         src.start(ctx.currentTime, sliceStart);
         console.log('[button-sound] 播放完整 shiny.mp3：', {
           長度: duration.toFixed(2) + '秒',
-          淡入: SHINY_FADE_IN + '秒',
-          淡出: SHINY_FADE_OUT + '秒',
+          淡入: SHINY_FADE_IN + '0,5秒',
+          淡出: SHINY_FADE_OUT + '0,5秒',
           音量: (randomGain * 0.5).toFixed(2)
         });
         

@@ -1,28 +1,18 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <link rel="icon" type="image/svg+xml" href="logo.svg">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>網頁工具 — Abandon</title>
   <meta name="description" content="探索 Abandon 網站工具：壓縮圖檔、去背工具、拼組圖檔、翻轉圖檔。">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <script src="subpage-reveal.js"></script>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="pages.css">
   <link rel="stylesheet" href="flow.css">
   <link rel="stylesheet" href="spotlight.css">
   <link rel="stylesheet" href="page-transition.css">
   <link rel="stylesheet" href="showcase.css">
-  <link rel="stylesheet" href="tools-3d.css">
-
-<script src="./universal-snap.js"></script>
-<script src="page-bgm.js?v=1122c" data-bgm="audio/神秘森林.mp3" data-bgm-volume="0.8" defer></script>
-<script src="button_sound.js?v=1122f" data-click-sound="audio/click.mp3" data-click-volume="0.85" defer></script>
+  <link rel="stylesheet" href="scroll-3d.css">
 </head>
 <body>
 
@@ -123,7 +113,7 @@
     </div>
 
     <!-- 更多功能 -->
-    <section class="container tools-more" id="more-features" aria-labelledby="mf-title" tabindex="-1">
+    <section class="container tools-more" id="more-features" data-subpage-snap-start aria-labelledby="mf-title" tabindex="-1">
       <div class="page-head tools-more__head">
         <h2 id="mf-title" class="sub-title">更多功能</h2>
         <p class="eyebrow">More Features</p>
@@ -365,7 +355,7 @@
       }
     })();
   </script>
-  <!-- <script src="cursor-trail.js"></script> -->>
+  <script src="cursor-trail.js"></script>
   <script>
 (function () {
   function initGsapWiggleMagnet() {
@@ -501,8 +491,11 @@
 })();
 </script>
   
+  <script src="scroll-reveal.js"></script>
+  <script src="subpage-snap.js"></script>
+  <script src="cs-fab.js"></script>
   <script src="page-transition.js"></script>
   <script src="showcase.js"></script>
-  <script src="tools-scroll.js"></script>
+  <script src="scroll-3d.js"></script>
 </body>
 </html>

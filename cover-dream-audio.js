@@ -273,6 +273,12 @@
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href]');
     if (link) {
+      // 排除 nav 中的鏈接（nav 鏈接會播 shiny.mp3，不需要淡出背景音樂）
+      if (link.closest('.site-nav, [role="navigation"], nav')) {
+        console.log('[cover-dream-audio] 點擊 nav 鏈接，不觸發淡出');
+        return;
+      }
+      
       const href = link.getAttribute('href');
       // 只攔截本站導航（不攔截外部鏈接、#、或 javascript:）
       if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('http')) {
