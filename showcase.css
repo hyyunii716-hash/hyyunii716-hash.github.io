@@ -123,3 +123,6 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 .sc-hint { margin: 18px 0 0; padding: 12px 18px; font-size: 14px; letter-spacing: .12em; color: rgb(255 255 255 / .7); display: inline-flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; animation: sc-hint-blink 1.8s ease-in-out infinite; }
 @keyframes sc-hint-blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sc-hint { animation: none; opacity: .7; } }
+
+/* 網頁工具：「更多功能」＋提示文字獨佔一整個畫面、置中，跟頁尾之間留出空間（跟網頁程式一樣） */
+.tools-more { min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; }
