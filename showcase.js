@@ -181,7 +181,7 @@
   /* 直向滑動離開展示：dir = 1 往下（回到下方三個直排功能）、-1 往上（回到「更多功能」標題）。
      先照一般關閉淡出，再發出 showcase:leave，讓頁面（tools-scroll.js）把捲動位置擺好 */
   function leave(dir) {
-    close(); afterLeave = true;
+    close(); afterLeave = true; leaveT = Date.now();
     document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
     /* 直排介紹已收起（只能從展示看）：往下滑 → 接到頁尾；往上滑 → 回到「全螢幕展示」按鈕 */
     if (getComputedStyle(feats[0]).visibility === 'hidden') {
@@ -197,8 +197,11 @@
   }
   openers.forEach(function (b) { b.addEventListener('click', function () { open(0); }); });
 
-  /* ---- 下滑進入：提示文字進到畫面中間後，再往下滑一次（滾輪 / 手指上推）就進入展示；展示裡往上滑則退出 ---- */
-  var hint = openers[0], wLast = 0, gestureOpens = false, afterFooter = false, afterLeave = false;
+  /* ---- 下滑進入：提示文字停在畫面中、頁面靜止一下之後，再「用力」往下滑一次（滾輪 / 手指上推）才展開；展示裡往上滑則退出 ----
+     不要太靈敏：落在提示上的那一下慣性不算，頁面要先靜止 REST 毫秒，再在 WIN 毫秒內累積滑動量超過 PUSH 才展開 */
+  var REST = 450, WIN = 250, PUSH = 100, FOOTER_BLOCK = 2000;     // ★ 調整區：靜止時間 / 統計視窗 / 需要的滑動量 / 離開後多久不重進
+  var hint = openers[0], wLast = 0, lastScrollT = 0, leaveT = 0, push = [], afterFooter = false, afterLeave = false;
+  window.addEventListener('scroll', function () { lastScrollT = Date.now(); }, { passive: true });
   function hintBox() { var r = hint.getBoundingClientRect(); return (r.bottom > 0 && r.top < window.innerHeight) ? r : null; }
   function inZone(r) { return r && (r.top + r.height / 2 <= window.innerHeight * 0.62); }
   /* capture：搶在 universal-snap.js 之前處理，否則它會直接把頁面吸到頁尾、跳過提示 */
@@ -209,14 +212,17 @@
       if (gap <= 140) { e.preventDefault(); e.stopImmediatePropagation(); return; }
       afterLeave = false;
     }
-    var r = hintBox(), zone = inZone(r);
-    if (gap > 140) gestureOpens = !!zone;                           // 手指停過再滑才算新的一次；這一下開始時提示就在畫面中才會進入
-    if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { afterFooter = false; return; }
+    if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { afterFooter = false; push = []; return; }
     if (e.deltaY <= 0 || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
-    if (!r) afterFooter = false;
-    if (afterFooter || !zone) return;                               // 剛從展示往下離開、正在看頁尾：不要又彈回展示
-    e.preventDefault(); e.stopImmediatePropagation();               // 提示停在畫面中後，頁面不再自己往下吸，等下一次下滑
-    if (gestureOpens && Math.abs(e.deltaY) >= 8) { gestureOpens = false; open(0); }
+    var r = hintBox();
+    if (!r) { afterFooter = false; push = []; return; }
+    if (!inZone(r)) { push = []; return; }                          // 提示還沒到畫面中：照一般方式往下滑 / 吸附
+    if (afterFooter && now - leaveT < FOOTER_BLOCK) return;         // 剛從展示往下離開、正在看頁尾：不要馬上又彈回展示
+    e.preventDefault(); e.stopImmediatePropagation();               // 提示停在畫面中後，頁面不再自己往下吸
+    push.push([now, e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY]);
+    push = push.filter(function (p) { return now - p[0] <= WIN; });
+    var sum = push.reduce(function (a, p) { return a + p[1]; }, 0);
+    if (now - lastScrollT >= REST && sum >= PUSH) { push = []; open(0); }
   }, { passive: false, capture: true });
   var ht = null;
   window.addEventListener('touchstart', function (e) { ht = (!isOpen && e.touches.length === 1) ? { x: e.touches[0].clientX, y: e.touches[0].clientY, vis: !!hintBox() } : null; }, { passive: true });
