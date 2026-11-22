@@ -169,14 +169,6 @@
     }
   }, { capture: true, passive: true });
 
-  // 也監聽 click 事件作為備援
-  document.addEventListener('click', (e) => {
-    if (isTargetButton(e.target)) {
-      console.log('[button-sound] click 事件備援');
-      playButtonSound();
-    }
-  }, { capture: true, passive: true });
-
   // 預先加載點擊音（在首次互動時觸發）
   ['pointerdown', 'keydown', 'click', 'wheel'].forEach((ev) => {
     window.addEventListener(ev, () => {
