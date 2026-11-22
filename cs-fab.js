@@ -19,7 +19,7 @@
 
   const css = `
 .cs-fab{position:fixed;right:${RIGHT};bottom:${BOTTOM};z-index:60;display:inline-flex;align-items:center;gap:0em;
-  padding:.15em 0.6em .15em 0.6em;border-radius:999px;color:#fff;text-decoration:none;white-space:nowrap;
+  padding:0.05em 0.6em 0.05em 0.6em;border-radius:999px;color:#fff;text-decoration:none;white-space:nowrap;
   font:500 clamp(14px,1.15vw,18px)/1.2 var(--font-zh,"Noto Sans TC",sans-serif);letter-spacing:.04em;
   background:#0c0c0c;opacity:1;
   box-shadow:0 0 0 1px rgba(255,255,255,.22),0 10px 30px rgba(0,0,0,.5);
