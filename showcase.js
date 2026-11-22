@@ -185,7 +185,7 @@
     document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
     /* 直排介紹已收起（只能從展示看）：往下滑 → 接到頁尾；往上滑 → 回到「全螢幕展示」按鈕 */
     if (getComputedStyle(feats[0]).visibility === 'hidden') {
-      if (dir > 0) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' });
+      if (dir > 0) { afterFooter = true; window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }); }
       else if (openers[0]) openers[0].scrollIntoView({ block: 'center', behavior: 'instant' });
     }
   }
@@ -196,6 +196,31 @@
     if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
   }
   openers.forEach(function (b) { b.addEventListener('click', function () { open(0); }); });
+
+  /* ---- 下滑進入：提示文字進到畫面後，再往下滑（滾輪 / 手指上推）就進入展示；展示裡往上滑則退出 ---- */
+  var hint = openers[0], wLast = 0, gestureOpens = false, afterFooter = false;
+  function hintBox() { var r = hint.getBoundingClientRect(); return (r.bottom > 0 && r.top < window.innerHeight) ? r : null; }
+  function inZone(r) { return r && (r.top + r.height / 2 <= window.innerHeight * 0.62); }
+  window.addEventListener('wheel', function (e) {
+    if (isOpen || e.ctrlKey || getComputedStyle(feats[0]).visibility !== 'hidden') return;
+    var now = Date.now(), gap = now - wLast; wLast = now;
+    var r = hintBox(), zone = inZone(r);
+    if (gap > 140) gestureOpens = !!zone;                           // 手指停過再滑才算新的一次；這一下開始時提示就在畫面中才會進入
+    if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { afterFooter = false; return; }
+    if (e.deltaY <= 0 || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
+    if (!r) afterFooter = false;
+    if (afterFooter || !zone) return;                               // 剛從展示往下離開、正在看頁尾：不要又彈回展示
+    e.preventDefault();                                             // 提示進到畫面後頁面停在這裡，等下一次下滑
+    if (gestureOpens && Math.abs(e.deltaY) >= 8) { gestureOpens = false; open(0); }
+  }, { passive: false });
+  var ht = null;
+  window.addEventListener('touchstart', function (e) { ht = (!isOpen && e.touches.length === 1) ? { x: e.touches[0].clientX, y: e.touches[0].clientY, vis: !!hintBox() } : null; }, { passive: true });
+  window.addEventListener('touchend', function (e) {
+    if (!ht || isOpen || getComputedStyle(feats[0]).visibility !== 'hidden') { ht = null; return; }
+    var ht0 = ht, t = e.changedTouches[0], dx = t.clientX - ht.x, dy = t.clientY - ht.y; ht = null;
+    if (dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.6) { afterFooter = false; return; }
+    if (-dy > 70 && Math.abs(dy) > Math.abs(dx) * 1.6 && !afterFooter && ht0.vis) open(0);
+  }, { passive: true });
   $('.sc__exit').addEventListener('click', close);
   $('.sc__back').addEventListener('click', closeDetail);
   $('.sc__next').addEventListener('click', function () { step(1); });

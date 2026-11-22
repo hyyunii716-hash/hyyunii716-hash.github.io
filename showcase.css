@@ -118,3 +118,10 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 
 /* 網頁程式：詳細頁不放下方大圖（往下滑不會再出現一張圖） */
 .sc--apps .sc__big { display: none; }
+
+/* 「下滑展開內容」提示文字：取代原本的「全螢幕展示」按鈕。往下滑進入展示、往上滑離開 */
+.sc-hint { appearance: none; background: none; border: 0; margin: 18px 0 0; padding: 12px 18px; font: inherit; font-size: 14px; letter-spacing: .12em; color: var(--color-text-muted, rgb(255 255 255 / .5)); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; transition: color .3s; }
+.sc-hint:is(:hover, :focus-visible) { color: #fff; outline: none; }
+.sc-hint__arrow { animation: sc-hint-float 1.8s ease-in-out infinite; }
+@keyframes sc-hint-float { 0%, 100% { transform: translateY(-3px); opacity: .5; } 50% { transform: translateY(4px); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sc-hint__arrow { animation: none; } }
