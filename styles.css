@@ -792,3 +792,51 @@ section.qa {
   padding-bottom: 0px !important;
   margin-bottom: -32px !important;  /* 維持跟下面三張字卡拉近的距離，可依視覺微調 */
 }
+/* 全站所有分頁 Footer 統一對齊 pricing.html 基準 */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+  padding: 80px var(--gutter);
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+}
+
+.site-footer .footer-col__title {
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.site-footer .footer-col li,
+.site-footer .footer-col a {
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 300;
+}
+
+.site-footer .site-footer__copy {
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+}
+
+/* 移除「支援中心」、「下載及安裝」與非 .u 項目的底線 */
+.site-footer .footer-col li,
+.site-footer .footer-col li:hover,
+.site-footer .footer-col__hover,
+.site-footer .footer-col__hover:hover,
+.site-footer .footer-col a:not(.u),
+.site-footer .footer-col a:not(.u):hover,
+.site-footer .footer-col a:not(.u):active,
+.site-footer .footer-col a:not(.u):focus {
+  text-decoration: none;
+  border-bottom: none;
+}
+
+/* 只保留「投資者關係」（.u）的底線 */
+.site-footer .footer-col a.u {
+  text-decoration: underline;
+}

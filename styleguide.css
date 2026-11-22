@@ -105,17 +105,7 @@ body:not(.page--home):not(.cp) .field input {
   font-weight: 400 !important;
 }
 
-/* 8. 導覽列、標籤 Pill、免責聲明、頁尾（對齊首頁 --fs-nav: 14px） */
-body:not(.page--home):not(.cp) .site-nav__list a,
-body:not(.page--home):not(.cp) .pill,
-body:not(.page--home):not(.cp) .disclaimer,
-body:not(.page--home):not(.cp) .site-footer li,
-body:not(.page--home):not(.cp) .site-footer a,
-body:not(.page--home):not(.cp) .site-footer__copy {
-  font-family: var(--font-sans) !important;
-  font-size: var(--fs-nav) !important;
-  font-weight: 400 !important;
-}
+
 
 /* 9. 價格與金額大數字（主頁 32px Bold / 幫助小彈窗 26px Bold） */
 body:not(.page--home):not(.cp) .pricing-card__price,
@@ -178,4 +168,42 @@ html body.cp .back-button {
   font-weight: 300 !important;
   line-height: 1.25 !important;
   white-space: nowrap !important;
+}
+/* 統一全站 Footer 字體大小與底線規則 */
+body .site-footer,
+body .site-footer .footer-col__title,
+body .site-footer .footer-col li,
+body .site-footer .footer-col a,
+body .site-footer .site-footer__copy {
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+}
+
+body .site-footer .footer-col li,
+body .site-footer .footer-col a {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* 移除「支援中心」、「下載及安裝」與其他非 .u 項目的底線 */
+body .site-footer .footer-col li,
+body .site-footer .footer-col li:hover,
+body .site-footer .footer-col__hover,
+body .site-footer .footer-col__hover:hover,
+body .site-footer .footer-col a:not(.u),
+body .site-footer .footer-col a:not(.u):hover,
+body .site-footer .footer-col a:not(.u):active,
+body .site-footer .footer-col a:not(.u):focus {
+  text-decoration: none;
+  border-bottom: none;
+}
+
+/* 只保留「投資者關係」（.u）的底線 */
+body .site-footer .footer-col a.u {
+  text-decoration: underline;
+}
+body:not(.page--home):not(.cp) .site-footer .footer-col li,
+body:not(.page--home):not(.cp) .site-footer .footer-col a,
+body:not(.page--home):not(.cp) .site-footer__copy {
+  font-size: 16px !important;
+  line-height: 24px;
 }
