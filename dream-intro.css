@@ -48,19 +48,19 @@
 /* 視野中心：隨眨眼產生垂直開闔與微幅呼吸 */
 .dream-eye-aperture {
   transform-origin: 800px 450px;
-  animation: eyeApertureBreathe 9.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: eyeApertureBreathe 5.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 /* 上眼瞼：從上方緩緩壓下閉合，再緩緩抬起 */
 .dream-eyelid--top {
   transform-origin: 800px 0px;
-  animation: eyelidTopBlink 9.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: eyelidTopBlink 5.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 /* 下眼瞼：從下方緩緩托起閉合，再緩緩放下 */
 .dream-eyelid--bottom {
   transform-origin: 800px 900px;
-  animation: eyelidBottomBlink 9.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: eyelidBottomBlink 5.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
 }
 
 @keyframes eyeApertureBreathe {
