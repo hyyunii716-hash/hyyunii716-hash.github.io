@@ -3,6 +3,7 @@
    用法：在各頁引入 <script src="button-sound.js" data-click-sound="audio/click.mp3" defer></script>
    可選屬性：data-click-sound="audio/click.mp3"、data-click-volume="1.0"
    支持多個點擊音同時疊加播放
+   nav 按鈕播放 shiny.mp3
    ========================================================= */
 (() => {
   'use strict';
@@ -27,8 +28,10 @@
   console.log('[button-sound] 聲音文件:', soundUrl, '音量:', volume);
   
   let clickBuffer = null;
+  let shinyBuffer = null;
   let audioCtx = null;
   let isLoading = false;
+  let isLoadingShiny = false;
 
   function ensureAudioContext() {
     if (!audioCtx) {
@@ -73,6 +76,34 @@
       console.error('[button-sound] 無法載入點擊音:', err);
     } finally {
       isLoading = false;
+    }
+  }
+
+  async function loadShinyBuffer() {
+    if (shinyBuffer || isLoadingShiny) return;
+    isLoadingShiny = true;
+    console.log('[button-sound] 開始加載 shiny.mp3...');
+    
+    const ctx = ensureAudioContext();
+    if (!ctx) {
+      console.error('[button-sound] 無法取得 AudioContext');
+      isLoadingShiny = false;
+      return;
+    }
+
+    try {
+      const res = await fetch('audio/shiny.mp3', { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}: audio/shiny.mp3`);
+      
+      const arrayBuf = await res.arrayBuffer();
+      console.log('[button-sound] shiny.mp3 已載入，大小:', arrayBuf.byteLength, 'bytes');
+      
+      shinyBuffer = await ctx.decodeAudioData(arrayBuf);
+      console.log('[button-sound] shiny.mp3 解碼成功，時長:', shinyBuffer.duration, '秒');
+    } catch (err) {
+      console.error('[button-sound] 無法載入 shiny.mp3:', err);
+    } finally {
+      isLoadingShiny = false;
     }
   }
 
@@ -151,20 +182,85 @@
     playFallbackSynthClick();
   }
 
+  function playShinySound() {
+    const ctx = ensureAudioContext();
+    if (!ctx) {
+      console.warn('[button-sound] 無法播放 shiny：AudioContext 不可用');
+      return;
+    }
+
+    // 如果還在加載，等待
+    if (isLoadingShiny && !shinyBuffer) {
+      console.log('[button-sound] shiny.mp3 還在加載中...');
+      return;
+    }
+
+    // 有 Buffer 就播放（隨機起點和音量，模仿首頁互動音效）
+    if (shinyBuffer) {
+      try {
+        const src = ctx.createBufferSource();
+        src.buffer = shinyBuffer;
+        
+        // 隨機選擇片段（0.6-1.1 秒）和起點（0.25-1.6 秒）
+        const offset = 0.25 + Math.random() * (1.6 - 0.25);
+        const duration = 0.6 + Math.random() * (1.1 - 0.6);
+        const sliceStart = Math.min(offset, shinyBuffer.duration - 0.1);
+        const sliceEnd = Math.min(sliceStart + duration, shinyBuffer.duration);
+        
+        // 隨機音量（2.2-4.8）
+        const randomGain = 2.2 + Math.random() * (4.8 - 2.2);
+        
+        const gain = ctx.createGain();
+        gain.gain.value = randomGain * 0.5; // 縮放到合理範圍
+        
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        
+        src.start(ctx.currentTime, sliceStart, sliceEnd - sliceStart);
+        console.log('[button-sound] 播放 shiny.mp3 片段，音量:', gain.gain.value);
+        
+        // 自動清理
+        src.onended = () => {
+          try {
+            src.disconnect();
+            gain.disconnect();
+          } catch (_) {}
+        };
+        return;
+      } catch (err) {
+        console.error('[button-sound] 播放 shiny 失敗:', err);
+      }
+    }
+  }
+
   function isTargetButton(el) {
     if (!el || !(el instanceof Element)) return false;
-    const btn = el.closest('button, .btn, [role="button"]');
+    const btn = el.closest('button, .btn, [role="button"], a[href]');
     if (!btn) return false;
     if (btn.disabled || btn.getAttribute('aria-disabled') === 'true') return false;
-    if (btn.closest('header, .site-header, .site-nav')) return false;
     return true;
+  }
+
+  function isNavButton(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const btn = el.closest('button, .btn, [role="button"], a[href]');
+    if (!btn) return false;
+    // 檢查是否在導航中
+    return btn.closest('.site-nav, [role="navigation"], nav') !== null;
   }
 
   // 用 pointerdown 觸發，點擊瞬間就出聲，就算緊接著跳頁也比較不會被切斷
   document.addEventListener('pointerdown', (e) => {
     if (e.button !== undefined && e.button !== 0) return;
-    if (isTargetButton(e.target)) {
-      console.log('[button-sound] 偵測到按鈕點擊');
+    if (!isTargetButton(e.target)) return;
+    
+    console.log('[button-sound] 偵測到按鈕點擊');
+    
+    if (isNavButton(e.target)) {
+      console.log('[button-sound] nav 按鈕，播放 shiny.mp3');
+      playShinySound();
+    } else {
+      console.log('[button-sound] 普通按鈕，播放 click.mp3');
       playButtonSound();
     }
   }, { capture: true, passive: true });
@@ -176,6 +272,10 @@
         console.log('[button-sound] 首次互動，開始預加載...');
         loadClickBuffer();
       }
+      if (!shinyBuffer && !isLoadingShiny) {
+        console.log('[button-sound] 首次互動，開始預加載 shiny.mp3...');
+        loadShinyBuffer();
+      }
     }, { passive: true, once: true });
   });
 
@@ -183,9 +283,10 @@
   if (soundUrl) {
     console.log('[button-sound] 頁面加載完成，立即載入聲音檔...');
     loadClickBuffer();
+    loadShinyBuffer();
   }
 
-    console.log('[button-sound] 初始化完成！');
+  console.log('[button-sound] 初始化完成！');
 
 })();
 (() => {
