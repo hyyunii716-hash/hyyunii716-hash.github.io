@@ -280,31 +280,16 @@ try {
   shouldAssemblePricingCover = sessionStorage.getItem("pricing-cover-assemble") === "1";
   sessionStorage.removeItem("pricing-cover-assemble");
 } catch (_) {}
+if (new URLSearchParams(location.search).get("pricingEnter") === "1") {
+  shouldAssemblePricingCover = true;
+  const cleanUrl = new URL(location.href);
+  cleanUrl.searchParams.delete("pricingEnter");
+  history.replaceState(history.state, "", cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+}
 
 if (pricingHero && shouldAssemblePricingCover && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
   const logoStage = pricingHero.querySelector(".pricing-brand-stage");
   const logo = logoStage?.querySelector(".pricing-brand");
-  const title = pricingHero.querySelector(".pricing-hero-title-text");
-  const copy = pricingHero.querySelector(".pricing-hero-copy");
-  const wrapCharacters = (element, startDelay, step) => {
-    if (!element) return 0;
-    const content = element.textContent;
-    element.textContent = "";
-    [...content].forEach((character, index) => {
-      const span = document.createElement("span");
-      span.textContent = character === " " ? "\u00a0" : character;
-      const stagger = index * step + Math.random() * step * 0.45;
-      span.style.setProperty("--letter-delay", `${startDelay + stagger}ms`);
-      span.style.setProperty("--letter-x", `${Math.round(Math.random() * 600 - 300)}px`);
-      span.style.setProperty("--letter-y", `${Math.round(Math.random() * 600 - 300)}px`);
-      span.style.setProperty("--letter-z", `${Math.round(Math.random() * -1800 - 200)}px`);
-      span.style.setProperty("--letter-rx", `${Math.round(Math.random() * 720 - 360)}deg`);
-      span.style.setProperty("--letter-ry", `${Math.round(Math.random() * 720 - 360)}deg`);
-      span.style.setProperty("--letter-rz", `${Math.round(Math.random() * 180 - 90)}deg`);
-      element.append(span);
-    });
-    return [...content].length;
-  };
 
   // Let the destination begin rendering before assembling the cover.
   window.setTimeout(() => {
@@ -329,8 +314,6 @@ if (pricingHero && shouldAssemblePricingCover && !window.matchMedia("(prefers-re
         logoStage.append(shard);
       }
     }
-    wrapCharacters(title, 0, 12);
-    wrapCharacters(copy, 0, 5);
     window.setTimeout(() => {
       logoStage.querySelectorAll(".pricing-brand-shard").forEach((shard) => shard.remove());
       logoStage.classList.remove("is-assembling");

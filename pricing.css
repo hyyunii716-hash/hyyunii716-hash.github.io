@@ -3,7 +3,13 @@
   --pr-bg: #0d0d0d;
   --pr-muted: rgba(255, 255, 255, 0.62);
   --pr-border: rgba(255, 255, 255, 0.16);
-  --pr-font: var(--font-zh, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif);
+  --pr-font: var(
+    --font-zh,
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    sans-serif
+  );
   color: #fff;
   background: var(--pr-bg);
   font-family: var(--pr-font);
@@ -37,11 +43,15 @@
   z-index: 0;
   overflow: hidden;
   background:
-    radial-gradient(38% 30% at 82% 100%, #ee52b0 0%, transparent 72%),
-    radial-gradient(60% 75% at 100% 80%, #f66cb6 0%, rgba(246, 108, 182, 0) 80%),
-    radial-gradient(60% 45% at 100% 0%, #25098a 0%, transparent 78%),
-    radial-gradient(38% 20% at 42% 64%, #fff 0%, transparent 80%),
-    radial-gradient(55% 55% at 12% 88%, #fff 0%, transparent 100%),
+    radial-gradient(38% 30% at 82% 100%, #590b3a 0%, transparent 72%),
+    radial-gradient(
+      60% 75% at 100% 80%,
+      #66143f 0%,
+      rgba(246, 108, 182, 0) 80%
+    ),
+    radial-gradient(60% 45% at 100% 0%, #1d0670 0%, transparent 78%),
+    radial-gradient(38% 20% at 42% 64%, #1d096f 0%, transparent 80%),
+    radial-gradient(55% 55% at 12% 88%, #b75a5a 0%, transparent 100%),
     radial-gradient(60% 30% at 0% 50%, #3a12a8 0%, transparent 80%),
     linear-gradient(
       180deg,
@@ -77,27 +87,43 @@
 .pricing-blob--purple {
   top: -42%;
   left: -24%;
-  background: radial-gradient(ellipse at center, rgba(58, 18, 168, 0.86) 0%, rgba(58, 18, 168, 0) 68%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(58, 18, 168, 0.86) 0%,
+    rgba(58, 18, 168, 0) 68%
+  );
   animation: pricing-blob-vertical 14s ease-in-out infinite;
 }
 .pricing-blob--violet {
   top: -35%;
   left: 28%;
-  background: radial-gradient(ellipse at center, rgba(37, 9, 138, 0.8) 0%, rgba(37, 9, 138, 0) 68%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(37, 9, 138, 0.8) 0%,
+    rgba(37, 9, 138, 0) 68%
+  );
   transform-origin: 20% 50%;
   animation: pricing-blob-orbit 18s linear infinite reverse;
 }
 .pricing-blob--pink {
   top: 8%;
   right: -32%;
-  background: radial-gradient(ellipse at center, rgba(238, 82, 176, 0.74) 0%, rgba(238, 82, 176, 0) 68%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(238, 82, 176, 0.74) 0%,
+    rgba(238, 82, 176, 0) 68%
+  );
   transform-origin: 15% 45%;
   animation: pricing-blob-orbit 22s linear infinite;
 }
 .pricing-blob--rose {
   bottom: -48%;
   left: 14%;
-  background: radial-gradient(ellipse at center, rgba(246, 108, 182, 0.72) 0%, rgba(246, 108, 182, 0) 68%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(89, 25, 59, 0.72) 0%,
+    rgba(246, 108, 182, 0) 68%
+  );
   animation: pricing-blob-horizontal 16s ease-in-out infinite;
 }
 .pricing-blob--light {
@@ -105,32 +131,59 @@
   left: 34%;
   width: min(48vw, 620px);
   height: min(42vw, 480px);
-  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 68%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0) 68%
+  );
   animation: pricing-blob-orbit 26s ease-in-out infinite;
 }
 .pricing-blob--interactive {
   top: 0;
   left: 0;
-  background: radial-gradient(ellipse at center, rgba(238, 82, 176, 0.62) 0%, rgba(58, 18, 168, 0.38) 38%, rgba(58, 18, 168, 0) 70%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(238, 82, 176, 0.62) 0%,
+    rgba(58, 18, 168, 0.38) 38%,
+    rgba(58, 18, 168, 0) 70%
+  );
   opacity: 1;
   pointer-events: none;
   will-change: transform;
 }
 @keyframes pricing-drift {
-  from { background-position: 0 0; }
-  to { background-position: 12% 6%; }
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 12% 6%;
+  }
 }
 @keyframes pricing-blob-orbit {
-  from { transform: rotate(0deg) translateX(8%); }
-  to { transform: rotate(360deg) translateX(8%); }
+  from {
+    transform: rotate(0deg) translateX(8%);
+  }
+  to {
+    transform: rotate(360deg) translateX(8%);
+  }
 }
 @keyframes pricing-blob-vertical {
-  0%, 100% { transform: translateY(-12%); }
-  50% { transform: translateY(15%); }
+  0%,
+  100% {
+    transform: translateY(-12%);
+  }
+  50% {
+    transform: translateY(15%);
+  }
 }
 @keyframes pricing-blob-horizontal {
-  0%, 100% { transform: translate(-14%, -8%); }
-  50% { transform: translate(16%, 8%); }
+  0%,
+  100% {
+    transform: translate(-14%, -8%);
+  }
+  50% {
+    transform: translate(16%, 8%);
+  }
 }
 .pricing-hero h1,
 .pricing-hero p {
@@ -167,31 +220,58 @@
   height: 100%;
   object-fit: fill;
   pointer-events: none;
-  animation: pricing-shard-arrive 1220ms cubic-bezier(.36,.1,.16,1) var(--shard-delay, 0ms) both;
+  animation: pricing-shard-arrive 1220ms cubic-bezier(0.36, 0.1, 0.16, 1)
+    var(--shard-delay, 0ms) both;
   transform-style: preserve-3d;
 }
 .pricing-brand-stage.is-assembling > .pricing-brand {
   visibility: visible;
-  animation: pricing-logo-arrive 1220ms cubic-bezier(.36,.1,.16,1) both;
+  animation: pricing-logo-arrive 1220ms cubic-bezier(0.36, 0.1, 0.16, 1) both;
 }
-.pricing-hero-title-text span,
-.pricing-hero-copy span {
-  display: inline-block;
-  animation: pricing-letter-arrive 1000ms cubic-bezier(.36,.1,.16,1) var(--letter-delay, 0ms) both;
-  transform-style: preserve-3d;
+.pricing-hero.is-assembling .pricing-hero-title-text,
+.pricing-hero.is-assembling .pricing-hero-copy {
+  animation: pricing-line-glow 1000ms ease both;
+}
+.pricing-hero.is-assembling .pricing-hero-copy {
+  animation-delay: 260ms;
 }
 @keyframes pricing-shard-arrive {
-  0% { opacity: 0; transform: translate3d(var(--shard-x), var(--shard-y), var(--shard-z)) rotateX(var(--shard-rx)) rotateY(var(--shard-ry)) rotateZ(var(--shard-rz)); }
-  18% { opacity: 1; }
-  100% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--shard-x), var(--shard-y), var(--shard-z))
+      rotateX(var(--shard-rx)) rotateY(var(--shard-ry)) rotateZ(var(--shard-rz));
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateX(0) rotateY(0) rotateZ(0);
+  }
 }
 @keyframes pricing-logo-arrive {
-  0% { opacity: 0; transform: translate3d(-70px, 40px, -700px) rotateY(-55deg) rotateX(20deg); }
-  100% { opacity: 1; transform: translate3d(0,0,0) rotateY(0) rotateX(0); }
+  0% {
+    opacity: 0;
+    transform: translate3d(-70px, 40px, -700px) rotateY(-55deg) rotateX(20deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateY(0) rotateX(0);
+  }
 }
-@keyframes pricing-letter-arrive {
-  0% { opacity: 0; transform: translate3d(var(--letter-x), var(--letter-y), var(--letter-z)) rotateX(var(--letter-rx)) rotateY(var(--letter-ry)) rotateZ(var(--letter-rz)); }
-  100% { opacity: 1; transform: translate3d(0,0,0) rotateX(0) rotateY(0) rotateZ(0); }
+@keyframes pricing-line-glow {
+  0% {
+    opacity: 0;
+    text-shadow: 0 0 1px rgb(255 255 255 / 10%);
+  }
+  66% {
+    opacity: 1;
+    text-shadow: 0 0 20px rgb(255 255 255 / 90%);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 0 rgb(255 255 255 / 0%);
+  }
 }
 .pricing-title-logo {
   display: block;
@@ -246,7 +326,9 @@
   margin: 104px auto 0;
   padding: 0 6.9vw;
   align-items: stretch;
-  transition: opacity 0.35s ease, filter 0.35s ease;
+  transition:
+    opacity 0.35s ease,
+    filter 0.35s ease;
 }
 .pricing-cards.is-switching {
   opacity: 0;
@@ -259,7 +341,11 @@
   border-radius: 28px;
   background: var(--pr-bg);
   cursor: pointer;
-  transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 .pricing-card:focus-visible {
   outline: 2px solid #fff;
@@ -344,7 +430,10 @@
   color: #fff;
   background: #1d0a85;
   border: 1px solid #3a22c4;
-  transition: background-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  transition:
+    background-color 0.25s,
+    transform 0.25s,
+    box-shadow 0.25s;
   cursor: pointer;
   font-family: inherit;
 }
