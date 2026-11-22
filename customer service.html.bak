@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <link rel="icon" type="image/svg+xml" href="logo.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>線上客服支援 — Abandon</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="pages.css" />
+  <link rel="stylesheet" href="flow.css" />
+  <link rel="stylesheet" href="page-transition.css" />
+  <link rel="stylesheet" href="styleguide.css" />
+
+  <style>
+    :root {
+      --cs-bg: #0c0c0c;
+      --cs-ice-core: #dff4ff;
+      --cs-electric-blue: #3b82f6;
+      --cs-cool-purple: #5b32b8;
+      --cs-deep-indigo: #18135c;
+      --sun-power: 0;
+      --wave-mix: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--cs-bg);
+      color: var(--color-text, #fff);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .site-header--overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 30;
+    }
+
+    /* =========================================================
+       中央舞台
+       ========================================================= */
+    .cs-stage {
+      position: relative;
+      width: 100vw;
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--cs-bg);
+    }
+
+    /* =========================================================
+       光暈 / 橫漏斗主容器：
+       1) 右上（畫面外）一點萌生，漸漸移到畫面右上
+       2) 在右上角停留至漸亮，像太陽一樣亮（3s）
+       3) 以 1.5s 移到正中間（像貓咪大戰爭的「神」降臨），維持目前尺寸
+       4) 到正中間後開始播放第一段音檔
+       ========================================================= */
+    .center-glow-stage {
+      position: fixed;
+      top: -10%;
+      left: 110%;
+      width: min(46vw, 520px);
+      height: min(42vh, 420px);
+      transform: translate3d(-66%, -4%, 0) scale(0.56);
+      transform-origin: center center;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      will-change: transform, opacity, top, left;
+    }
+
+    /* 右上角光團放大，降臨到中間後維持同一尺寸 scale(0.86) */
+    .cs-stage.is-corner-sun .center-glow-stage {
+      top: 10%;
+      left: 98%;
+      opacity: 1;
+      transform: translate3d(-50%, -50%, 0) scale(0.86);
+      transition:
+        top 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+        left 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.9s ease;
+    }
+
+    .cs-stage.is-descending .center-glow-stage,
+    .cs-stage.is-connected .center-glow-stage {
+      top: 50%;
+      left: 50%;
+      opacity: 1;
+      transform: translate3d(-50%, -50%, 0) scale(0.86);
+      pointer-events: auto;
+      cursor: pointer;
+      transition:
+        top 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+        left 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1.5s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.6s ease;
+    }
+
+    /* 未播音光團：精準置中於容器（50%, 50%），並隨形狀變形平滑收斂 */
+    .mode-left-orb {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 88%;
+      height: 88%;
+      transform: translate(-50%, -50%) scale(calc((0.84 + var(--sun-power) * 0.45) * (1 - var(--wave-mix) * 0.42)));
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center,
+          rgba(235, 250, 255, calc(0.92 + var(--sun-power) * 0.08)) 0%,
+          rgba(120, 192, 255, calc(0.62 + var(--sun-power) * 0.3)) calc(15% + var(--sun-power) * 6%),
+          rgba(91, 50, 184, calc(0.38 + var(--sun-power) * 0.24)) calc(35% + var(--sun-power) * 8%),
+          rgba(24, 19, 92, calc(0.2 + var(--sun-power) * 0.12)) 56%,
+          transparent 74%);
+      filter: blur(calc(18px - var(--sun-power) * 3px)) brightness(calc(1 + var(--sun-power) * 0.65));
+      opacity: calc(1 - var(--wave-mix) * 0.78);
+      pointer-events: none;
+    }
+
+    /* 播音形變畫布：直接由光團輪廓形變成橫漏斗聲波，再形變回光團 */
+    .mode-right-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 185vw;
+      height: min(56vh, 500px);
+      transform: translate(-50%, -50%);
+      opacity: calc(0.22 + var(--wave-mix) * 0.78);
+      pointer-events: none;
+    }
+
+    .hourglass-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* =========================================================
+       耳機.png（接通前置中透明度 30%，接通後縮至右下角不透明度 80%）
+       ========================================================= */
+    .headset-bg {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: clamp(320px, 36vw, 520px);
+      height: auto;
+      transform: translate(-50%, -50%);
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 4;
+      transition:
+        top 1s cubic-bezier(0.22, 1, 0.36, 1),
+        left 1s cubic-bezier(0.22, 1, 0.36, 1),
+        width 1s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 1s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.8s ease;
+    }
+
+    body.is-connected .headset-bg {
+      top: calc(100svh - 46px);
+      left: calc(100vw - 48px);
+      width: 90px;
+      opacity: 0.8;
+      transform: translate(-50%, -50%);
+    }
+
+    body.is-connected.is-speaking .headset-bg {
+      opacity: 0.95;
+      animation: cornerHeadsetPulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes cornerHeadsetPulse {
+      from { transform: translate(-50%, -50%) scale(1); }
+      to   { transform: translate(-50%, -50%) scale(1.14); }
+    }
+
+    /* =========================================================
+       接通前等待畫面：正在為您接通客服...
+       ========================================================= */
+    .connecting-view {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+      transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .connecting-view.is-hidden {
+      opacity: 0;
+      transform: translateY(-44px);
+      pointer-events: none;
+    }
+
+    .wave-text {
+      margin: 0;
+      font-family: var(--font-zh, "Noto Sans TC", sans-serif);
+      font-size: clamp(24px, 2.4vw, 38px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fff;
+      display: inline-flex;
+      gap: 2px;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.85);
+    }
+
+    .wave-text span {
+      display: inline-block;
+      animation: letterFloat 1.8s ease-in-out infinite;
+    }
+
+    @keyframes letterFloat {
+      0%, 65%, 100% { transform: translateY(0); }
+      32%           { transform: translateY(-10px); }
+    }
+
+    /* =========================================================
+       標題：「我可以幫您什麼？」
+       光團階段先不出現，等到變形成橫漏斗（is-audio-active）再淡出
+       ========================================================= */
+    .connected-view {
+      position: absolute;
+      top: 22%;
+      left: 50%;
+      transform: translate(-50%, 16px);
+      z-index: 10;
+      width: min(92vw, 960px);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .cs-stage.is-audio-active .connected-view {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    .status-title {
+      margin: 0;
+      font-family: var(--font-zh, "Noto Sans TC", sans-serif);
+      font-size: clamp(20px, 1.8vw, 28px);
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.94);
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.65);
+    }
+
+    /* =========================================================
+       使用者問題氣泡列表（隨上傳順序越來越淡）
+       ========================================================= */
+    .message-stack {
+      position: absolute;
+      bottom: calc(clamp(28px, 4.5vh, 48px) + 46px + 50px);
+      right: calc(50vw - min(42vw, 240px));
+      z-index: 12;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      width: min(42vw, 390px);
+      pointer-events: none;
+    }
+
+    .msg-bubble {
+      max-width: 100%;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: rgba(168, 174, 192, 0.34);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+      font-size: 14px;
+      line-height: 1.45;
+      letter-spacing: 0.03em;
+      word-break: break-word;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      animation: bubbleRiseIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+      transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes bubbleRiseIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.96);
+      }
+      to {
+        opacity: var(--target-opacity, 1);
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* =========================================================
+       底部操作列：返回上頁 + 輸入框
+       ========================================================= */
+    .bottom-bar {
+      position: fixed;
+      bottom: clamp(28px, 4.5vh, 48px);
+      left: 0;
+      width: 100%;
+      padding: 0 var(--gutter, 8vw);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .bottom-bar > * {
+      pointer-events: auto;
+    }
+
+    .bottom-bar .back-button {
+      position: absolute;
+      left: var(--gutter, 8vw);
+    }
+
+    .chat-input-box {
+      width: 100%;
+      max-width: 480px;
+      height: 46px;
+      padding: 0 8px 0 22px;
+      border-radius: 999px;
+      background: rgba(155, 160, 172, 0.46);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .chat-input-box:focus-within {
+      background: rgba(178, 184, 198, 0.58);
+      border-color: rgba(255, 255, 255, 0.42);
+    }
+
+    .chat-input-box input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-family: var(--font-sans, "Inter", sans-serif);
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+
+    .chat-input-box input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-send {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.8);
+      color: #0c0c0c;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-send:hover {
+      background: #fff;
+      transform: scale(1.08);
+    }
+
+    .btn-send:active {
+      transform: scale(0.94);
+    }
+
+    .btn-send svg {
+      width: 15px;
+      height: 15px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    @media (max-width: 768px) {
+      .bottom-bar {
+        flex-direction: column-reverse;
+        gap: 14px;
+        bottom: 24px;
+      }
+      .bottom-bar .back-button {
+        position: static;
+        align-self: flex-start;
+      }
+      .message-stack {
+        right: var(--gutter, 8vw);
+        transform: none;
+        width: 84vw;
+      }
+      body.is-connected .headset-bg {
+        top: calc(100svh - 36px);
+        left: calc(100vw - 32px);
+        width: 50px;
+      }
+    }
+  </style>
+<script src="button_sound.js" data-click-sound="audio/click.mp3" data-click-volume="0.6" defer></script>
+</head>
+<body>
+
+  <header class="site-header site-header--overlay">
+    <nav class="site-nav" aria-label="主選單">
+      <a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁">
+        <img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon" />
+      </a>
+      <ul class="site-nav__list">
+        <li><a href="index.html">首頁</a></li>
+        <li><a href="tools.html">網頁工具</a></li>
+        <li><a href="apps.html">網頁程式</a></li>
+        <li><a href="pricing.html">購買方案</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="cs-stage" id="stage">
+    <div class="center-glow-stage" id="centerGlowStage" aria-hidden="true">
+      <div class="mode-left-orb" id="leftOrbEl"></div>
+      <div class="mode-right-wave" id="rightWaveEl">
+        <canvas class="hourglass-canvas" id="hourglassCanvas"></canvas>
+      </div>
+    </div>
+
+    <section class="connecting-view" id="connectingView" aria-live="polite">
+      <h1 class="wave-text" id="waveText">正在為您接通客服...</h1>
+    </section>
+
+    <section class="connected-view" id="connectedView" aria-live="polite">
+      <p class="status-title" id="statusTitle">我可以幫您什麼？</p>
+    </section>
+
+    <div class="message-stack" id="messageStack" aria-live="polite"></div>
+  </main>
+
+  <img
+    class="headset-bg"
+    id="headsetBg"
+    src="assets/耳機.png"
+    width="28"
+    height="28"
+    alt=""
+    aria-hidden="true"
+    draggable="false"
+  />
+
+  <div class="bottom-bar">
+    <button class="back-button" type="button" id="backBtn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M9 14L4 9l5-5" />
+        <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11" />
+      </svg>
+      <span>返回上頁</span>
+    </button>
+
+    <form class="chat-input-box" id="chatForm" autocomplete="off">
+      <input
+        type="text"
+        id="userInput"
+        placeholder="What can I help you"
+        aria-label="輸入您的問題"
+      />
+      <button class="btn-send" type="submit" aria-label="送出問題">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <script>
+    (() => {
+      // 1. 「正在為您接通客服...」逐字波浪上下飄動
+      const waveTextEl = document.getElementById("waveText");
+      const rawText = waveTextEl.textContent.trim();
+      waveTextEl.innerHTML = "";
+      [...rawText].forEach((char, idx) => {
+        const span = document.createElement("span");
+        span.textContent = char;
+        span.style.animationDelay = `${idx * 0.11}s`;
+        waveTextEl.appendChild(span);
+      });
+
+      // 2. 音檔設定與對齊文案的時間線切割（皆在 audio/ 資料夾）
+      const CS_AUDIO_SRC = "audio/印度小哥客服.mp3";
+      const POKE_AUDIO_SRC = "audio/請不要戳我.mp3";
+      const QUESTION_AUDIO_SRC = "audio/你有什麼問題.mp3";
+      const TELL_ME_AUDIO_SRC = "audio/tell me.mp3";
+      const GLOW_DESCENT_SRC = "audio/光降臨.mp3";
+
+      const CLIP_GROUPS = {
+        ANNOYING: {
+          key: "ANNOYING",
+          clips: [
+            {
+              src: QUESTION_AUDIO_SRC,
+              start: 0.0,
+              end: null,
+              rate: 1.0,
+              repeat: 1
+            },
+            {
+              src: TELL_ME_AUDIO_SRC,
+              start: 0.0,
+              end: null,
+              rate: 1.5,
+              repeat: 8
+            }
+          ]
+        }
+      };
+
+      const CLIPS = {
+        GLOW_DESCENT: {
+          key: "GLOW_DESCENT",
+          src: GLOW_DESCENT_SRC,
+          start: 0.0,
+          end: null
+        },
+        A_GREETING: {
+          key: "A_GREETING",
+          src: CS_AUDIO_SRC,
+          start: 0.0,
+          end: 6.3
+        },
+        B_NO_ISSUE: {
+          key: "B_NO_ISSUE",
+          src: CS_AUDIO_SRC,
+          start: 7.0,
+          end: 10.0
+        },
+        TEXT_RAND_1: {
+          key: "TEXT_RAND_1",
+          src: CS_AUDIO_SRC,
+          start: 12.0,
+          end: 23.0
+        },
+        TEXT_RAND_2: {
+          key: "TEXT_RAND_2",
+          src: CS_AUDIO_SRC,
+          start: 62.0,
+          end: 73.5
+        },
+        NON_POS_1: {
+          key: "NON_POS_1",
+          src: CS_AUDIO_SRC,
+          start: 25.0,
+          end: 31.5
+        },
+        NON_POS_2: {
+          key: "NON_POS_2",
+          src: CS_AUDIO_SRC,
+          start: 45.0,
+          end: 56.5
+        },
+        C_DONT_POKE: {
+          key: "C_DONT_POKE",
+          src: POKE_AUDIO_SRC,
+          start: 0.0,
+          end: null
+        }
+      };
+
+      const audioPlayers = new Map(
+        [CS_AUDIO_SRC, POKE_AUDIO_SRC, QUESTION_AUDIO_SRC, TELL_ME_AUDIO_SRC, GLOW_DESCENT_SRC].map((src) => {
+          const player = new Audio();
+          player.preload = "auto";
+          player.src = src;
+          return [src, player];
+        })
+      );
+      const csPlayer = audioPlayers.get(CS_AUDIO_SRC);
+      const pokePlayer = audioPlayers.get(POKE_AUDIO_SRC);
+
+      const stage = document.getElementById("stage");
+      const centerGlowStage = document.getElementById("centerGlowStage");
+      const leftOrbEl = document.getElementById("leftOrbEl");
+      const hourglassCanvas = document.getElementById("hourglassCanvas");
+      const hgCtx = hourglassCanvas.getContext("2d");
+      const connectingView = document.getElementById("connectingView");
+      const messageStack = document.getElementById("messageStack");
+      const chatForm = document.getElementById("chatForm");
+      const userInput = document.getElementById("userInput");
+      const backBtn = document.getElementById("backBtn");
+
+      let isConnected = false;
+      let hasArrivedCenter = false;
+      let seqTimers = [];
+      let sunRafId = null;
+      let centerArrivalRafId = null;
+      let idleBreathRafId = null;
+      let idleGroupTimer = null;
+      let idleGroupPending = false;
+      let activeClipGroup = null;
+      let lastOrbClickMs = 0;
+      let lastPlayAttemptMs = 0;
+      let mustPlayAOnEntry = true;
+      let annoyingPlayedOnce = false;
+
+      const playbackState = {
+        activeClip: null,
+        activePlayer: null,
+        endTime: null,
+        isSeeking: false,
+        pendingClip: null
+      };
+
+      function clearSequenceTimers() {
+        seqTimers.forEach((id) => clearTimeout(id));
+        seqTimers = [];
+        if (sunRafId) {
+          cancelAnimationFrame(sunRafId);
+          sunRafId = null;
+        }
+        if (centerArrivalRafId) {
+          cancelAnimationFrame(centerArrivalRafId);
+          centerArrivalRafId = null;
+        }
+        stopIdleBreathing();
+      }
+
+      function isAnyAudioPlaying() {
+        const playerPlaying = Array.from(audioPlayers.values()).some(
+          (player) => !player.paused && !player.ended
+        );
+        return Boolean(playbackState.activeClip) || playerPlaying;
+      }
+
+      function syncSpeakingClass() {
+        const speaking = isAnyAudioPlaying();
+        stage.classList.toggle("is-speaking", speaking);
+        document.body.classList.toggle("is-speaking", speaking);
+      }
+
+      function clearIdleGroupTimer() {
+        if (idleGroupTimer) {
+          clearTimeout(idleGroupTimer);
+          idleGroupTimer = null;
+        }
+      }
+
+      function stopAllAudioPlayers() {
+        activeClipGroup = null;
+        playbackState.activeClip = null;
+        playbackState.activePlayer = null;
+        playbackState.endTime = null;
+        playbackState.isSeeking = false;
+        playbackState.pendingClip = null;
+        audioPlayers.forEach((player) => player.pause());
+        syncSpeakingClass();
+      }
+
+      function startIdleGroupIfReady() {
+        if (!idleGroupPending || !isConnected || !hasArrivedCenter || isAnyAudioPlaying()) return;
+        idleGroupPending = false;
+        annoyingPlayedOnce = true;
+        playClipGroup(CLIP_GROUPS.ANNOYING);
+      }
+
+      function stopIdleBreathing() {
+        if (idleBreathRafId) {
+          cancelAnimationFrame(idleBreathRafId);
+          idleBreathRafId = null;
+        }
+      }
+
+      function startIdleBreathing() {
+        if (idleBreathRafId || centerArrivalRafId || !isConnected || !hasArrivedCenter || isAnyAudioPlaying()) return;
+        const startedAt = performance.now();
+
+        const breathe = (now) => {
+          if (!isConnected || !hasArrivedCenter || isAnyAudioPlaying()) {
+            idleBreathRafId = null;
+            return;
+          }
+
+          const phase = ((now - startedAt) / 4200) * Math.PI * 2;
+          const inhale = (1 - Math.cos(phase)) / 2;
+          leftOrbEl.style.setProperty("--sun-power", (0.12 + inhale * 0.34).toFixed(3));
+          idleBreathRafId = requestAnimationFrame(breathe);
+        };
+
+        idleBreathRafId = requestAnimationFrame(breathe);
+      }
+
+      function settleGlowAtCenter() {
+        if (centerArrivalRafId) cancelAnimationFrame(centerArrivalRafId);
+        const storedPower = Number.parseFloat(leftOrbEl.style.getPropertyValue("--sun-power"));
+        const currentPower = Number.isFinite(storedPower) ? storedPower : 1;
+        const startedAt = performance.now();
+        const duration = 1000;
+
+        const settle = (now) => {
+          if (!hasArrivedCenter) {
+            centerArrivalRafId = null;
+            return;
+          }
+
+          const progress = Math.min(1, (now - startedAt) / duration);
+          const eased = progress * progress * (3 - 2 * progress);
+          const power = currentPower + (0.12 - currentPower) * eased;
+          leftOrbEl.style.setProperty("--sun-power", power.toFixed(3));
+
+          if (progress < 1) {
+            centerArrivalRafId = requestAnimationFrame(settle);
+            return;
+          }
+
+          centerArrivalRafId = null;
+          leftOrbEl.style.setProperty("--sun-power", "0.12");
+          startIdleBreathing();
+        };
+
+        centerArrivalRafId = requestAnimationFrame(settle);
+      }
+
+      function resetIdleGroupTimer() {
+        clearIdleGroupTimer();
+        idleGroupPending = false;
+
+        if (!isConnected || !hasArrivedCenter) return;
+        startIdleBreathing();
+        const delay = annoyingPlayedOnce ? 10000 : 20000;
+        idleGroupTimer = setTimeout(() => {
+          idleGroupTimer = null;
+          if (activeClipGroup?.group === CLIP_GROUPS.ANNOYING) return;
+          if (isAnyAudioPlaying()) {
+            resetIdleGroupTimer();
+            return;
+          }
+          idleGroupPending = true;
+          startIdleGroupIfReady();
+        }, delay);
+      }
+
+      function finishCurrentClip({ failed = false } = {}) {
+        const finishedClip = playbackState.activeClip;
+        const groupState = activeClipGroup;
+        const isGroupClip = groupState && groupState.group.clips[groupState.clipIndex] === finishedClip;
+        playbackState.activeClip = null;
+        playbackState.activePlayer = null;
+        playbackState.endTime = null;
+        playbackState.isSeeking = false;
+
+        if (failed) {
+          playbackState.pendingClip = null;
+          if (isGroupClip) activeClipGroup = null;
+          syncSpeakingClass();
+          startIdleBreathing();
+          return;
+        }
+
+        if (isGroupClip) {
+          const currentClip = groupState.group.clips[groupState.clipIndex];
+          const repeatCount = Math.max(1, Number(currentClip.repeat) || 1);
+
+          if (groupState.repeatIndex + 1 < repeatCount) {
+            groupState.repeatIndex += 1;
+          } else if (groupState.clipIndex + 1 < groupState.group.clips.length) {
+            groupState.clipIndex += 1;
+            groupState.repeatIndex = 0;
+          } else {
+            activeClipGroup = null;
+            playbackState.pendingClip = null;
+            syncSpeakingClass();
+            startIdleBreathing();
+            return;
+          }
+
+          syncSpeakingClass();
+          playActiveGroupClip();
+          return;
+        }
+
+        syncSpeakingClass();
+        if (idleGroupPending) {
+          startIdleGroupIfReady();
+          return;
+        }
+        resetIdleGroupTimer();
+      }
+
+      function executePlayOnPlayer(targetPlayer, clip) {
+        targetPlayer.muted = false;
+        targetPlayer.volume = 1;
+        targetPlayer.playbackRate = Number(clip.rate) || 1;
+        targetPlayer.play().then(() => {
+          if (clip.key === "A_GREETING") {
+            mustPlayAOnEntry = false;
+          }
+          playbackState.pendingClip = null;
+          syncSpeakingClass();
+        }).catch(() => {
+          if (playbackState.activePlayer === targetPlayer && playbackState.activeClip === clip) {
+            playbackState.activeClip = null;
+            playbackState.activePlayer = null;
+            playbackState.endTime = null;
+            playbackState.isSeeking = false;
+            playbackState.pendingClip = clip;
+            syncSpeakingClass();
+          }
+        });
+      }
+
+      function playClip(clip, options = {}) {
+        const { allowInterrupt = false, forceReplace = false, forceSeek = false, groupPlayback = false } = options;
+        const now = performance.now();
+
+        if (!forceReplace && now - lastPlayAttemptMs < 260) {
+          return false;
+        }
+
+        if (!forceReplace && isAnyAudioPlaying() && !allowInterrupt) {
+          return false;
+        }
+
+        if (
+          !forceReplace &&
+          playbackState.activeClip &&
+          playbackState.activeClip.key === clip.key &&
+          isAnyAudioPlaying()
+        ) {
+          return false;
+        }
+
+        lastPlayAttemptMs = now;
+
+        const targetPlayer = audioPlayers.get(clip.src);
+        if (!targetPlayer) {
+          console.error(`找不到音檔播放器：${clip.src}`);
+          return false;
+        }
+
+        stopIdleBreathing();
+        if (!groupPlayback) activeClipGroup = null;
+        audioPlayers.forEach((player) => {
+          if (player !== targetPlayer) player.pause();
+        });
+        targetPlayer.pause();
+
+        playbackState.activeClip = clip;
+        playbackState.activePlayer = targetPlayer;
+        playbackState.endTime = typeof clip.end === "number" ? clip.end : null;
+        playbackState.pendingClip = clip;
+        syncSpeakingClass();
+
+        const beginPlayback = () => {
+          const desiredStart = Math.max(0, clip.start || 0);
+          const needsSeek = forceSeek || Math.abs(targetPlayer.currentTime - desiredStart) >= 0.12;
+          playbackState.isSeeking = needsSeek;
+
+          if (needsSeek) {
+            try {
+              targetPlayer.currentTime = desiredStart;
+            } catch (_) {
+              playbackState.isSeeking = false;
+              executePlayOnPlayer(targetPlayer, clip);
+            }
+          } else {
+            executePlayOnPlayer(targetPlayer, clip);
+          }
+        };
+
+        if (targetPlayer.readyState >= 1) {
+          beginPlayback();
+        } else {
+          targetPlayer.addEventListener("loadedmetadata", beginPlayback, { once: true });
+          targetPlayer.load();
+        }
+
+        return true;
+      }
+
+      function playActiveGroupClip() {
+        if (!activeClipGroup) return;
+        const clip = activeClipGroup.group.clips[activeClipGroup.clipIndex];
+        const started = playClip(clip, {
+          forceReplace: true,
+          groupPlayback: true
+        });
+        if (!started) activeClipGroup = null;
+      }
+
+      function playClipGroup(group) {
+        if (!group?.clips?.length) return false;
+        clearIdleGroupTimer();
+        idleGroupPending = false;
+        activeClipGroup = { group, clipIndex: 0, repeatIndex: 0 };
+        playActiveGroupClip();
+        return Boolean(activeClipGroup);
+      }
+
+      audioPlayers.forEach((player) => {
+        player.addEventListener("seeked", () => {
+          if (playbackState.activePlayer !== player || !playbackState.isSeeking) return;
+          playbackState.isSeeking = false;
+          executePlayOnPlayer(player, playbackState.activeClip);
+        });
+
+        player.addEventListener("timeupdate", () => {
+          if (playbackState.activePlayer !== player || playbackState.isSeeking || player.paused) return;
+          if (typeof playbackState.endTime === "number" && player.currentTime >= playbackState.endTime - 0.05) {
+            player.pause();
+            finishCurrentClip();
+          }
+        });
+
+        player.addEventListener("ended", () => {
+          if (playbackState.activePlayer === player) finishCurrentClip();
+        });
+
+        player.addEventListener("error", () => {
+          console.warn(`音檔 ${player.currentSrc || player.src} 尚未就緒或路徑有誤`);
+          if (playbackState.activePlayer === player) finishCurrentClip({ failed: true });
+        });
+      });
+
+      function handleFirstUserInteractionForA() {
+        csPlayer.muted = false;
+        pokePlayer.muted = false;
+
+        if (mustPlayAOnEntry && hasArrivedCenter && !isAnyAudioPlaying()) {
+          playClip(CLIPS.A_GREETING, { allowInterrupt: false });
+          return;
+        }
+
+        if (playbackState.pendingClip && !isAnyAudioPlaying()) {
+          const clipToRetry = playbackState.pendingClip;
+          const groupRetry = activeClipGroup &&
+            activeClipGroup.group.clips[activeClipGroup.clipIndex] === clipToRetry;
+          playbackState.pendingClip = null;
+          playClip(clipToRetry, {
+            allowInterrupt: false,
+            forceReplace: Boolean(groupRetry),
+            groupPlayback: Boolean(groupRetry)
+          });
+        }
+      }
+
+      document.addEventListener("pointerdown", handleFirstUserInteractionForA, { passive: true });
+      document.addEventListener("keydown", handleFirstUserInteractionForA, { passive: true });
+      document.addEventListener("touchstart", handleFirstUserInteractionForA, { passive: true });
+
+      centerGlowStage.addEventListener("click", (e) => {
+        if (!isConnected) return;
+        e.stopPropagation();
+
+        const now = performance.now();
+        if (now - lastOrbClickMs < 900) return;
+        lastOrbClickMs = now;
+
+        if (isAnyAudioPlaying()) return;
+        const clip = Math.random() < 0.5 ? CLIPS.B_NO_ISSUE : CLIPS.C_DONT_POKE;
+        playClip(clip, { allowInterrupt: false, forceSeek: true });
+      });
+
+      function handleNonTypingUserActivity(e) {
+        if (!isConnected || !hasArrivedCenter) return;
+        if (activeClipGroup?.group === CLIP_GROUPS.ANNOYING) return;
+        resetIdleGroupTimer();
+        if (mustPlayAOnEntry) return;
+        if (e.target && (e.target.closest("#chatForm") || e.target.closest("#backBtn") || e.target.closest("header"))) {
+          return;
+        }
+        if (e.target && e.target.closest("#centerGlowStage")) {
+          return;
+        }
+      }
+
+      document.addEventListener("pointermove", handleNonTypingUserActivity, { passive: true });
+      document.addEventListener("pointerdown", handleNonTypingUserActivity, { passive: true });
+      document.addEventListener("wheel", handleNonTypingUserActivity, { passive: true });
+      document.addEventListener("keydown", (e) => {
+        const activeEl = document.activeElement;
+        const isTypingInInput = activeEl && (activeEl.id === "userInput" || activeEl.tagName === "TEXTAREA");
+        if (!isTypingInInput) {
+          handleNonTypingUserActivity(e);
+        }
+      });
+      userInput.addEventListener("input", () => {
+        if (isConnected && hasArrivedCenter) resetIdleGroupTimer();
+      });
+
+      function isNonPositiveDescription(text) {
+        const lower = text.toLowerCase();
+        const negativePatterns = [
+          /不好/, /不行/, /沒用/, /沒效/, /爛/, /壞/, /壞掉/, /故障/, /錯誤/,
+          /失敗/, /卡住/, /當機/, /無法/, /不能/, /不會/, /不會用/, /看不懂/,
+          /討厭/, /煩/, /怒/, /氣/, /扯/, /糟/, /差/, /抱怨/, /困擾/, /問題/,
+          /沒有/, /不是/, /別鬧/, /騙人/, /假的/, /退費/, /投訴/,
+          /\bno\b/, /\bnot\b/, /\bbad\b/, /\bfail/, /\bbroken\b/, /\berror\b/,
+          /\bbug\b/, /\bstuck\b/, /\bissue\b/, /\bproblem\b/, /\bterrible\b/,
+          /\bawful\b/, /\bannoying\b/, /\buseless\b/, /\bwrong\b/, /\bcant\b/, /\bcan't\b/
+        ];
+        return negativePatterns.some((re) => re.test(text) || re.test(lower));
+      }
+
+      function pickRandom(list) {
+        return list[Math.floor(Math.random() * list.length)];
+      }
+
+      function appendFadingMessage(text) {
+        const bubble = document.createElement("div");
+        bubble.className = "msg-bubble";
+        bubble.textContent = text;
+        messageStack.appendChild(bubble);
+
+        const bubbles = Array.from(messageStack.querySelectorAll(".msg-bubble"));
+        const opacitySteps = [0.92, 0.52, 0.24, 0.08];
+
+        bubbles.reverse().forEach((el, ageIndex) => {
+          if (ageIndex >= opacitySteps.length) {
+            el.remove();
+            return;
+          }
+          const op = opacitySteps[ageIndex];
+          el.style.setProperty("--target-opacity", op);
+          el.style.opacity = op;
+        });
+      }
+
+      chatForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        userInput.value = "";
+        mustPlayAOnEntry = false;
+
+        if (!isConnected) {
+          clearSequenceTimers();
+          leftOrbEl.style.setProperty("--sun-power", "0.15");
+          stage.classList.add("is-corner-sun", "is-descending", "is-connected");
+          document.body.classList.add("is-connected");
+          connectingView.classList.add("is-hidden");
+          isConnected = true;
+          hasArrivedCenter = true;
+        }
+
+        resetIdleGroupTimer();
+        appendFadingMessage(text);
+
+        const chosenClip = isNonPositiveDescription(text)
+          ? pickRandom([CLIPS.NON_POS_1, CLIPS.NON_POS_2])
+          : pickRandom([CLIPS.TEXT_RAND_1, CLIPS.TEXT_RAND_2]);
+
+        playClip(chosenClip, { allowInterrupt: true, forceReplace: true, forceSeek: true });
+      });
+
+      function startGlowSequence() {
+        clearSequenceTimers();
+        clearIdleGroupTimer();
+        idleGroupPending = false;
+        isConnected = false;
+        hasArrivedCenter = false;
+        mustPlayAOnEntry = true;
+        leftOrbEl.style.setProperty("--sun-power", "0");
+        centerGlowStage.style.setProperty("--wave-mix", "0");
+
+        seqTimers.push(setTimeout(() => {
+          stage.classList.add("is-corner-sun");
+        }, 120));
+
+        const sunStartMs = performance.now() + 900;
+        const sunDurationMs = 3000;
+
+        const stepSunBrightness = (nowMs) => {
+          if (nowMs < sunStartMs) {
+            sunRafId = requestAnimationFrame(stepSunBrightness);
+            return;
+          }
+          const progress = Math.min(1, (nowMs - sunStartMs) / sunDurationMs);
+          const eased = progress * progress * (3 - 2 * progress);
+          leftOrbEl.style.setProperty("--sun-power", eased.toFixed(3));
+          if (progress < 1 && !hasArrivedCenter) {
+            sunRafId = requestAnimationFrame(stepSunBrightness);
+          }
+        };
+        sunRafId = requestAnimationFrame(stepSunBrightness);
+
+        seqTimers.push(setTimeout(() => {
+          playClip(CLIPS.GLOW_DESCENT, { allowInterrupt: false });
+        }, 500));
+
+        seqTimers.push(setTimeout(() => {
+          connectingView.classList.add("is-hidden");
+          stage.classList.add("is-descending", "is-connected");
+          document.body.classList.add("is-connected");
+          isConnected = true;
+        }, 4020));
+
+        seqTimers.push(setTimeout(() => {
+          hasArrivedCenter = true;
+          settleGlowAtCenter();
+          playClip(CLIPS.A_GREETING, { forceReplace: true });
+        }, 5520));
+      }
+
+      startGlowSequence();
+
+      // =========================================================
+      // 4. 光團形狀 <-> 橫漏斗聲波團連續形變（morph: 0 為圓光團，1 為橫漏斗）
+      // =========================================================
+      let smoothMorph = 0.0;
+      let smoothAmp = 0.0;
+
+      function resizeHourglassCanvas() {
+        const rect = hourglassCanvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.max(1, Math.round(rect.width * dpr));
+        const h = Math.max(1, Math.round(rect.height * dpr));
+        if (hourglassCanvas.width !== w || hourglassCanvas.height !== h) {
+          hourglassCanvas.width = w;
+          hourglassCanvas.height = h;
+        }
+      }
+
+      function renderHourglassWave(nowMs) {
+        resizeHourglassCanvas();
+        const w = hourglassCanvas.width;
+        const h = hourglassCanvas.height;
+        const midX = w * 0.5;
+        const midY = h * 0.5;
+        const nowSec = nowMs * 0.001;
+
+        const speaking = isAnyAudioPlaying() && playbackState.activeClip?.key !== "GLOW_DESCENT";
+        const targetMorph = speaking ? 1.0 : 0.0;
+        const targetAmp = speaking
+          ? 0.58 + 0.24 * Math.sin(nowSec * 6.2) + 0.16 * Math.cos(nowSec * 10.6)
+          : 0.0;
+
+        // 連續形變速率：播音時拉開成橫漏斗，停播時形變回光團
+        smoothMorph += (targetMorph - smoothMorph) * 0.14;
+        smoothAmp += (targetAmp - smoothAmp) * 0.12;
+
+        centerGlowStage.style.setProperty("--wave-mix", smoothMorph.toFixed(3));
+        stage.classList.toggle("is-audio-active", smoothMorph > 0.35);
+        hgCtx.clearRect(0, 0, w, h);
+
+        if (smoothMorph < 0.005) {
+          requestAnimationFrame(renderHourglassWave);
+          return;
+        }
+
+        const steps = 160;
+        const topPts = [];
+        const botPts = [];
+
+        // 圓形光團半徑基準（morph = 0 時為圓形）與橫漏斗幾何（morph = 1 時為中央窄喉、兩側展開）
+        const orbRadius = Math.min(w, h) * 0.24;
+        const halfSpanX = orbRadius + (w * 0.46 - orbRadius) * smoothMorph;
+        const neckHalfHeight = h * (0.02 + 0.014 * smoothAmp);
+        const outerHalfHeight = h * (0.14 + 0.24 * smoothAmp);
+
+        for (let i = 0; i <= steps; i++) {
+          const u = (i / steps) * 2 - 1; // -1 (左) -> 0 (正中) -> +1 (右)
+          const t = i / steps;           // 0 -> 1
+          const x = midX + u * halfSpanX;
+          const absU = Math.abs(u);
+
+          // 圓形光團上下半高（在 [-1, 1] 水平範圍內）
+          const circleHalfH = orbRadius * Math.sqrt(Math.max(0, 1 - Math.min(1, u * u)));
+
+          // 橫漏斗上下半高（中央細窄，左右隨 absU 呈雙曲線張開）
+          const funnelCurve = Math.pow(absU, 1.48);
+          const baseFunnelHalfH = neckHalfHeight + (outerHalfHeight - neckHalfHeight) * funnelCurve;
+          const waveMod =
+            Math.sin(t * Math.PI * 8 - nowSec * 8.5) * 0.14 +
+            Math.cos(t * Math.PI * 13 + nowSec * 12.0) * 0.08;
+          const funnelHalfH = Math.max(
+            neckHalfHeight * 0.65,
+            baseFunnelHalfH * (1 + waveMod * smoothAmp * funnelCurve)
+          );
+
+          // 從圓形光團形變到橫漏斗的連續插值
+          const morphedHalfH = circleHalfH * (1 - smoothMorph) + funnelHalfH * smoothMorph;
+
+          topPts.push({ x, y: midY - morphedHalfH });
+          botPts.push({ x, y: midY + morphedHalfH });
+        }
+
+        hgCtx.save();
+        hgCtx.globalAlpha = Math.min(1, smoothMorph * 1.15);
+
+        hgCtx.beginPath();
+        hgCtx.moveTo(topPts[0].x, topPts[0].y);
+        for (let i = 1; i < topPts.length; i++) {
+          hgCtx.lineTo(topPts[i].x, topPts[i].y);
+        }
+        for (let i = botPts.length - 1; i >= 0; i--) {
+          hgCtx.lineTo(botPts[i].x, botPts[i].y);
+        }
+        hgCtx.closePath();
+
+        // 橫向漸層隨 morph 從集中星雲過渡到橫漏斗電藍核心 + 冷紫光翼
+        const hGrad = hgCtx.createLinearGradient(midX - halfSpanX, midY, midX + halfSpanX, midY);
+        const sideAlpha = 0.25 + 0.35 * smoothMorph;
+        const coreAlpha = 0.78 + 0.2 * smoothMorph;
+
+        hGrad.addColorStop(0.0, "rgba(24, 19, 92, 0.05)");
+        hGrad.addColorStop(0.22, `rgba(91, 50, 184, ${sideAlpha.toFixed(2)})`);
+        hGrad.addColorStop(0.43, `rgba(59, 130, 246, ${coreAlpha.toFixed(2)})`);
+        hGrad.addColorStop(0.50, "rgba(223, 244, 255, 0.98)");
+        hGrad.addColorStop(0.57, `rgba(59, 130, 246, ${coreAlpha.toFixed(2)})`);
+        hGrad.addColorStop(0.78, `rgba(91, 50, 184, ${sideAlpha.toFixed(2)})`);
+        hGrad.addColorStop(1.0, "rgba(24, 19, 92, 0.05)");
+
+        hgCtx.filter = "blur(10px)";
+        hgCtx.fillStyle = hGrad;
+        hgCtx.fill();
+
+        const vGrad = hgCtx.createLinearGradient(midX, midY - outerHalfHeight * 1.35, midX, midY + outerHalfHeight * 1.35);
+        vGrad.addColorStop(0.0, "rgba(12, 12, 12, 0)");
+        vGrad.addColorStop(0.28, "rgba(140, 185, 255, 0.55)");
+        vGrad.addColorStop(0.50, "rgba(235, 250, 255, 0.95)");
+        vGrad.addColorStop(0.72, "rgba(140, 185, 255, 0.55)");
+        vGrad.addColorStop(1.0, "rgba(12, 12, 12, 0)");
+
+        hgCtx.globalCompositeOperation = "lighter";
+        hgCtx.fillStyle = vGrad;
+        hgCtx.fill();
+
+        hgCtx.restore();
+        requestAnimationFrame(renderHourglassWave);
+      }
+
+      window.addEventListener("resize", resizeHourglassCanvas);
+      requestAnimationFrame(renderHourglassWave);
+
+      function resetCustomerService() {
+        clearSequenceTimers();
+        clearIdleGroupTimer();
+        idleGroupPending = false;
+        stopAllAudioPlayers();
+        playbackState.pendingClip = null;
+        mustPlayAOnEntry = true;
+        hasArrivedCenter = false;
+        smoothMorph = 0.0;
+        smoothAmp = 0.0;
+        leftOrbEl.style.setProperty("--sun-power", "0");
+        centerGlowStage.style.setProperty("--wave-mix", "0");
+        audioPlayers.forEach((player) => {
+          try { player.currentTime = 0; } catch (_) {}
+        });
+        messageStack.innerHTML = "";
+        userInput.value = "";
+        isConnected = false;
+        stage.classList.remove("is-corner-sun", "is-descending", "is-connected", "is-audio-active", "is-speaking");
+        document.body.classList.remove("is-connected", "is-speaking");
+        connectingView.classList.remove("is-hidden");
+      }
+
+      window.addEventListener("pagehide", resetCustomerService);
+      window.addEventListener("beforeunload", resetCustomerService);
+
+      backBtn.addEventListener("click", () => {
+        resetCustomerService();
+        if (window.history.length > 1) {
+          history.back();
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+    })();
+  </script>
+  <script src="page-transition.js"></script>
+</body>
+</html>

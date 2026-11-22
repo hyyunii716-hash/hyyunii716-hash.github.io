@@ -19,7 +19,7 @@
   const volumeAttr = parseFloat(
     currentScript?.getAttribute('data-bgm-volume') ||
     document.body?.getAttribute('data-bgm-volume') ||
-    '0.5'
+    '0.75'
   );
   const targetVolume = Number.isFinite(volumeAttr)
     ? Math.min(1, Math.max(0, volumeAttr))

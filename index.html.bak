@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Abandon — Change your life</title>
+  <meta name="description" content="Abandon：選擇你的工具，不再解釋，直接執行。（臺藝大視傳系課程作業之虛構專案）">
+
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="spotlight.css">
+  <script>document.documentElement.classList.add('js');</script>
+  <link rel="stylesheet" href="flip-card.css">
+  <link rel="stylesheet" href="page-transition.css">
+  <link rel="stylesheet" href="dream-intro.css">
+  <script src="fullpage-snap.js"></script>
+  <script src="spotlight.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="liquid-water-dream.js" defer></script>
+  <!--<script src="./dream-sink-depth.js"></script>-->
+  <link rel="stylesheet" href="floating-words.css">
+  <script src="cover-dream-audio.js" defer></script>
+<script src="button_sound.js" data-click-sound="audio/click.mp3" data-click-volume="0.6" defer></script>
+</head>
+<body class="intro-lock">
+
+  <!-- 箭頭 icon（Figma: arrow1，34px 寬） -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="icon-arrow" viewBox="0 0 34 15">
+      <path d="M0 7.5h32M26 1l7 6.5L26 14" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+  </svg>
+
+<header class="site-header cover-nav" id="coverNav"><nav class="site-nav" aria-label="主選單"><a class="site-nav__brand" href="index.html" aria-label="Abandon 首頁"><img class="site-nav__logo" src="assets/abandon-wordmark.png" alt="Abandon"></a><ul class="site-nav__list"><li><a href="index.html" aria-current="page">首頁</a></li><li><a href="tools.html">網頁工具</a></li><li><a href="apps.html">網頁程式</a></li><li><a href="pricing.html">購買方案</a></li></ul></nav></header>
+
+<svg id="mark" viewBox="0 0 1825 240" role="img" aria-label="ABANDON">
+  <g id="strokes" class="k-group">
+
+    <!-- 第 1 個字母:一般的 A(進場前半段顯示，隨後切換為特殊字首) -->
+    <g transform="translate(0,0)">
+      <path class="k dash a-first" pathLength="1" d="M14.5 236V75A55.5 55.5 0 0 1 70 19.5H167A55.5 55.5 0 0 1 222.5 75V236"/>
+      <!-- 橫槓終點延伸至右側豎線中心 x=222.5，變粗時完全咬合不斷開 -->
+      <path class="k dash a-first" pathLength="1" d="M88 132.5H222.5"/>
+
+      <!-- 第 1 個字母:特殊字首(第四張圖最終樣式) -->
+      <!-- 豎筆與下方弧線合併成同一條連續路徑，避免兩個端點相接時出現細縫 -->
+      <path class="k dash g-first" pathLength="1" d="M125 0V122H65.5A51 51 0 0 0 14.5 173A51 51 0 0 0 65.5 224H236"/>
+      <!-- 上方橫槓穿過豎筆中心，交叉處由筆畫重疊確保完整連接 -->
+      <path class="k dash g-first" pathLength="1" d="M14 43H236"/>
+    </g>
+
+    <!-- B:外框一筆連續閉合 + 中橫槓精準接在左豎線中心 x=14.5 與右弧交界 -->
+    <g transform="translate(263,0)">
+      <path class="k" d="M14.5 14.5H161A40.5 40.5 0 0 1 201.5 55V63.5A40.5 40.5 0 0 1 161 104H165.5A57 57 0 0 1 165.5 218H14.5Z"/>
+      <path class="k" d="M14.5 104H165.5"/>
+    </g>
+
+    <!-- A:橫槓延伸至右側豎線中心 x=222.5，連接點一起變粗不斷開 -->
+    <g transform="translate(520,0)">
+      <path class="k" d="M14.5 236V75A55.5 55.5 0 0 1 70 19.5H167A55.5 55.5 0 0 1 222.5 75V236"/>
+      <path class="k" d="M88 132.5H222.5"/>
+    </g>
+
+    <!-- N -->
+    <g transform="translate(788,0)">
+      <path class="k" d="M14.5 236V75A55.5 55.5 0 0 1 70 19.5H167A55.5 55.5 0 0 1 222.5 75V236"/>
+    </g>
+
+    <!-- D:上下橫槓起點對齊左豎線中心 x=14.5，外框一筆轉折不斷開，左側保留原始斷開特徵 -->
+    <g transform="translate(1055,0)">
+      <path class="k" d="M14.5 118V14.5H166.5A55.5 55.5 0 0 1 222 70V162A55.5 55.5 0 0 1 166.5 217.5H14.5V162"/>
+    </g>
+
+    <!-- O -->
+    <g transform="translate(1322,0)">
+      <path class="k" d="M14.5 75A55.5 55.5 0 0 1 70 19.5H165A55.5 55.5 0 0 1 220.5 75V161A55.5 55.5 0 0 1 165 216.5H70A55.5 55.5 0 0 1 14.5 161Z"/>
+    </g>
+
+    <!-- N -->
+    <g transform="translate(1588,0)">
+      <path class="k" d="M14.5 236V75A55.5 55.5 0 0 1 70 19.5H167A55.5 55.5 0 0 1 222.5 75V236"/>
+    </g>
+  </g>
+</svg>
+
+<section class="cover-track" id="coverTrack" aria-label="Abandon 封面">
+  <div class="cover-stage">
+    <div class="cover-title" id="coverTitle">
+      <h1>Abandon</h1>
+      <p>Change your life</p>
+    </div>
+
+    <!-- 夢境副標 START -->
+    <svg class="dream-svg-defs" aria-hidden="true">
+      <defs>
+        <filter id="liquid-dream-vortex" x="-25%" y="-25%" width="150%" height="150%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.011 0.028" numOctaves="2" seed="3" result="noise">
+            <animate attributeName="baseFrequency" dur="14s" values="0.011 0.028; 0.017 0.042; 0.011 0.028" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="dream-subtitle-wrap" id="dreamSubtitleWrap">
+      <p class="dream-subtitle">您已進入設計師的夢魘</p>
+    </div>
+    <!-- 夢境副標 END -->
+
+    <div class="cover-hint" id="coverHint">Scroll</div>
+  </div>
+</section>
+
+  <main class="page">
+
+    <!-- 品牌宣言 -->
+    <section class="container manifesto" aria-label="品牌宣言">
+      <p>
+        我們致力於消除設計認知落差，<br>
+        使設計師不必花費大量時間理解術語。
+      </p>
+      <p>不再解釋，直接執行。</p>
+    </section>
+
+    <!-- 三項理念 -->
+    <section class="container" aria-label="我們的理念">
+      <ul class="values">
+        <li class="card card--value">
+          <h2 class="card__title">01 直白的工具</h2>
+          <p class="card__text">選擇你的工具，字面上的意思。</p>
+        </li>
+        <li class="card card--value">
+          <h2 class="card__title">02 誠實的運用</h2>
+          <p class="card__text">浪費的時間已經夠多了，不差這一刻。</p>
+        </li>
+        <li class="card card--value">
+          <h2 class="card__title">03 平等的思考</h2>
+          <p class="card__text">現在，你懂了不懂設計的人。</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 你可能認識這些程式 -->
+    <section class="container programs" aria-labelledby="programs-title">
+      <h2 id="programs-title" class="section-title">你可能認識這些程式</h2>
+
+      <ul class="programs__grid">
+        <li class="program">
+          <div class="program__body">
+            <h3 class="program__name">Photoshop</h3>
+            <p class="program__desc">修圖的第一步：先選一張好照片</p>
+          </div>
+          <a class="program__link" href="photoshop.html">試試Photoshop
+            <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+          </a>
+        </li>
+        <li class="program">
+          <div class="program__body">
+            <h3 class="program__name">Abandon illustrator</h3>
+            <p class="program__desc">這是最好的時代，也是最壞的時代</p>
+          </div>
+          <a class="program__link program__link--underline" href="https://chatgpt.com/zh-TW/" target="_blank" rel="noopener noreferrer">試試Abandon illustrator
+            <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+          </a>
+        </li>
+        <li class="program">
+          <div class="program__body">
+            <h3 class="program__name">Lightroom</h3>
+            <p class="program__desc">照片需要光線，人需要房間</p>
+          </div>
+          <a class="program__link" href="lightroom.html">試試Lightroom
+            <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+          </a>
+        </li>
+        <li class="program">
+          <div class="program__body">
+            <h3 class="program__name">InDesign</h3>
+            <p class="program__desc">證明你引以為傲的身份</p>
+          </div>
+          <a class="program__link" href="indesign.html">試試InDesign
+            <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
+          </a>
+        </li>
+      </ul>
+
+      <div class="disclaimer">
+        <p>本網站為臺藝大視傳系網站設計課程作業之虛構專案，僅供學術交流、課堂展示與介面設計練習使用，無任何商業營利行為。</p>
+        <p>網站中所提及之「lightroom」、「Photoshop」及相關軟體名稱、視覺元素之商標與智慧財產權，均歸屬 Adobe Inc. 原權利人所有。本站並非 Adobe 官方網站，亦無任何官方授權或背書關係。</p>
+      </div>
+    </section>
+
+    <!-- 現在可以使用的工具 -->
+    <section class="container tools" aria-labelledby="tools-title">
+      <h2 id="tools-title" class="section-title">現在可以使用的工具</h2>
+
+      <ul class="tools__grid">
+        <li>
+          <a class="card card--tool" href="compress.html">
+            <span class="card--tool__head">
+              <span class="card__title">壓縮圖檔</span>
+              <span class="card__text">Image Compressor</span>
+            </span>
+            <span class="card__text card__text--lh">總有辦法放下的。</span>
+          </a>
+        </li>
+        <li>
+          <a class="card card--tool" href="remover.html">
+            <span class="card--tool__head">
+              <span class="card__title">去背工具</span>
+              <span class="card__text">Background Remover</span>
+            </span>
+            <span class="card__text card__text--lh">還給你最簡潔的畫面。</span>
+          </a>
+        </li>
+        <li>
+          <a class="card card--tool" href="flip.html">
+            <span class="card--tool__head">
+              <span class="card__title">翻轉圖片</span>
+              <span class="card__text">Flip Image</span>
+            </span>
+            <span class="card__text card__text--lh">我們需要從不同角度看世界。</span>
+          </a>
+        </li>
+        <li>
+          <a class="card card--tool" href="group.html">
+            <span class="card--tool__head">
+              <span class="card__title">圖片群組</span>
+              <span class="card__text">Group Images</span>
+            </span>
+            <span class="card__text card__text--lh">群居動物的習性。</span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- QA -->
+    <section class="container qa" aria-labelledby="qa-title">
+      <h2 id="qa-title" class="section-title section-title--left">你可能會有的問題</h2>
+
+      <div class="qa__list">
+        <details class="qa__item">
+          <summary><span class="qa__q"><span class="en">Abandon</span>應用程式適用於什麼？</span></summary>
+          <p class="qa__a">其實關於應用程式適用的部分，包括圖片、影片、平面設計我們都可以使用。這些應用都非常重要，我們也一直致力於更新各種功能，並且透過持續溝通來最佳化整個應用程式，那當然，您所關心的適用，甚至是執行過程中會遇到的問題，我們都一定會在未來持續向使用者說明。</p>
+        </details>
+
+        <details class="qa__item">
+          <summary><span class="qa__q"><span class="en">Abandon</span>應用程式是免費的嗎？</span></summary>
+          <p class="qa__a">我想，您最關心的，是應用程式是否免費。我必須說，免費這件事情，當然我們一直都有在重視，也從來沒有迴避過這個問題。我們會持續檢討、持續改進，包括補助方案、折扣方案的部分，未來我們持續研議，有新的進度都會再說明。</p>
+        </details>
+
+        <details class="qa__item">
+          <summary><span class="qa__q"><span class="en">Abandon</span>應用程式計畫內容為何？</span></summary>
+          <p class="qa__a">我們必須強調，對於每一個計畫的內容，我們都是用最嚴謹的態度面對。包括Photoshop、Abandon illustrator，都在以最接近使用者理想的狀態調整。關於應用程式計畫內容，我們都會持續推動，讓使用者感受到Abandon的進步。</p>
+        </details>
+
+        <details class="qa__item">
+          <summary><span class="qa__q">我該如何下載及安裝Abandon程式？</span></summary>
+          <p class="qa__a">無法。因為這是假的。</p>
+        </details>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__cols">
+      <section class="footer-col footer-col--plain" aria-labelledby="f-support">
+        <h2 id="f-support" class="footer-col__title">支援</h2>
+        <ul>
+          <li class="footer-col__hover">支援中心</li>
+          <li class="footer-col__hover">下載及安裝</li>
+          <li><a href="https://youtu.be/dQw4w9WgXcQ?si=ZraJwlEosWTOlct9" target="_blank" rel="noopener noreferrer">Abandon社群</a></li>
+        </ul>
+      </section>
+
+      <section class="footer-col" aria-labelledby="f-brand">
+        <h2 id="f-brand" class="footer-col__title">Abandon</h2>
+        <ul>
+          <li><a href="#">登入</a></li>
+          <li><a href="#">關於</a></li>
+          <li><a href="#">活動</a></li>
+          <li><a class="u" href="https://vcd.ntua.edu.tw/zh/node/326" target="_blank" rel="noopener noreferrer">投資者關係</a></li>
+        </ul>
+      </section>
+
+      <section class="footer-col" aria-labelledby="f-products">
+        <h2 id="f-products" class="footer-col__title">產品</h2>
+        <ul>
+          <li><a href="photoshop.html">Photoshop</a></li>
+          <li><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">Abandon illustrator</a></li>
+          <li><a href="lightroom.html">Lightroom</a></li>
+          <li><a href="indesign.html">InDesign</a></li>
+        </ul>
+      </section>
+
+      <section class="footer-col" aria-labelledby="f-contact">
+        <h2 id="f-contact" class="footer-col__title">聯絡我們</h2>
+        <ul>
+          <li>@yyh716_</li>
+          <li>@ajr9503</li>
+          <li>@jnnyuuu</li>
+          <li>@xie_0622</li>
+        </ul>
+      </section>
+    </div>
+
+    <p class="site-footer__copy">©2026 Department of Visual Communication Design, National Taiwan University of Arts</p>
+  </footer>
+
+  <script>
+(() => {
+  const mark   = document.getElementById('mark');
+  const strokes= document.getElementById('strokes');
+  const strokePaths = [...strokes.querySelectorAll('.k')];
+  const nav    = document.getElementById('coverNav');
+  const heroTx = document.getElementById('coverTitle');
+  const hint   = document.getElementById('coverHint');
+  const track  = document.getElementById('coverTrack');
+  const aFirst = [...document.querySelectorAll('.a-first')];
+  const gFirst = [...document.querySelectorAll('.g-first')];
+  const dreamSub = document.getElementById('dreamSubtitleWrap');
+
+  const RATIO = 240 / 1825;
+  const clamp = (x,a=0,b=1) => Math.min(b, Math.max(a, x));
+  const lerp  = (a,b,t) => a + (b-a)*t;
+  const seg   = (p,a,b) => clamp((p-a)/(b-a));
+  const ease  = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+
+  const STROKE_THIN = 7;
+  const STROKE_PEAK = 42;
+  const STROKE_LOGO = 29;
+  const INTRO_MS    = 2400;
+
+  let introStart = null;
+  let introDone = false;
+  let targetScroll = 0, curScroll = 0;
+
+  const readScroll = () => {
+    const max = Math.max(1, track.offsetHeight - innerHeight);
+    const p = clamp(scrollY / max);
+    if (p > 0.02) introDone = true;
+    targetScroll = p;
+  };
+
+  function render(introP, scrollP){
+    const vw = innerWidth, vh = innerHeight;
+    const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cover-nav-h')) || 88;
+    const padX = vw <= 700 ? 20 : vw * .08;
+
+    let scaleY = 1;
+    if (introP < 0.45) {
+      scaleY = lerp(1.18, 0.94, ease(seg(introP, 0, 0.45)));
+    } else {
+      scaleY = lerp(0.94, 1.0, ease(seg(introP, 0.45, 1.0)));
+    }
+    scaleY = lerp(scaleY, 1.0, ease(seg(scrollP, 0, 0.3)));
+
+    const W0 = vw * .92, X0 = (vw - W0)/2, Y0 = (vh - W0*RATIO)/2;
+    const W1 = clamp(vw*.15, 130, 240), X1 = padX, Y1 = (navH - W1*RATIO)/2;
+
+    const move = ease(seg(scrollP, 0, 0.85));
+    const W = W0 * Math.pow(W1/W0, move);
+    const X = lerp(X0, X1, move);
+    const Y = lerp(Y0, Y1, move);
+
+    mark.style.width = W + 'px';
+    mark.style.height = (W * RATIO) + 'px';
+    mark.style.transform = `translate(${X}px, ${Y}px) scaleY(${scaleY})`;
+
+    let sw;
+    if (introP < 0.45) {
+      sw = lerp(STROKE_THIN, STROKE_PEAK, ease(seg(introP, 0, 0.45)));
+    } else {
+      sw = lerp(STROKE_PEAK, STROKE_LOGO, ease(seg(introP, 0.45, 1.0)));
+    }
+    strokes.style.strokeWidth = sw;
+    strokePaths.forEach(el => el.style.strokeWidth = sw);
+
+    const m = seg(introP, 0.42, 0.92);
+    const erase = ease(seg(m, 0, 0.55));
+    const draw  = 1 - ease(seg(m, 0.35, 1));
+    aFirst.forEach(el => {
+      el.style.strokeDashoffset = erase;
+      el.style.opacity = erase >= .999 ? 0 : 1;
+    });
+    gFirst.forEach(el => {
+      el.style.strokeDashoffset = draw;
+      el.style.opacity = draw >= .999 ? 0 : 1;
+    });
+
+    hint.classList.add('ready');
+    hint.classList.toggle('hide', scrollP > 0.04);
+    nav.classList.toggle('show', scrollP > 0.78);
+    heroTx.classList.toggle('show', scrollP > 0.82);
+
+    if (dreamSub) {
+      const fadeOut = ease(seg(scrollP, 0, 0.35));
+      dreamSub.style.setProperty('--dream-y', `${lerp(0, -140, fadeOut)}px`);
+      dreamSub.style.setProperty('--dream-scale', `${lerp(1, 0.25, fadeOut)}`);
+      dreamSub.style.setProperty('--dream-opacity', `${1 - fadeOut}`);
+      dreamSub.style.visibility = (1 - fadeOut) <= 0.01 ? 'hidden' : 'visible';
+    }
+  }
+
+  function loop(now){
+    if (!introStart) introStart = now;
+
+    const elapsed = Math.max(0, now - introStart);
+    const cycleP = (elapsed % (INTRO_MS * 2)) / INTRO_MS;
+    let introP = cycleP <= 1 ? cycleP : 2 - cycleP;
+    if (introDone) introP = 1;
+
+    curScroll += (targetScroll - curScroll) * .14;
+    if (Math.abs(targetScroll - curScroll) < .0003) curScroll = targetScroll;
+
+    render(introP, curScroll);
+    requestAnimationFrame(loop);
+  }
+
+  addEventListener('scroll', readScroll, {passive:true});
+  addEventListener('resize', readScroll);
+  readScroll();
+  requestAnimationFrame(loop);
+})();
+  </script>
+
+  <script src="wordmark.js"></script>
+  <script src="manifesto.js"></script>
+
+  <script>
+(function () {
+  function initGlobalMagnetButtons() {
+    const candidateSelectors = [
+      'a.btn',
+      'button.btn',
+      'button:not(.nav-toggle):not(.menu-toggle)',
+      '.pill-nav a',
+      '.pill-nav button',
+      '.app-card__actions a',
+      '.app-card__actions button'
+    ].join(', ');
+
+    const allBtns = Array.from(document.querySelectorAll(candidateSelectors)).filter(function (btn) {
+      if (btn.closest('header, .site-header, .site-nav')) return false;
+      if (btn.dataset.magnetBound === 'true') return false;
+      btn.dataset.magnetBound = 'true';
+      return true;
+    });
+
+    if (!allBtns.length) return;
+
+    const primaryBtns = allBtns.filter(function (btn) {
+      return btn.classList.contains('btn--primary');
+    });
+
+    primaryBtns.forEach(function (btn, index) {
+      gsap.to(btn, {
+        keyframes: [
+          { rotation: 12, duration: 0.12 },
+          { rotation: -10, duration: 0.14 },
+          { rotation: 8, duration: 0.14 },
+          { rotation: -6, duration: 0.14 },
+          { rotation: 4, duration: 0.14 },
+          { rotation: -2.5, duration: 0.14 },
+          { rotation: 1.2, duration: 0.14 },
+          { rotation: 0, duration: 0.14 }
+        ],
+        ease: 'sine.inOut',
+        repeat: -1,
+        repeatDelay: 0.45,
+        delay: index * 0.15
+      });
+    });
+
+    allBtns.forEach(function (btn) {
+      const isCompactGroup = btn.closest('.pill-nav, .app-card__actions, .btn-row') !== null;
+
+      const triggerPadding = isCompactGroup ? 32 : 75;
+      const btnStrength = isCompactGroup ? 0.36 : 0.45;
+      const textStrength = isCompactGroup ? 0.22 : 0.25;
+
+      let text = btn.querySelector('.btn-magnet-text');
+      if (!text) {
+        const hasComplexChild = btn.querySelector('svg, img, video, canvas');
+        if (!hasComplexChild) {
+          text = document.createElement('span');
+          text.className = 'btn-magnet-text';
+          text.textContent = btn.textContent.trim();
+          btn.textContent = '';
+          btn.appendChild(text);
+        }
+      }
+
+      btn.style.removeProperty('transform');
+      btn.style.setProperty('transition', 'background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease', 'important');
+
+      if (text) {
+        text.style.setProperty('display', 'inline-block', 'important');
+        text.style.setProperty('pointer-events', 'none', 'important');
+      }
+
+      let isMagnetized = false;
+
+      window.addEventListener('mousemove', function (e) {
+        const rect = btn.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+
+        const curX = gsap.getProperty(btn, 'x') || 0;
+        const curY = gsap.getProperty(btn, 'y') || 0;
+        const left = rect.left - curX - triggerPadding;
+        const right = rect.right - curX + triggerPadding;
+        const top = rect.top - curY - triggerPadding;
+        const bottom = rect.bottom - curY + triggerPadding;
+
+        if (e.clientX >= left && e.clientX <= right && e.clientY >= top && e.clientY <= bottom) {
+          isMagnetized = true;
+          const x = gsap.utils.mapRange(left, right, -(right - left) / 2, (right - left) / 2, e.clientX);
+          const y = gsap.utils.mapRange(top, bottom, -(bottom - top) / 2, (bottom - top) / 2, e.clientY);
+
+          gsap.to(btn, {
+            x: x * btnStrength,
+            y: y * btnStrength,
+            duration: 0.4,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+
+          if (text) {
+            gsap.to(text, {
+              x: x * textStrength,
+              y: y * textStrength,
+              duration: 0.35,
+              ease: 'power2.out',
+              overwrite: 'auto'
+            });
+          }
+        } else if (isMagnetized) {
+          isMagnetized = false;
+          gsap.to(btn, {
+            x: 0,
+            y: 0,
+            duration: 0.7,
+            ease: 'elastic.out(1, 0.4)',
+            overwrite: 'auto'
+          });
+
+          if (text) {
+            gsap.to(text, {
+              x: 0,
+              y: 0,
+              duration: 0.75,
+              ease: 'elastic.out(1, 0.35)',
+              overwrite: 'auto'
+            });
+          }
+        }
+      });
+
+      document.addEventListener('mouseleave', function () {
+        if (!isMagnetized) return;
+        isMagnetized = false;
+        const targets = text ? [btn, text] : [btn];
+        gsap.to(targets, {
+          x: 0,
+          y: 0,
+          duration: 0.7,
+          ease: 'elastic.out(1, 0.4)',
+          overwrite: 'auto'
+        });
+      });
+    });
+  }
+
+  if (window.gsap) {
+    initGlobalMagnetButtons();
+  } else {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js';
+    s.onload = initGlobalMagnetButtons;
+    document.head.appendChild(s);
+  }
+})();
+  </script>
+
+  <script src="flip-card.js"></script>
+  <script src="page-transition.js"></script>
+  <script src="floating-words.js"></script>
+</body>
+</html>
