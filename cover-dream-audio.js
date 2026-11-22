@@ -29,9 +29,9 @@
     './shiny.mp3'
   ];
 
-  const BGM_VOLUME = 0.72;       // 背景音樂音量（0~1）
-  const MIN_GAIN = 1.6;          // 每一聲 shiny 的隨機音量下限／上限。
-  const MAX_GAIN = 3.6;          //   shiny.mp3 本身偏小聲（最大約 -10.8dB）；高頻收掉之後整體會小一些，所以比之前大
+  const BGM_VOLUME = 0.95;       // 背景音樂音量（0~1）
+  const MIN_GAIN = 2.2;          // 每一聲 shiny 的隨機音量下限／上限。
+  const MAX_GAIN = 4.8;          //   shiny.mp3 本身偏小聲（最大約 -10.8dB）；高頻收掉之後整體會小一些，所以比之前大
   const LOWPASS_HZ = 6000;       // 柔化：高於這個頻率的聲音會被快速削掉（24dB/oct）。
                                  //   shiny.mp3 約 70% 的能量在 6kHz 以上、最強的一根在 9.4kHz，連續疊起來就是「割玻璃」的感覺。
                                  //   覺得太悶就調高（7000、8000），還是尖就調低（5000、4500）
@@ -232,6 +232,38 @@
     }
     if (!timer) loop();
   }, { passive: true });
+
+  /* 離開頁面時淡出音聲 */
+  function fadeOutAll() {
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const fadeTime = 0.6; // 淡出時長 600ms
+    
+    // 淡出 BGM
+    if (bgmGain) {
+      bgmGain.gain.setValueAtTime(bgmGain.gain.value, now);
+      bgmGain.gain.linearRampToValueAtTime(0.00001, now + fadeTime);
+    }
+    
+    // 淡出所有 shiny 聲源
+    voices.forEach((v) => {
+      if (v && v.gain) {
+        try {
+          v.gain.gain.setValueAtTime(v.gain.gain.value, now);
+          v.gain.gain.linearRampToValueAtTime(0.00001, now + fadeTime);
+        } catch (_) {}
+      }
+    });
+  }
+
+  window.addEventListener('pagehide', () => {
+    fadeOutAll();
+    if (bgmEl) {
+      setTimeout(() => {
+        try { bgmEl.pause(); bgmEl.currentTime = 0; } catch (_) {}
+      }, 650);
+    }
+  });
 
   /* ---------- 解鎖自動播放限制 ---------- */
   const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'keydown', 'touchend', 'click', 'wheel', 'touchstart'];
