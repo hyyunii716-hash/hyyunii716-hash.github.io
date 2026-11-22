@@ -195,29 +195,51 @@
       return;
     }
 
+    // 【可調整參數】
+    const SHINY_OFFSET_MIN = 0.25;      // ← 起始位置最小值（秒）
+    const SHINY_OFFSET_MAX = 1.6;       // ← 起始位置最大值（秒）
+    const SHINY_DURATION_MIN = 0.6;     // ← 播放長度最小值（秒）
+    const SHINY_DURATION_MAX = 1.1;     // ← 播放長度最大值（秒）
+    const SHINY_GAIN_MIN = 2.2;         // ← 音量倍增最小值
+    const SHINY_GAIN_MAX = 4.8;         // ← 音量倍增最大值
+    const SHINY_FADE_IN = 0.05;         // ← 淡入時間（秒）
+    const SHINY_FADE_OUT = 0.15;        // ← 淡出時間（秒）
+
     // 有 Buffer 就播放（隨機起點和音量，模仿首頁互動音效）
     if (shinyBuffer) {
       try {
         const src = ctx.createBufferSource();
         src.buffer = shinyBuffer;
         
-        // 隨機選擇片段（0.6-1.1 秒）和起點（0.25-1.6 秒）
-        const offset = 0.25 + Math.random() * (1.6 - 0.25);
-        const duration = 0.6 + Math.random() * (1.1 - 0.6);
+        // 隨機選擇片段和起點
+        const offset = SHINY_OFFSET_MIN + Math.random() * (SHINY_OFFSET_MAX - SHINY_OFFSET_MIN);
+        const duration = SHINY_DURATION_MIN + Math.random() * (SHINY_DURATION_MAX - SHINY_DURATION_MIN);
         const sliceStart = Math.min(offset, shinyBuffer.duration - 0.1);
         const sliceEnd = Math.min(sliceStart + duration, shinyBuffer.duration);
         
-        // 隨機音量（2.2-4.8）
-        const randomGain = 2.2 + Math.random() * (4.8 - 2.2);
+        // 隨機音量
+        const randomGain = SHINY_GAIN_MIN + Math.random() * (SHINY_GAIN_MAX - SHINY_GAIN_MIN);
         
         const gain = ctx.createGain();
-        gain.gain.value = randomGain * 0.5; // 縮放到合理範圍
+        const now = ctx.currentTime;
+        
+        // 淡入淡出效果
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(randomGain * 0.5, now + SHINY_FADE_IN);
+        gain.gain.linearRampToValueAtTime(0, now + (sliceEnd - sliceStart) - SHINY_FADE_OUT);
         
         src.connect(gain);
         gain.connect(ctx.destination);
         
         src.start(ctx.currentTime, sliceStart, sliceEnd - sliceStart);
-        console.log('[button-sound] 播放 shiny.mp3 片段，音量:', gain.gain.value);
+        console.log('[button-sound] 播放 shiny.mp3 片段：', {
+          起點: sliceStart.toFixed(2) + '秒',
+          終點: sliceEnd.toFixed(2) + '秒',
+          長度: (sliceEnd - sliceStart).toFixed(2) + '秒',
+          淡入: SHINY_FADE_IN + '秒',
+          淡出: SHINY_FADE_OUT + '秒',
+          音量: (randomGain * 0.5).toFixed(2)
+        });
         
         // 自動清理
         src.onended = () => {
@@ -289,52 +311,82 @@
   console.log('[button-sound] 初始化完成！');
 
 })();
+// processing.bgm
 (() => {
-  const PROCESSING_SOUND_SRC = 'audio/process.mp3'; // 改成你放的實際路徑
-  const PROCESSING_VOLUME = 0.65;
+  const CANDIDATE_SRCS = [
+    'audio/process.mp3',
+    'audio/processing.mp3',
+    './audio/process.mp3',
+    './audio/processing.mp3',
+    'assets/process.mp3',
+    'assets/processing.mp3'
+  ];
+  const PROCESSING_VOLUME = 0.7;
 
   let processingAudio = null;
+  let resolvedSrc = null;
   let isPlayingProcessing = false;
 
-  function ensureProcessingAudio() {
+  async function resolveSoundUrl() {
+    if (resolvedSrc) return resolvedSrc;
+    for (const raw of CANDIDATE_SRCS) {
+      const url = encodeURI(raw);
+      try {
+        const res = await fetch(url, { cache: 'no-store' });
+        if (res.ok) {
+          resolvedSrc = url;
+          return resolvedSrc;
+        }
+      } catch (_) {}
+    }
+    resolvedSrc = encodeURI(CANDIDATE_SRCS[0]);
+    return resolvedSrc;
+  }
+
+  async function ensureProcessingAudio() {
+    const src = await resolveSoundUrl();
     if (!processingAudio) {
-      processingAudio = new Audio(encodeURI(PROCESSING_SOUND_SRC));
+      processingAudio = new Audio(src);
       processingAudio.loop = true;
       processingAudio.preload = 'auto';
       processingAudio.volume = PROCESSING_VOLUME;
+      processingAudio.addEventListener('error', () => {
+        console.warn('[processing-sound] 找不到或無法播放音檔:', src);
+      });
     }
     return processingAudio;
   }
 
-  function startProcessingAudio() {
+  async function startProcessingAudio() {
     if (isPlayingProcessing) return;
-    const audio = ensureProcessingAudio();
     isPlayingProcessing = true;
-    audio.currentTime = 0;
-    const p = audio.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(() => {
-        // 若剛好遇上自動播放限制，使用者點擊/互動時再補播
-      });
-    }
+    const audio = await ensureProcessingAudio();
+    if (!isPlayingProcessing) return; // 期間若已離開 processing 就不要播
+    try {
+      audio.currentTime = 0;
+      const p = audio.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {});
+      }
+    } catch (_) {}
   }
 
   function stopProcessingAudio() {
-  isPlayingProcessing = false;
-  if (processingAudio) {
-    try {
-      processingAudio.pause();
-      processingAudio.currentTime = 0;
-    } catch (_) {}
+    isPlayingProcessing = false;
+    if (processingAudio) {
+      try {
+        processingAudio.pause();
+        processingAudio.currentTime = 0;
+      } catch (_) {}
+    }
   }
-}
 
   function isProcessingVisible() {
     const stepEl = document.querySelector('[data-step="processing"]');
     if (!stepEl) return false;
     if (stepEl.hasAttribute('hidden')) return false;
     const style = window.getComputedStyle(stepEl);
-    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    return style.display !== 'none' && style.visibility !== 'hidden';
   }
 
   function syncProcessingSound() {
@@ -345,18 +397,18 @@
     }
   }
 
-  // 監聽 [data-step="processing"] 的 hidden / style / class 變化
   const observer = new MutationObserver(syncProcessingSound);
   const startObserving = () => {
-    const target = document.querySelector('[data-step="processing"]') || document.body;
-    if (target) {
-      observer.observe(target, {
+    const root = document.querySelector('main') || document.body;
+    if (root) {
+      observer.observe(root, {
         attributes: true,
         subtree: true,
         attributeFilter: ['hidden', 'style', 'class']
       });
     }
     syncProcessingSound();
+    setInterval(syncProcessingSound, 150);
   };
 
   if (document.readyState === 'loading') {
@@ -365,15 +417,5 @@
     startObserving();
   }
 
-  // 離開頁面時確保停止
   window.addEventListener('pagehide', stopProcessingAudio);
-
-  // 若剛進入 processing 時瀏覽器暫時擋住自動播放，第一次互動時補播
-  ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => {
-    window.addEventListener(ev, () => {
-      if (isProcessingVisible() && processingAudio && processingAudio.paused) {
-        processingAudio.play().catch(() => {});
-      }
-    }, { passive: true });
-  });
 })();
