@@ -181,7 +181,7 @@
   /* 直向滑動離開展示：dir = 1 往下（回到下方三個直排功能）、-1 往上（回到「更多功能」標題）。
      先照一般關閉淡出，再發出 showcase:leave，讓頁面（tools-scroll.js）把捲動位置擺好 */
   function leave(dir) {
-    close();
+    close(); afterLeave = true;
     document.dispatchEvent(new CustomEvent('showcase:leave', { detail: { dir: dir } }));
     /* 直排介紹已收起（只能從展示看）：往下滑 → 接到頁尾；往上滑 → 回到「全螢幕展示」按鈕 */
     if (getComputedStyle(feats[0]).visibility === 'hidden') {
@@ -197,22 +197,27 @@
   }
   openers.forEach(function (b) { b.addEventListener('click', function () { open(0); }); });
 
-  /* ---- 下滑進入：提示文字進到畫面後，再往下滑（滾輪 / 手指上推）就進入展示；展示裡往上滑則退出 ---- */
-  var hint = openers[0], wLast = 0, gestureOpens = false, afterFooter = false;
+  /* ---- 下滑進入：提示文字進到畫面中間後，再往下滑一次（滾輪 / 手指上推）就進入展示；展示裡往上滑則退出 ---- */
+  var hint = openers[0], wLast = 0, gestureOpens = false, afterFooter = false, afterLeave = false;
   function hintBox() { var r = hint.getBoundingClientRect(); return (r.bottom > 0 && r.top < window.innerHeight) ? r : null; }
   function inZone(r) { return r && (r.top + r.height / 2 <= window.innerHeight * 0.62); }
+  /* capture：搶在 universal-snap.js 之前處理，否則它會直接把頁面吸到頁尾、跳過提示 */
   window.addEventListener('wheel', function (e) {
-    if (isOpen || e.ctrlKey || getComputedStyle(feats[0]).visibility !== 'hidden') return;
     var now = Date.now(), gap = now - wLast; wLast = now;
+    if (isOpen || e.ctrlKey || window.innerWidth <= 768 || getComputedStyle(feats[0]).visibility !== 'hidden') return;
+    if (afterLeave) {                                               // 剛離開展示：那一下滑動的慣性不要再被頁面吸附吃掉
+      if (gap <= 140) { e.preventDefault(); e.stopImmediatePropagation(); return; }
+      afterLeave = false;
+    }
     var r = hintBox(), zone = inZone(r);
     if (gap > 140) gestureOpens = !!zone;                           // 手指停過再滑才算新的一次；這一下開始時提示就在畫面中才會進入
     if (e.deltaY < 0 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) { afterFooter = false; return; }
     if (e.deltaY <= 0 || Math.abs(e.deltaY) < Math.abs(e.deltaX)) return;
     if (!r) afterFooter = false;
     if (afterFooter || !zone) return;                               // 剛從展示往下離開、正在看頁尾：不要又彈回展示
-    e.preventDefault();                                             // 提示進到畫面後頁面停在這裡，等下一次下滑
+    e.preventDefault(); e.stopImmediatePropagation();               // 提示停在畫面中後，頁面不再自己往下吸，等下一次下滑
     if (gestureOpens && Math.abs(e.deltaY) >= 8) { gestureOpens = false; open(0); }
-  }, { passive: false });
+  }, { passive: false, capture: true });
   var ht = null;
   window.addEventListener('touchstart', function (e) { ht = (!isOpen && e.touches.length === 1) ? { x: e.touches[0].clientX, y: e.touches[0].clientY, vis: !!hintBox() } : null; }, { passive: true });
   window.addEventListener('touchend', function (e) {

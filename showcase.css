@@ -18,7 +18,7 @@ html.js-fx .sc__title.is-in .fx-char { opacity: 1; translate: 0 0; }
 .sc__burst-glow { position: absolute; inset: -20%; opacity: 0; will-change: opacity, transform; }
 .sc__burst-icon { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; line-height: 1; opacity: 0; will-change: transform, opacity; }
 .sc__burst-name { position: absolute; left: 50%; top: 50%; margin: 0; white-space: nowrap; color: #fff; font-family: var(--font-en, inherit); font-size: clamp(22px, 3vw, 42px); opacity: 0; will-change: transform, opacity; }
-.apps-features-head { display: flex; justify-content: center; margin-top: clamp(8px, 2vw, 32px); }
+.apps-features-head { display: flex; justify-content: center; align-items: center; margin-top: clamp(8px, 2vw, 32px); min-height: calc(100vh - 200px); }   /* 比照其他區塊成為一個「停靠點」，提示文字停在畫面中間 */
 .apps-features-head .sc-open { margin-top: 0; }
 /* 介紹內容只在「全螢幕展示」裡看：頁面上的直排區塊收起來，不能往下滑看到。
    （區塊還留在頁面裡，因為展示是從這裡讀文字與圖示；要整個移除的話，展示程式要一起改） */
@@ -119,9 +119,7 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 /* 網頁程式：詳細頁不放下方大圖（往下滑不會再出現一張圖） */
 .sc--apps .sc__big { display: none; }
 
-/* 「下滑展開內容」提示文字：取代原本的「全螢幕展示」按鈕。往下滑進入展示、往上滑離開 */
-.sc-hint { appearance: none; background: none; border: 0; margin: 18px 0 0; padding: 12px 18px; font: inherit; font-size: 14px; letter-spacing: .12em; color: var(--color-text-muted, rgb(255 255 255 / .5)); cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; transition: color .3s; }
-.sc-hint:is(:hover, :focus-visible) { color: #fff; outline: none; }
-.sc-hint__arrow { animation: sc-hint-float 1.8s ease-in-out infinite; }
-@keyframes sc-hint-float { 0%, 100% { transform: translateY(-3px); opacity: .5; } 50% { transform: translateY(4px); opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .sc-hint__arrow { animation: none; } }
+/* 「下滑展開內容」提示文字：純文字，不是按鈕。原地閃爍、不跟著滑鼠；往下滑進入展示、往上滑離開 */
+.sc-hint { margin: 18px 0 0; padding: 12px 18px; font-size: 14px; letter-spacing: .12em; color: rgb(255 255 255 / .7); display: inline-flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; animation: sc-hint-blink 1.8s ease-in-out infinite; }
+@keyframes sc-hint-blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sc-hint { animation: none; opacity: .7; } }
