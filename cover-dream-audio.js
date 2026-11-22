@@ -17,10 +17,10 @@
 
   // ★ 快速調整區 ★
   const BGM_CANDIDATES = [
-    'audio/神秘首頁.mp3',
-    './audio/神秘首頁.mp3',
-    '神秘首頁.mp3',
-    './神秘首頁.mp3'
+    'audio/神秘森林.mp3',
+    './audio/神秘森林.mp3',
+    '神秘森林.mp3',
+    './神秘森林.mp3'
   ];
   const SHINY_CANDIDATES = [
     'audio/shiny.mp3',
@@ -256,14 +256,18 @@
     });
   }
 
-  window.addEventListener('pagehide', () => {
+  function handlePageLeave() {
+    console.log('[cover-dream-audio] 偵測到頁面離開');
     fadeOutAll();
     if (bgmEl) {
       setTimeout(() => {
         try { bgmEl.pause(); bgmEl.currentTime = 0; } catch (_) {}
       }, 650);
     }
-  });
+  }
+
+  window.addEventListener('pagehide', handlePageLeave);
+  window.addEventListener('beforeunload', handlePageLeave);
 
   /* ---------- 解鎖自動播放限制 ---------- */
   const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'keydown', 'touchend', 'click', 'wheel', 'touchstart'];

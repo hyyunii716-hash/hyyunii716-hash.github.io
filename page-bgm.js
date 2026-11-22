@@ -189,20 +189,34 @@
     }
   });
 
-  // 離開或重新整理頁面時淡出停止播放，避免殘留聲音
-  window.addEventListener('pagehide', () => {
+  // 離開或重新整理頁面時立即停止播放（防止聲音殘留）
+  function handlePageLeave() {
+    console.log('[page-bgm] 偵測到頁面離開');
     try {
-      if (audio && gainNode) {
-        fadeOutAudio(() => {
+      if (gainNode) {
+        // 立即淡出到 0（同步）
+        const ctx = ensureAudioContext();
+        if (ctx) {
+          const now = ctx.currentTime;
+          gainNode.gain.cancelScheduledValues(now);
+          gainNode.gain.setValueAtTime(currentGainValue, now);
+          gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+        }
+      }
+      if (audio) {
+        // 300ms 後暫停（給淡出時間）
+        setTimeout(() => {
           audio.pause();
           audio.currentTime = 0;
-        });
-      } else if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
+        }, 300);
       }
-    } catch (_) {}
-  });
+    } catch (e) {
+      console.error('[page-bgm] 頁面離開處理失敗:', e);
+    }
+  }
+
+  window.addEventListener('pagehide', handlePageLeave);
+  window.addEventListener('beforeunload', handlePageLeave);
 
   tryPlay();
 })();
