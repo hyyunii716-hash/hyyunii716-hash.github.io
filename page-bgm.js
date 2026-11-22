@@ -182,6 +182,19 @@
     window.addEventListener(ev, handleUnlock, { passive: true });
   });
 
+  // 【關鍵】攔截所有導航，提前淡出音樂（防止 pagehide 太晚觸發）
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+      const href = link.getAttribute('href');
+      // 只攔截本站導航（不攔截外部鏈接、#、或 javascript:）
+      if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('http')) {
+        console.log('[page-bgm] 偵測到本站導航:', href);
+        handlePageLeave();
+      }
+    }
+  }, { capture: true, passive: true });
+
   // 分頁切回前景時若被暫停，視情況接續
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && audio && audio.paused) {
@@ -200,15 +213,15 @@
           const now = ctx.currentTime;
           gainNode.gain.cancelScheduledValues(now);
           gainNode.gain.setValueAtTime(currentGainValue, now);
-          gainNode.gain.linearRampToValueAtTime(0, now + 0.3);
+          gainNode.gain.linearRampToValueAtTime(0, now + 0.2);
         }
       }
       if (audio) {
-        // 300ms 後暫停（給淡出時間）
+        // 200ms 後暫停（給淡出時間）
         setTimeout(() => {
           audio.pause();
           audio.currentTime = 0;
-        }, 300);
+        }, 200);
       }
     } catch (e) {
       console.error('[page-bgm] 頁面離開處理失敗:', e);

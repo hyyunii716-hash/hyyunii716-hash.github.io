@@ -185,5 +185,94 @@
     loadClickBuffer();
   }
 
-  console.log('[button-sound] 初始化完成！');
+    console.log('[button-sound] 初始化完成！');
+
+})();
+(() => {
+  const PROCESSING_SOUND_SRC = 'audio/process.mp3'; // 改成你放的實際路徑
+  const PROCESSING_VOLUME = 0.65;
+
+  let processingAudio = null;
+  let isPlayingProcessing = false;
+
+  function ensureProcessingAudio() {
+    if (!processingAudio) {
+      processingAudio = new Audio(encodeURI(PROCESSING_SOUND_SRC));
+      processingAudio.loop = true;
+      processingAudio.preload = 'auto';
+      processingAudio.volume = PROCESSING_VOLUME;
+    }
+    return processingAudio;
+  }
+
+  function startProcessingAudio() {
+    if (isPlayingProcessing) return;
+    const audio = ensureProcessingAudio();
+    isPlayingProcessing = true;
+    audio.currentTime = 0;
+    const p = audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {
+        // 若剛好遇上自動播放限制，使用者點擊/互動時再補播
+      });
+    }
+  }
+
+  function stopProcessingAudio() {
+  isPlayingProcessing = false;
+  if (processingAudio) {
+    try {
+      processingAudio.pause();
+      processingAudio.currentTime = 0;
+    } catch (_) {}
+  }
+}
+
+  function isProcessingVisible() {
+    const stepEl = document.querySelector('[data-step="processing"]');
+    if (!stepEl) return false;
+    if (stepEl.hasAttribute('hidden')) return false;
+    const style = window.getComputedStyle(stepEl);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }
+
+  function syncProcessingSound() {
+    if (isProcessingVisible()) {
+      startProcessingAudio();
+    } else {
+      stopProcessingAudio();
+    }
+  }
+
+  // 監聽 [data-step="processing"] 的 hidden / style / class 變化
+  const observer = new MutationObserver(syncProcessingSound);
+  const startObserving = () => {
+    const target = document.querySelector('[data-step="processing"]') || document.body;
+    if (target) {
+      observer.observe(target, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ['hidden', 'style', 'class']
+      });
+    }
+    syncProcessingSound();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startObserving, { once: true });
+  } else {
+    startObserving();
+  }
+
+  // 離開頁面時確保停止
+  window.addEventListener('pagehide', stopProcessingAudio);
+
+  // 若剛進入 processing 時瀏覽器暫時擋住自動播放，第一次互動時補播
+  ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => {
+    window.addEventListener(ev, () => {
+      if (isProcessingVisible() && processingAudio && processingAudio.paused) {
+        processingAudio.play().catch(() => {});
+      }
+    }, { passive: true });
+  });
 })();

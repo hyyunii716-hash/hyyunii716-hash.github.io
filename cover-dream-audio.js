@@ -269,6 +269,19 @@
   window.addEventListener('pagehide', handlePageLeave);
   window.addEventListener('beforeunload', handlePageLeave);
 
+  // 【關鍵】攔截所有導航，提前淡出音樂（防止 pagehide 太晚觸發）
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+      const href = link.getAttribute('href');
+      // 只攔截本站導航（不攔截外部鏈接、#、或 javascript:）
+      if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('http')) {
+        console.log('[cover-dream-audio] 偵測到本站導航:', href);
+        handlePageLeave();
+      }
+    }
+  }, { capture: true, passive: true });
+
   /* ---------- 解鎖自動播放限制 ---------- */
   const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'keydown', 'touchend', 'click', 'wheel', 'touchstart'];
   function unlock() {
