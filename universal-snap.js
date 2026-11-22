@@ -105,6 +105,8 @@
 
   function handleWheel(e) {
     if (window.innerWidth <= 768 || e.ctrlKey || e.metaKey) return;
+    if (e.defaultPrevented) return; // 已被別的程式處理（例如全螢幕展示離開那一下）：不要再吸附
+    if (document.documentElement.classList.contains("sc-lock")) return; // 全螢幕展示開著：由展示自己處理滾輪
     if (!targets.length) return;
     if (Math.abs(e.deltaY) < 8) return; // 忽略極輕微的觸控板餘震
 
