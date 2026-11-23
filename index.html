@@ -483,12 +483,13 @@
     curScroll += (targetScroll - curScroll) * .14;
     if (Math.abs(targetScroll - curScroll) < .0003) curScroll = targetScroll;
 
-    render(introP, curScroll);
-    requestAnimationFrame(loop);
     if (dreamEye) {
-      const eyeFade = ease(seg(scrollP, 0.55, 0.98));
+      const eyeFade = ease(seg(curScroll, 0.55, 0.98));
       dreamEye.style.opacity = `${1 - eyeFade}`;
     }
+
+    render(introP, curScroll);
+    requestAnimationFrame(loop);
   }
 
   addEventListener('scroll', readScroll, {passive:true});
