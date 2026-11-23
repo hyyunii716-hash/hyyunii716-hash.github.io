@@ -840,3 +840,10 @@ section.qa {
 .site-footer .footer-col a.u {
   text-decoration: underline;
 }
+html,
+body {
+  overflow-x: clip;
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+}
