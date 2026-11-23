@@ -176,11 +176,21 @@
   }
 
   // ★ 電影感光圈／圓形擴散揭幕導航 ★
+  var irisBusy = false;   // 轉場進行中就不再接受第二次點擊（連點會疊兩層遮罩、跑兩次轉場）
   function irisNavigate(url, clickX, clickY) {
+    if (irisBusy) return;
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
       location.href = url;
       return;
     }
+    irisBusy = true;
+
+    // 光圈導覽自己已經有「蓋住 → 揭開」的完整轉場；
+    // page-transition.css 的 @view-transition { navigation: auto } 會讓瀏覽器在換頁時「再疊一層」整頁淡入淡出，
+    // 看起來就是轉場跑了兩次。所以這個導覽只關掉瀏覽器那一層（工具卡片的共享元素轉場走另一條路，不受影響）。
+    var noVT = document.createElement("style");
+    noVT.textContent = "@view-transition { navigation: none; }";
+    document.head.appendChild(noVT);
 
     var x =
       typeof clickX === "number" && clickX > 0
@@ -262,6 +272,7 @@
 
   window.addEventListener("pageshow", function (event) {
     if (event.persisted) {
+      irisBusy = false;
       document
         .querySelectorAll(".iris-transition-veil, .iris-reveal-ring")
         .forEach(function (el) {

@@ -17,10 +17,10 @@
 
   // ★ 快速調整區 ★
   const BGM_CANDIDATES = [
-    'audio/神秘首頁.mp3',
-    './audio/神秘首頁.mp3',
-    '神秘首頁.mp3',
-    './神秘首頁.mp3'
+    'audio/神秘森林.mp3',
+    './audio/神秘森林.mp3',
+    '神秘森林.mp3',
+    './神秘森林.mp3'
   ];
   const SHINY_CANDIDATES = [
     'audio/shiny.mp3',
@@ -256,14 +256,37 @@
     });
   }
 
-  window.addEventListener('pagehide', () => {
+  function handlePageLeave() {
+    console.log('[cover-dream-audio] 偵測到頁面離開');
     fadeOutAll();
     if (bgmEl) {
       setTimeout(() => {
         try { bgmEl.pause(); bgmEl.currentTime = 0; } catch (_) {}
       }, 650);
     }
-  });
+  }
+
+  window.addEventListener('pagehide', handlePageLeave);
+  window.addEventListener('beforeunload', handlePageLeave);
+
+  // 【關鍵】攔截所有導航，提前淡出音樂（防止 pagehide 太晚觸發）
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+      // 排除 nav 中的鏈接（nav 鏈接會播 shiny.mp3，不需要淡出背景音樂）
+      if (link.closest('.site-nav, [role="navigation"], nav')) {
+        console.log('[cover-dream-audio] 點擊 nav 鏈接，不觸發淡出');
+        return;
+      }
+      
+      const href = link.getAttribute('href');
+      // 只攔截本站導航（不攔截外部鏈接、#、或 javascript:）
+      if (href && !href.startsWith('#') && !href.startsWith('javascript:') && !href.startsWith('http')) {
+        console.log('[cover-dream-audio] 偵測到本站導航:', href);
+        handlePageLeave();
+      }
+    }
+  }, { capture: true, passive: true });
 
   /* ---------- 解鎖自動播放限制 ---------- */
   const UNLOCK_EVENTS = ['pointerdown', 'mousedown', 'keydown', 'touchend', 'click', 'wheel', 'touchstart'];
