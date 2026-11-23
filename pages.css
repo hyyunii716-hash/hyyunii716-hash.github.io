@@ -4,12 +4,12 @@
    ========================================================== */
 
 :root {
-  --color-primary: #208;            /* var(--primary) */
-  --color-primary-bright: #3503ce;  /* 細＿藍底白字 */
-  --color-tool-desc: #d9d9d9;
+  --color-primary: #208;            /* 主色 */
+  --color-primary-bright: #3503ce;  /* 亮藍色（按鈕用） */
+  --color-tool-desc: #d9d9d9;       /* 卡片描述文字灰色 */
   --fs-h3: var(--fs-title);
   --fs-lead: var(--fs-body);
-  --nav-h: 100px;
+  --nav-h: 100px;                   /* 導覽列高度 */
   --ease: cubic-bezier(0.22, 0.8, 0.3, 1);
 }
 @media (max-width: 600px) { :root { --nav-h: 72px; } }
@@ -23,7 +23,7 @@
 }
 
 .page--sub {
-  gap: clamp(56px, 7vw, 120px);
+  gap: clamp(56px, 7vw, 120px);     /* 段落間距：最小56px，最大120px */
   padding-bottom: clamp(56px, 7vw, 120px);
 }
 .page--sub > .container:first-child { padding-top: clamp(110px, 11.4vw, 197px); }
@@ -63,13 +63,13 @@
   line-height: 1.25;
 }
 
-.btn-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px clamp(24px, 17.8vw, 308px); }
+.btn-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px clamp(24px, 17.8vw, 308px); }  /* 按鈕列間距 */
 
 /* ---------- 小標籤列（更多功能 / All apps filter） ---------- */
-.pill-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; }
+.pill-nav { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; }  /* 標籤列間距 */
 .pill {
-  min-width: 125px;
-  padding: 8px 18px;
+  min-width: 125px;                 /* 標籤最小寬度 */
+  padding: 8px 18px;                /* 標籤內邊距 */
   border: 1px solid var(--color-stroke);
   border-radius: 27px;
   background: #000;
@@ -98,10 +98,10 @@
   cursor: grab;
   touch-action: pan-x pan-y;
   user-select: none;
-  gap: 16px;
+  gap: 16px;                        /* 卡片間距 */
   width: 100%;
   margin: 0;
-  padding: 8px var(--gutter) 24px;
+  padding: 8px var(--gutter) 24px; /* 輪播上下邊距 */
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 }
@@ -109,8 +109,8 @@
 .slide {
   container-type: inline-size;
   flex: none;
-  width: min(78vw, 360px);
-  aspect-ratio: 3 / 2;
+  width: min(78vw, 360px);          /* 卡片寬度 */
+  aspect-ratio: 3 / 2;              /* 卡片寬高比 */
   scroll-snap-align: center;
 
   /* 版型變數：全部以「卡片自身寬度」為單位，所以放大縮小都等比 */
@@ -169,30 +169,30 @@
 
 .slide__title {
   font-weight: 700;
-  font-size: var(--t);
+  font-size: var(--t);                        /* 標題字體大小 */
   line-height: 1.4;
   transition: font-size 0.3s ease-out;
 }
 .slide__desc {
-  margin-top: var(--gap);
+  margin-top: var(--gap);                     /* 描述與標題間距 */
   color: var(--color-tool-desc);
-  font-size: var(--d);
+  font-size: var(--d);                        /* 描述字體大小 */
   line-height: 1.5;
   transition: font-size 0.3s ease-out, margin 0.3s ease-out, opacity 0.2s ease-out;
 }
 .slide__en {
   margin-top: auto;
   font-weight: 300;
-  font-size: var(--e);
+  font-size: var(--e);                        /* 英文字體大小 */
   letter-spacing: 0.05em;
   transition: font-size 0.3s ease-out;
 }
 
 .slide__icon {
   position: absolute;
-  top: var(--it);
-  right: var(--ir);
-  width: var(--iw);
+  top: var(--it);                             /* Icon垂直位置 */
+  right: var(--ir);                           /* Icon水平位置 */
+  width: var(--iw);                           /* Icon寬度 */
   height: auto;
   object-fit: contain;
   pointer-events: none;
@@ -571,14 +571,14 @@
 .tools-dropdown {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 2.2vw, 32px);
+  gap: clamp(16px, 2.2vw, 32px);    /* 卡片間距：最小16px，最大32px */
   width: 100%;
-  max-height: 0;
+  max-height:0px;                    /* 關閉時高度0 */
   margin-top: 0;
   padding: 0 clamp(16px, 2.2vw, 32px);
-  overflow: hidden;
+  overflow: visible;
   border-radius: var(--radius-card);
-  background: #000;
+  background: rgba(255, 255, 255, 0);  /* 下拉選單背景透明 */
   opacity: 0;
   transform: translateY(-10px);
   pointer-events: none;
@@ -586,22 +586,26 @@
 }
 .tools-dropdown[hidden] { display: none; }
 .tools-dropdown.is-open {
-  max-height: 2000px;
-  margin-top: 28px;
+  max-height: 90vh;                 /* 開啟時最大高度90% */
+  margin-top: 28px;                 /* 選單上方間距 */
   padding-block: clamp(20px, 2.4vw, 36px);
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(-60px) scale(0.8);  /* 上移60px，縮小80% */
+  transform-origin: top center;
   pointer-events: auto;
+}
+.tools-dropdown.is-open .tool-option {
+  aspect-ratio: 1.5;
 }
 .tool-option {
   --option-accent: 255 255 255;
-  --option-glow: clamp(32px, 6vw, 90px);
+  --option-glow: clamp(32px, 6vw, 90px);  /* 卡片發光大小 */
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  aspect-ratio: 1.5;
-  padding: clamp(20px, 3vw, 44px);
+  aspect-ratio: 1.5;                /* 卡片寬高比 1.5:1 */
+  padding: clamp(20px, 3vw, 44px);  /* 卡片內邊距 */
   overflow: hidden;
   border: 1px solid rgb(217 217 217 / .45);
   border-radius: clamp(16px, 2vw, 28px);
@@ -629,10 +633,10 @@
 .tool-option__desc { position: relative; z-index: 1; max-width: 55%; margin-top: clamp(12px, 1.8vw, 26px); color: var(--color-tool-desc); font-size: clamp(13px, 1.15vw, 20px); line-height: 1.55; }
 .tool-option__en { position: relative; z-index: 1; margin-top: auto; font-family: var(--font-sans); font-size: clamp(11px, 1vw, 16px); font-weight: 300; letter-spacing: .05em; }
 .tool-option__icon { position: absolute; top: var(--icon-top, 25%); right: var(--icon-right, 8%); width: 37%; height: auto; object-fit: contain; pointer-events: none; user-select: none; transform-origin: right center; }
-.tool-option--flip .tool-option__icon { --icon-scale: 0.8; --icon-top: 10%; --icon-right: 10%; transform: scale(var(--icon-scale)); }
-.tool-option--groups .tool-option__icon { --icon-scale: 1.2; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }
-.tool-option--backless .tool-option__icon { --icon-scale: 1; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }
-.tool-option--compress .tool-option__icon { --icon-scale: 1; --icon-top: 14%; --icon-right: 15%; width: 34%; transform: scale(var(--icon-scale)); }
+.tool-option--flip .tool-option__icon { --icon-scale: 0.8; --icon-top: 10%; --icon-right: 10%; transform: scale(var(--icon-scale)); }  /* Flip卡片：icon縮小80% */
+.tool-option--groups .tool-option__icon { --icon-scale: 1.2; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }  /* Groups卡片：icon放大120% */
+.tool-option--backless .tool-option__icon { --icon-scale: 1; --icon-top: 25%; --icon-right: 8%; transform: scale(var(--icon-scale)); }  /* Backless卡片：icon原始大小 */
+.tool-option--compress .tool-option__icon { --icon-scale: 1; --icon-top: 14%; --icon-right: 15%; width: 34%; transform: scale(var(--icon-scale)); }  /* Compress卡片：icon調整位置和寬度 */
 .tools-wordmark { display: block; width: clamp(150px, 18vw, 250px); height: auto; }
 @media (max-width: 700px) {
   .tools-dropdown { grid-template-columns: 1fr; }
@@ -646,23 +650,24 @@
 }
 
 /* ---------- 網頁工具總覽：對齊設計稿版面 ---------- */
-.page--tools { gap: clamp(64px, 6.25vw, 108px); }
+.page--tools { gap: clamp(64px, 6.25vw, 108px); }  /* tools頁段落間距 */
+.page--tools > .container { padding-inline: 144px; }  /* ⚙️ tools頁左右邊距144px */
 .page--tools > .container:first-child { padding-top: clamp(110px, 9.3vw, 160px); }
 .tools-more { scroll-margin-top: calc(var(--nav-h) + 24px); }
-.tools-heading__logo { display: inline-block; width: auto; height: .72em; max-width: 32vw; margin-inline: .08em; object-fit: contain; vertical-align: -.04em; }
+.tools-heading__logo { display: inline-block; width: auto; height: .72em; max-width: 32vw; margin-inline: .08em; object-fit: contain; vertical-align: -.04em; }  /* Logo寬度和邊距 */
 .tools-more__head { gap: 16px; }
 .tools-more__nav { margin-top: 8px; }
 .tools-more__nav .pill { display: inline-flex; align-items: center; justify-content: center; }
 .tools-features { scroll-margin-top: 30px; }
-.tools-features .feature { scroll-margin-top: 130px; }
+.tools-features .feature { scroll-margin-top: 0px; }
 
 .tools-media { position: relative; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--color-stroke); border-radius: var(--radius-card); background-color: #080808; }
 .tools-media--rest { background: radial-gradient(ellipse at 50% 100%, #162323, #080808 68%); }
 .tools-media--release { background: radial-gradient(ellipse at 70% 35%, #21114b, #080808 70%); }
 .tools-media--education { background: radial-gradient(ellipse at 50% 50%, #1b1828, #080808 72%); }
-.tools-media__frame { width: 55%; aspect-ratio: 1.55; border: 1px solid #45514e; border-radius: 14px; box-shadow: 0 0 55px rgb(75 140 113 / .12); }
-.tools-media__orbit { position: absolute; width: 24%; aspect-ratio: 1; border: 1px solid rgb(189 218 204 / .45); border-radius: 50%; box-shadow: 0 0 0 20px rgb(189 218 204 / .05), 0 0 0 40px rgb(189 218 204 / .03); }
-.tools-media__seal { display: grid; place-items: center; width: 34%; aspect-ratio: 1; border: 1px solid #6856a4; border-radius: 50%; color: #b7a7ed; font: 500 clamp(20px, 2.2vw, 38px)/1 var(--font-sans); letter-spacing: .12em; }
+.tools-media__frame { width: 55%; aspect-ratio: 1.55; border: 1px solid #45514e; border-radius: 14px; box-shadow: 0 0 55px rgb(75 140 113 / .12); }  /* 媒體框架寬度 */
+.tools-media__orbit { position: absolute; width: 24%; aspect-ratio: 1; border: 1px solid rgb(189 218 204 / .45); border-radius: 50%; box-shadow: 0 0 0 20px rgb(189 218 204 / .05), 0 0 0 40px rgb(189 218 204 / .03); }  /* 軌道寬度 */
+.tools-media__seal { display: grid; place-items: center; width: 34%; aspect-ratio: 1; border: 1px solid #6856a4; border-radius: 50%; color: #b7a7ed; font: 500 clamp(20px, 2.2vw, 38px)/1 var(--font-sans); letter-spacing: .12em; }  /* 印章大小 */
 @media (min-width: 901px) {
   .page--tools .carousel { width: min(1034px, 100% - 2 * var(--gutter)); aspect-ratio: 1034 / 306; touch-action: pan-y; }
 }
