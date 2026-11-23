@@ -10,7 +10,7 @@
   // ★ 快速調整區 ★
   const HREF = 'customer%20service.html';   // 連結目標
   const LABEL_PRE = '';                      // 前面多一段文字（例如 '更多問題？'）；預設不要
-  const LABEL_LINK = '詢問客服';
+  const LABEL_LINK = '';
   const ICON_SRC = 'assets/耳機.png';        // 耳機圖示（客服頁用的同一張）；載入失敗會自動換成內建的線條耳機
   const RIGHT = 'clamp(8px, 2.4vw, 40px)';  // 離右邊／下邊的距離
   const BOTTOM = 'clamp(8px, 3vh, 36px)';
@@ -18,17 +18,17 @@
   if (document.querySelector('.cs-fab')) return;
 
   const css = `
-.cs-fab{position:fixed;right:${RIGHT};bottom:${BOTTOM};z-index:60;display:inline-flex;align-items:center;gap:0em;
-  padding:0.05em 0.6em 0.05em 0.6em;border-radius:999px;color:#fff;text-decoration:none;white-space:nowrap;
+.cs-fab{position:fixed;right:${RIGHT};bottom:${BOTTOM};z-index:60;display:inline-flex;align-items:center;justify-content:center;gap:0;
+  padding:0.8em 0.75em 0.8em 0.8em;border-radius:999px;color:#fff;text-decoration:none;white-space:nowrap;
   font:500 clamp(14px,1.15vw,18px)/1.2 var(--font-zh,"Noto Sans TC",sans-serif);letter-spacing:.04em;
   background:#0c0c0c;opacity:1;
   box-shadow:0 0 0 1px rgba(255,255,255,.22),0 10px 30px rgba(0,0,0,.5);
   transition:opacity .35s ease,transform .35s cubic-bezier(.22,1,.36,1),box-shadow .25s ease,background-color .25s ease}
 .cs-fab:hover,.cs-fab:focus-visible{background:#1c1c1c;box-shadow:0 0 0 1px rgba(255,255,255,.4),0 12px 34px rgba(0,0,0,.55);transform:translateY(-2px)}
 .cs-fab:focus-visible{outline:2px solid #fff;outline-offset:3px}
-.cs-fab svg,.cs-fab__icon{width:7em;height:7em;flex:none;object-fit:contain;display:block;opacity:1}
+.cs-fab svg,.cs-fab__icon{width:30px;height:30px;flex:none;object-fit:contain;display:block;opacity:1;margin:auto 0}
 html.sc-lock .cs-fab{opacity:0;pointer-events:none;transform:translateY(8px)}
-@media (max-width:600px){.cs-fab__pre{display:none}.cs-fab{padding:.7em 1em}}
+@media (max-width:600px){.cs-fab__pre{display:none}.cs-fab{padding:0px}}
 @media print{.cs-fab{display:none}}`;
   const style = document.createElement('style');
   style.textContent = css;
