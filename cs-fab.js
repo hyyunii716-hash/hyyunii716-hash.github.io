@@ -37,6 +37,14 @@ html.sc-lock .cs-fab{opacity:0;pointer-events:none;transform:translateY(8px)}
   const a = document.createElement('a');
   a.className = 'cs-fab';
   a.href = HREF;
+  a.target = '_blank';
+  a.rel = 'noopener noreferrer';
+  a.addEventListener('click', function (event) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    window.open(a.href, '_blank', 'noopener,noreferrer');
+  }, true);
   a.setAttribute('aria-label', '詢問客服');
   const SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="2.5" y="14" width="4" height="6" rx="1.5"/><rect x="17.5" y="14" width="4" height="6" rx="1.5"/></svg>';
   a.innerHTML =
