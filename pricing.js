@@ -207,12 +207,12 @@ function render(key) {
     });
     card.appendChild(ul);
     card.addEventListener("click", () => {
-      window.location.href = destination;
+      window.open(destination, "_blank", "noopener,noreferrer");
     });
     card.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        window.location.href = destination;
+        window.open(destination, "_blank", "noopener,noreferrer");
       }
     });
     cardsEl.appendChild(card);

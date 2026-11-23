@@ -80,7 +80,7 @@
     <!-- 工具入口與下拉選單 -->
     <div class="tools-control">
   <div class="container btn-row">
-    <a class="btn btn--primary" href="pricing.html">
+    <a class="btn btn--primary" href="pricing.html" target="_self">
       <span class="btn-magnet-text">購買方案</span>
     </a>
     <button type="button" class="btn btn--outline tools-more-link" id="tools-menu-trigger" aria-expanded="false" aria-controls="tools-dropdown">查看全部</button>
@@ -361,6 +361,14 @@
   </script>
   <script src="cursor-trail.js"></script>
   <script>
+    // 導覽列以外的連結都在新分頁開啟。
+    document.querySelectorAll('a[href]:not(.site-nav a)').forEach(function (link) {
+      if (link.target === '_self') return;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    });
+  </script>
+  <script>
 (function () {
   function initGsapWiggleMagnet() {
     const primaryBtn = document.querySelector('.tools-control .btn--primary');
@@ -497,7 +505,7 @@
   
   <script src="scroll-reveal.js"></script>
   <script src="subpage-snap.js"></script>
-  <script src="cs-fab.js"></script>
+  <script src="cs-fab.js?v=20261124"></script>
   <script src="page-transition.js"></script>
   <script src="showcase.js"></script>
   <script src="scroll-3d.js"></script>
