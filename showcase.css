@@ -171,3 +171,7 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 .sc.is-detail .sc__panel > :nth-child(1) { transition-delay: .28s; }
 .sc.is-detail .sc__panel > :nth-child(2) { transition-delay: .9s; }
 .sc--apps.is-detail .sc__logo { transition-delay: .85s; }
+
+/* LOGO 與標題頂端對齊（右緣仍對齊「前往」按鈕） */
+.sc__d-row { align-items: flex-start; }
+.sc--apps .sc__logo { margin-top: .6vw; }
