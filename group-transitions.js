@@ -93,12 +93,44 @@
     }); });
   }
 
+  /* ---- 來電：後面留著變暗的「你已加入群組」，卡片上的 2×2 預覽補滿 4 格，並寫上邀請文字 ---- */
+  function prepareRinging() {
+    var step = main.querySelector('[data-step="ringing"]');
+    if (!step) return;
+    var chat = main.querySelector('[data-step="startchat"] > .container');
+    var backdrop = step.querySelector('[data-ring-backdrop]');
+    if (backdrop && chat) {
+      var copy = chat.cloneNode(true);
+      [copy].concat(Array.prototype.slice.call(copy.querySelectorAll('*'))).forEach(function (el) {
+        Array.prototype.slice.call(el.attributes).forEach(function (attr) {      // 複本不能留 data-* / id，不然 flow.js 會抓到它
+          if (attr.name.indexOf('data-') === 0 || attr.name === 'id') el.removeAttribute(attr.name);
+        });
+      });
+      copy.setAttribute('aria-hidden', 'true');
+      backdrop.replaceChildren(copy);
+    }
+    var tiles = step.querySelector('[data-ringing-avatars]');
+    if (tiles) {
+      tiles.querySelectorAll('.avatar--ph').forEach(function (el) { el.remove(); });
+      while (tiles.children.length < 4) {
+        var ph = document.createElement('span');
+        ph.className = 'avatar avatar--ph';
+        tiles.appendChild(ph);
+      }
+    }
+    var label = step.querySelector('[data-ring-text]');
+    var names = main.querySelector('[data-step="startchat"] [data-group-names]');
+    var first = names && names.textContent ? names.textContent.split(',')[0].trim() : '';
+    if (label) label.textContent = (first || 'Abandon 圖片群組') + ' 邀請你加入視訊通話';
+  }
+
   var observer = new MutationObserver(function () {
     var now = current();
     if (!now || now === prev) return;
     var from = prev; prev = now;
     if (busy) clear();
     if (now === 'success') rememberTitle();
+    if (now === 'ringing') prepareRinging();
     if (reduce.matches) return;
     if (from === 'success' && now === 'startchat') textZoom();
     else if (from === 'ringing' && (now === 'call' || now === 'removed')) iris();

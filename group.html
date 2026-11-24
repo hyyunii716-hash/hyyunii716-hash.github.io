@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="flow.css">
   <link rel="stylesheet" href="group-transitions.css">
   <link rel="stylesheet" href="page-transition.css">
+  <link rel="stylesheet" href="group-layout.css">
 <link rel="stylesheet" href="styleguide.css">
 <script src="button_sound.js?v=1122f" data-click-sound="audio/click.mp3" data-click-volume="0.85" defer></script>
 </head>
@@ -119,15 +120,19 @@
       </div>
     </section>
     <section class="flow-step" data-step="ringing" hidden>
-      <div class="container">
-        <div class="phone phone--ring" aria-label="Abandon 圖片群組來電">
-          <h2>Abandon圖片群組</h2>
-          <p class="phone__msg">正在邀請您加入群組通話</p>
+      <!-- 後面保留變暗的「你已加入群組」畫面（由 group-transitions.js 在進入這一步時複製進來） -->
+      <div class="ring-backdrop" data-ring-backdrop aria-hidden="true"></div>
+      <div class="container ring-overlay">
+        <div class="phone phone--ring" role="group" aria-label="Abandon 圖片群組視訊通話邀請">
           <div class="avatars avatars--ring" data-ringing-avatars aria-hidden="true"></div>
+          <svg class="ring-cam" viewBox="0 0 120 80" aria-hidden="true" focusable="false"><rect x="5" y="9" width="76" height="62" rx="18"/><path d="M87 33l26-15c3-1.700 6 .4 6 3.700v37.600c0 3.300-3 5.400-6 3.700L87 47z"/></svg>
+          <p class="ring-text" data-ring-text>Abandon 圖片群組邀請你加入視訊通話</p>
           <div class="ring-actions">
             <button type="button" class="call-action call-action--answer" data-goto="call" aria-label="接聽群組通話"><img src="assets/call-button.png" alt="" aria-hidden="true"></button>
             <button type="button" class="call-action call-action--no" data-goto="removed" aria-label="拒接並退出群組"><img src="assets/no-button.png" alt="" aria-hidden="true"></button>
           </div>
+          <h2 class="sr-only">Abandon圖片群組</h2>
+          <p class="sr-only">正在邀請您加入群組通話</p>
         </div>
       </div>
     </section>

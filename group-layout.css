@@ -1,0 +1,226 @@
+/* =========================================================
+   拼組圖檔：後段畫面排版（對齊設計稿 group.pdf）
+   - 你已加入群組（startchat） → 來電（ringing） → 通話（call） → 你已被移出群組（removed）
+   - 設計稿的重點：這幾頁「沒有灰色卡片」，標題 / 頭像 / 聊天列直接鋪在黑底頁面上；
+     來電是「變暗的聊天畫面」上浮一張來電卡片；被移出那頁的「返回上頁」跟聊天列同一排。
+   - 這個檔案要放在 flow.css、group-transitions.css 之後載入，只覆蓋樣式，不動 flow.js。
+   - 比例都是從設計稿量出來的（vw = 佔畫面寬度、svh = 佔畫面高度），要微調改下面「快速調整區」。
+   ========================================================= */
+
+main[data-tool="group"] {
+  /* ★ 快速調整區 ★ */
+  --gc-bar-w: min(56vw, 1180px);                 /* 聊天列寬度（設計稿 56%，置中） */
+  --gc-bar-h: clamp(46px, 4.7vw, 86px);          /* 聊天列高度 */
+  --gc-pad-b: clamp(24px, 4.3svh, 60px);         /* 聊天列離畫面底部的距離 */
+  --gc-title: clamp(30px, 3.9vw, 78px);          /* 「你已加入Abandon群組」標題大小 */
+  --gc-av: clamp(64px, 8.1vw, 156px);            /* 重疊頭像直徑 */
+  --gc-side: clamp(16px, 5vw, 110px);            /* 「返回上頁」離畫面左邊的距離 */
+}
+
+/* ---------- 三個畫面共用：整頁高度、不要上方留白 ---------- */
+main[data-tool="group"] .flow-step[data-step="startchat"],
+main[data-tool="group"] .flow-step[data-step="ringing"],
+main[data-tool="group"] .flow-step[data-step="removed"] {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 100svh;
+  padding: 0;
+  gap: 0;
+}
+main[data-tool="group"] .flow-step[data-step="startchat"] > .container,
+main[data-tool="group"] .flow-step[data-step="removed"] > .container,
+main[data-tool="group"] .ring-backdrop > .container { width: 100%; max-width: none; margin: 0; padding: 0; }
+
+/* ---------- 你已加入群組 / 你已被移出群組（沒有卡片，直接鋪在頁面上） ---------- */
+main[data-tool="group"] .phone--chat,
+main[data-tool="group"] .phone--removed {
+  width: 100%;
+  min-height: 100svh;
+  aspect-ratio: auto;
+  box-sizing: border-box;
+  padding: max(calc(var(--nav-h, 100px) + 8px), 14.5svh) 0 var(--gc-pad-b);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 0;
+  border: 0; border-radius: 0; background: transparent;
+}
+main[data-tool="group"] .phone--chat h2,
+main[data-tool="group"] .phone--removed h2 {
+  margin: 0;
+  font-size: var(--gc-title);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+
+/* 重疊頭像：每顆疊在前一顆上面約 30%，邊緣有一圈黑色細框 */
+main[data-tool="group"] .avatars--overlap {
+  width: auto; margin: clamp(24px, 7.4svh, 96px) 0 0;
+  display: flex; align-items: center; justify-content: center; gap: 0;
+}
+main[data-tool="group"] .avatars--overlap .avatar {
+  width: var(--gc-av); height: var(--gc-av); flex: 0 0 var(--gc-av);
+  aspect-ratio: 1; margin-left: calc(var(--gc-av) * -.3);
+  box-shadow: 0 0 0 clamp(2px, .22vw, 4px) #0c0c0c;
+}
+main[data-tool="group"] .avatars--overlap .avatar:first-child { margin-left: 0; }
+
+main[data-tool="group"] .phone--chat .phone__names,
+main[data-tool="group"] .phone--removed .phone__names {
+  margin: clamp(16px, 4.2svh, 52px) 0 0;
+  max-width: min(var(--gc-bar-w), 90%);
+  font-size: clamp(13px, 1.3vw, 25px);
+  line-height: 1.4;
+  color: #a9a9a9;
+  text-align: center;
+}
+main[data-tool="group"] .phone--chat .phone__msg { margin: 10px 0 0; font-size: clamp(12px, 1vw, 18px); text-align: center; }
+
+/* 底部：自己的頭像 + 輸入中的小膠囊，下面一條白色聊天列 */
+main[data-tool="group"] .chat-meta {
+  width: var(--gc-bar-w); margin: auto 0 clamp(12px, 4svh, 52px);
+  display: flex; align-items: center; justify-content: flex-start; gap: clamp(10px, 1.5vw, 28px);
+}
+main[data-tool="group"] .chat-meta .avatar { width: clamp(34px, 3.6vw, 68px); height: clamp(34px, 3.6vw, 68px); flex: none; }
+main[data-tool="group"] .typing-indicator {
+  min-width: clamp(70px, 7.3vw, 138px); height: clamp(34px, 3.6vw, 68px);
+  display: flex; align-items: center; justify-content: center; gap: clamp(5px, .6vw, 11px);
+  border-radius: 999px; background: #fff;
+}
+main[data-tool="group"] .typing-indicator i { width: clamp(7px, .8vw, 15px); height: clamp(7px, .8vw, 15px); background: #222; }
+main[data-tool="group"] .typing-indicator i:last-child { background: #9a9a9a; }
+
+main[data-tool="group"] .chat-message {
+  width: var(--gc-bar-w); min-height: var(--gc-bar-h); box-sizing: border-box;
+  padding: 0 calc(var(--gc-bar-h) * .12) 0 calc(var(--gc-bar-h) * .5);
+  gap: 12px; border-radius: 999px; background: #fff; box-shadow: none;
+}
+main[data-tool="group"] .chat-message > span { font-size: clamp(14px, 1.5vw, 28px); color: #b4b4b4; letter-spacing: .02em; }
+main[data-tool="group"] .chat-message button {
+  width: calc(var(--gc-bar-h) * .76); height: calc(var(--gc-bar-h) * .76);
+  background: #b5b5b5; color: #fff;
+}
+main[data-tool="group"] .chat-message button:is(:hover, :focus-visible) { background: #a0a0a0; }
+main[data-tool="group"] .chat-message button svg { width: 52%; height: 52%; }
+
+/* 被移出群組：「返回上頁」在聊天列左邊，跟聊天列同一排、同一高度 */
+main[data-tool="group"] .removed-layout { display: block; }
+main[data-tool="group"] .removed-return {
+  position: absolute; left: var(--gc-side); bottom: var(--gc-pad-b); z-index: 2;
+  width: clamp(120px, 14.9vw, 280px); height: var(--gc-bar-h); margin: 0; padding: 0 12px; gap: .5em;
+  transform: none; border-radius: calc(var(--gc-bar-h) * .32);
+  font-size: clamp(14px, 1.6vw, 30px);
+}
+main[data-tool="group"] .removed-return svg { width: 1.25em; height: 1.25em; }
+
+/* ---------- 來電：後面是變暗的「你已加入群組」，上面浮一張來電卡片 ---------- */
+main[data-tool="group"] .ring-backdrop { position: absolute; inset: 0; overflow: hidden; pointer-events: none; filter: brightness(.62); }
+main[data-tool="group"] .ring-backdrop p:empty { display: none; }
+main[data-tool="group"] .ring-overlay {
+  position: fixed; inset: 0; z-index: 5; width: 100%; max-width: none; margin: 0; padding: 0;
+  display: grid; place-items: center; pointer-events: none;
+}
+main[data-tool="group"] .phone--ring {
+  container-type: inline-size;
+  position: relative; display: block; pointer-events: auto;
+  width: clamp(300px, 32.6vw, 640px); aspect-ratio: 100 / 106.7; padding: 0;
+  border: 0; border-radius: clamp(34px, 4.3vw, 84px); background: #2b2b2b;
+  box-shadow: 0 30px 80px rgb(0 0 0 / .45);
+}
+/* 2×2 的來電預覽：放上傳的圖（變暗），不夠的格子用灰色棋盤格補滿 */
+main[data-tool="group"] .avatars--ring {
+  position: absolute; left: 11cqw; top: 9.6cqw; width: 77.6cqw; height: 86.5cqw; margin: 0;
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1.8cqw;
+}
+main[data-tool="group"] .avatars--ring .avatar {
+  width: auto; height: auto; aspect-ratio: auto; margin: 0; border-radius: 3cqw; box-shadow: none;
+  overflow: hidden; background: conic-gradient(#474747 25%, #3e3e3e 0 50%, #474747 0 75%, #3e3e3e 0) 0 0 / 4cqw 4cqw;
+}
+main[data-tool="group"] .avatars--ring .avatar .group-upload-image { opacity: .4; border-radius: 0; filter: grayscale(.35); }
+main[data-tool="group"] .avatars--ring .avatar--ph { background: conic-gradient(#474747 25%, #3e3e3e 0 50%, #474747 0 75%, #3e3e3e 0) 0 0 / 4cqw 4cqw; }
+
+main[data-tool="group"] .ring-cam {
+  position: absolute; left: 50%; top: 41.4cqw; width: 26.5cqw; height: auto; transform: translate(-50%, -50%);
+  fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1cqw 3cqw rgb(0 0 0 / .45));
+}
+main[data-tool="group"] .ring-text {
+  position: absolute; left: 50%; top: 56.3cqw; width: 80cqw; margin: 0; transform: translate(-50%, -50%);
+  font-size: 3cqw; font-weight: 700; line-height: 1.3; letter-spacing: .02em; text-align: center; color: #fff;
+  text-shadow: 0 .4cqw 2cqw rgb(0 0 0 / .6);
+}
+main[data-tool="group"] .phone--ring .ring-actions {
+  position: absolute; left: 50%; top: 75.2cqw; transform: translate(-50%, -50%);
+  width: 40.5cqw; height: 17.6cqw; box-sizing: border-box; margin: 0; padding: 0 1.4cqw;
+  display: flex; align-items: center; justify-content: space-between; gap: 0;
+  border: 1px solid rgb(255 255 255 / .22); border-radius: 999px; background: rgb(110 110 110 / .55);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+}
+main[data-tool="group"] .phone--ring .ring-actions .call-action { width: 14.4cqw; height: 14.4cqw; }
+
+/* ---------- 通話：影像區對齊設計稿（寬度約佔畫面 81%），底下一排「返回上頁 / 控制鈕」 ---------- */
+main[data-tool="group"] .call-layout {
+  --call-frame-size: min(81vw, 118svh, 1560px);
+  width: min(81vw, 1560px);
+}
+main[data-tool="group"] .call-layout .call-return { margin-left: 0; }
+
+/* ---------- 手機 ---------- */
+@media (max-width: 600px) {
+  main[data-tool="group"] {
+    --gc-bar-w: calc(100vw - 40px); --gc-bar-h: 50px; --gc-title: clamp(24px, 7vw, 34px); --gc-av: clamp(56px, 19vw, 90px); --gc-side: 16px;
+  }
+  main[data-tool="group"] .phone--ring { width: min(84vw, 380px); }
+  main[data-tool="group"] .chat-meta .avatar,
+  main[data-tool="group"] .typing-indicator { height: 38px; }
+  main[data-tool="group"] .chat-meta .avatar { width: 38px; }
+  main[data-tool="group"] .removed-return { position: static; width: auto; height: 44px; margin: 14px 0 0 var(--gc-side); padding: 0 18px; }
+  main[data-tool="group"] .removed-layout { display: flex; flex-direction: column; align-items: center; }
+  main[data-tool="group"] .removed-layout .phone--removed { min-height: calc(100svh - 80px); }
+  main[data-tool="group"] .call-layout { width: calc(100vw - 32px); --call-frame-size: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-tool="group"] .ring-backdrop { filter: brightness(.62); }
+}
+
+/* ---------- 通話控制列：三顆按鈕同大小、等距、圖示置中 ---------- */
+main[data-tool="group"] .call-layout .call-controls {
+  --cc: clamp(26px, min(2.5vw, 3.9svh), 44px);
+  box-sizing: border-box;
+  width: clamp(150px, min(14vw, 22svh), 260px);
+  min-height: 0; height: calc(var(--cc) + clamp(8px, .9vw, 16px));
+  padding: 0 clamp(5px, .5vw, 9px);
+  gap: 0; justify-content: space-between; align-items: center;
+}
+main[data-tool="group"] .call-layout .call-controls .call-control,
+main[data-tool="group"] .call-layout .call-controls .call-control--hangup {
+  width: var(--cc); height: var(--cc); flex: none; padding: 0; margin: 0;
+  display: grid; place-items: center; line-height: 0;
+}
+main[data-tool="group"] .call-layout .call-controls .call-control svg,
+main[data-tool="group"] .call-layout .call-controls .call-control--hangup svg {
+  width: 56%; height: 56%; display: block; margin: 0;
+}
+main[data-tool="group"] .call-layout .call-controls .call-control .icon-off { display: none; }
+main[data-tool="group"] .call-layout .call-controls .call-control[aria-pressed="true"] .icon-on { display: none; }
+main[data-tool="group"] .call-layout .call-controls .call-control[aria-pressed="true"] .icon-off { display: block; }
+
+/* ---------- 聊天「輸入中」泡泡：三顆點依序跳動、變亮 ---------- */
+main[data-tool="group"] .typing-indicator { animation: gl-bubble 2.4s ease-in-out infinite; }
+main[data-tool="group"] .typing-indicator i {
+  animation: gl-dot 1.2s ease-in-out infinite;
+  background: #222;
+}
+main[data-tool="group"] .typing-indicator i:nth-child(2) { animation-delay: .16s; }
+main[data-tool="group"] .typing-indicator i:nth-child(3) { animation-delay: .32s; background: #222; }
+@keyframes gl-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: .35; }
+  30%           { transform: translateY(-.45em); opacity: 1; }
+}
+@keyframes gl-bubble {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+main[data-tool="group"] .typing-indicator i { font-size: clamp(10px, 1vw, 18px); }
+@media (prefers-reduced-motion: reduce) {
+  main[data-tool="group"] .typing-indicator, main[data-tool="group"] .typing-indicator i { animation: none; opacity: 1; }
+}
