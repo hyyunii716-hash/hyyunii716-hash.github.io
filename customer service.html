@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="flow.css" />
   <link rel="stylesheet" href="page-transition.css" />
   <link rel="stylesheet" href="styleguide.css" />
+  
 
   <style>
     :root {
@@ -160,10 +161,10 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      width: clamp(320px, 36vw, 520px);
+      width: clamp(300px, 36vw, 300px);
       height: auto;
       transform: translate(-50%, -50%);
-      opacity: 0.3;
+      opacity: 0.05;
       pointer-events: none;
       z-index: 4;
       transition:
@@ -177,7 +178,7 @@
     body.is-connected .headset-bg {
       top: calc(100svh - 46px);
       left: calc(100vw - 48px);
-      width: 90px;
+      width: 24px;
       opacity: 0.8;
       transform: translate(-50%, -50%);
     }
@@ -1298,5 +1299,6 @@
     })();
   </script>
   <script src="page-transition.js"></script>
+</script>
 </body>
 </html>

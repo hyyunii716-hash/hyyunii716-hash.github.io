@@ -93,6 +93,13 @@
      槽位 0 最小／1 左／2 中間（最大）／3 右；點側邊卡片會輪轉到中間
    - 手機（≤900px）：水平捲動，不輪轉
    ========================================================== */
+
+  @media (min-width: 901px) {
+    .page--tools .carousel {
+      position: relative;
+      left: 20px; /* 想更靠右就加大，想往回拉就改小或用負值 */
+    }
+  }
 .carousel {
   display: flex;
   cursor: grab;
@@ -102,6 +109,7 @@
   width: 100%;
   margin: 0;
   padding: 8px var(--gutter) 24px; /* 輪播上下邊距 */
+  padding-left: calc(var(--gutter) + 80px); /* 往右推 24px，可自行增減 */
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 }
@@ -111,7 +119,7 @@
   flex: none;
   width: min(78vw, 360px);          /* 卡片寬度 */
   aspect-ratio: 3 / 2;              /* 卡片寬高比 */
-  scroll-snap-align: center;
+  /* scroll-snap-align: center; */
 
   /* 版型變數：全部以「卡片自身寬度」為單位，所以放大縮小都等比 */
   --t: 6.67cqw;  --d: 5.34cqw;  --e: 4.67cqw;           /* 標題／說明／英文字級 */

@@ -44,7 +44,6 @@
   // ---- 換頁接續播放 ----
   const RESUME_KEY = 'abandon-bgm-resume';
   const RESUME_MAX_AGE_MS = 12000;      // 超過這個時間才換到下一頁，就當作重新開始
-  const RESUME_FADE_MS = 120;           // 接續播放時的淡入（很短，因為是接著播，不是重新開始）
   const SAVE_EVERY_MS = 400;
 
   function readResume() {
@@ -91,10 +90,19 @@
     const rec = readResume();                         // 上一頁是同一首 → 接著它的位置播
     if (rec) {
       resumed = true;
-      audio.addEventListener('loadedmetadata', () => {
+      const predict = () => {                           // 「如果音樂一直在播，現在應該在第幾秒」
         let t = rec.t + (Date.now() - rec.ts) / 1000;
         if (Number.isFinite(audio.duration) && audio.duration > 0) t = t % audio.duration;
-        try { audio.currentTime = t; } catch (_) {}
+        return t;
+      };
+      audio.addEventListener('loadedmetadata', () => {
+        try { audio.currentTime = predict(); } catch (_) {}
+      }, { once: true });
+      // 真的開始出聲的那一刻再對一次時間：載入、解碼花掉的時間也算進去，接點才會準
+      audio.addEventListener('playing', () => {
+        if (Date.now() - rec.ts > RESUME_MAX_AGE_MS) return;
+        const want = predict();
+        if (Math.abs(audio.currentTime - want) > 0.25) { try { audio.currentTime = want; } catch (_) {} }
       }, { once: true });
     }
     
@@ -103,8 +111,8 @@
       try {
         sourceNode = ctx.createMediaElementSource(audio);
         gainNode = ctx.createGain();
-        gainNode.gain.value = 0;
-        currentGainValue = 0;
+        gainNode.gain.value = resumed ? targetVolume : 0;   // 接續播放直接從目標音量開始
+        currentGainValue = resumed ? targetVolume : 0;
         
         sourceNode.connect(gainNode);
         gainNode.connect(ctx.destination);
@@ -140,7 +148,14 @@
     const ctx = ensureAudioContext();
     if (!ctx) return;
 
-    const ms = resumed ? RESUME_FADE_MS : fadeDurationMs;
+    if (resumed) {                      // 接續播放：音樂本來就在中間，直接用目標音量，不從 0 淡入（淡入會變成一小段靜音）
+      gainNode.gain.cancelScheduledValues(ctx.currentTime);
+      gainNode.gain.setValueAtTime(targetVolume, ctx.currentTime);
+      currentGainValue = targetVolume;
+      isFading = false;
+      return;
+    }
+    const ms = fadeDurationMs;
     const startTime = ctx.currentTime;
     const endTime = startTime + ms / 1000;
 

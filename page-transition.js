@@ -17,18 +17,6 @@
       CSS.supports("view-transition-name: none")
     );
 
-  // Mark nav entry before other click handlers can stop propagation.
-  document.addEventListener("click", function (event) {
-    var link = event.target.closest("a[href]");
-    if (!link || !link.closest(".site-nav")) return;
-    if (/(?:^|\/)pricing\.html(?:$|[?#])/.test(link.href)) {
-      try { sessionStorage.setItem("pricing-cover-assemble", "1"); } catch (_) {}
-      var pricingUrl = new URL(link.href, location.href);
-      pricingUrl.searchParams.set("pricingEnter", "1");
-      link.href = pricingUrl.href;
-    }
-  }, true);
-
   function readState() {
     try {
       return JSON.parse(sessionStorage.getItem(stateKey) || "null");
@@ -467,6 +455,10 @@
       link.hasAttribute("download")
     )
       return;
+
+    if (/(?:^|\/)pricing\.html$/.test(new URL(link.href, location.href).pathname)) {
+      try { sessionStorage.setItem("pricing-cover-assemble", "1"); } catch (_) {}
+    }
 
     var slug = slugFromLink(link);
     if (slug) {
