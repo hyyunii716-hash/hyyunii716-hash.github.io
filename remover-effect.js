@@ -11,6 +11,7 @@
   if (!previewBtn || !previewImg || !downloadSection) return;
 
   const ctx = particleCanvas ? particleCanvas.getContext("2d") : null;
+  const PARTICLE_LIFETIME_MS = 3000;
   let uploadedSrc = "";
   let resultEntered = false;
   let bgDissolveTriggered = false;
@@ -34,7 +35,7 @@
   }
   resizeCanvas();
 
-  function pushTinyMonochromeParticle(x, y, vx, vy, radius, decay, hitCooldown = 0) {
+  function pushTinyMonochromeParticle(x, y, vx, vy, radius, decay, hitCooldown = 0, maxAge = PARTICLE_LIFETIME_MS) {
     const shade = Math.random();
     const color = shade > 0.55 ? "#ffffff" : shade > 0.22 ? "#d4d4d4" : "#7a7a7a";
     particles.push({
@@ -46,31 +47,39 @@
       alpha: 0.95,
       decay,
       color,
-      hitCooldown
+      hitCooldown,
+      bornAt: performance.now(),
+      maxAge
     });
   }
 
-  // 黑色背景消散批次粒子
-  function spawnBackgroundDissolveBatch(count = 110) {
-    if (!ctx) return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+  // 僅圍繞指定目標元件生成粒子（避免在螢幕莫名處出現）
+  function spawnAroundTargetBatch(targetEl = previewBtn, count = 48) {
+    if (!ctx || !targetEl) return;
+    const rect = targetEl.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    const cx = rect.left + rect.width * 0.5;
+    const cy = rect.top + rect.height * 0.5;
 
     for (let i = 0; i < count; i++) {
-      const x = Math.random() * w;
-      const y = Math.random() * h;
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 0.45 + Math.random() * 1.15;
-      const radius = 0.75 + Math.random() * 1.25;
+      const x = rect.left + Math.random() * rect.width;
+      const y = rect.top + Math.random() * rect.height;
+      const dx = x - cx;
+      const dy = y - cy;
+      const dist = Math.hypot(dx, dy) || 1;
+      const speed = 0.65 + Math.random() * 1.25;
+      const radius = 0.75 + Math.random() * 1.1;
 
       pushTinyMonochromeParticle(
         x,
         y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed - 0.12,
+        (dx / dist) * speed + (Math.random() - 0.5) * 0.6,
+        (dy / dist) * speed - 0.15 + (Math.random() - 0.5) * 0.6,
         radius,
-        0.011 + Math.random() * 0.01,
-        0
+        0.018 + Math.random() * 0.012,
+        0,
+        PARTICLE_LIFETIME_MS
       );
     }
 
@@ -103,8 +112,9 @@
         (dx / dist) * speed + (Math.random() - 0.5) * 0.75,
         (dy / dist) * speed - 0.2 + (Math.random() - 0.5) * 0.75,
         radius,
-        0.012 + Math.random() * 0.01,
-        0
+        0.018 + Math.random() * 0.012,
+        0,
+        PARTICLE_LIFETIME_MS
       );
     }
 
@@ -113,19 +123,25 @@
     }
   }
 
-  function emitCollisionBurst(x, y) {
+  function emitCollisionBurst(x, y, parentBornAt) {
     for (let b = 0; b < 3; b++) {
       const angle = Math.random() * Math.PI * 2;
       const spd = 0.5 + Math.random() * 1.1;
-      pushTinyMonochromeParticle(
+      const shade = Math.random();
+      const color = shade > 0.55 ? "#ffffff" : shade > 0.22 ? "#d4d4d4" : "#7a7a7a";
+      particles.push({
         x,
         y,
-        Math.cos(angle) * spd,
-        Math.sin(angle) * spd,
-        0.65 + Math.random() * 0.7,
-        0.032 + Math.random() * 0.02,
-        6
-      );
+        vx: Math.cos(angle) * spd,
+        vy: Math.sin(angle) * spd,
+        radius: 0.65 + Math.random() * 0.7,
+        alpha: 0.85,
+        decay: 0.032 + Math.random() * 0.02,
+        color,
+        hitCooldown: 6,
+        bornAt: parentBornAt,
+        maxAge: PARTICLE_LIFETIME_MS
+      });
     }
   }
 
@@ -198,15 +214,31 @@
           b.hitCooldown = 5;
 
           if (particles.length < 380) {
-            emitCollisionBurst((a.x + b.x) * 0.5, (a.y + b.y) * 0.5);
+            emitCollisionBurst((a.x + b.x) * 0.5, (a.y + b.y) * 0.5, Math.min(a.bornAt, b.bornAt));
           }
         }
       }
     }
 
+    const now = performance.now();
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
-      p.alpha -= p.decay;
+      const age = now - p.bornAt;
+      const lifeRatio = age / p.maxAge;
+
+      // 滿 3 秒強制消散移除
+      if (age >= p.maxAge) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      // 最後 0.6 秒平滑收斂至透明，確保 3 秒時完全消散
+      if (lifeRatio > 0.8) {
+        const tailProgress = (lifeRatio - 0.8) / 0.2;
+        p.alpha = Math.min(p.alpha, 0.95 * (1 - tailProgress));
+      } else {
+        p.alpha -= p.decay;
+      }
 
       if (p.alpha <= 0) {
         particles.splice(i, 1);
@@ -230,22 +262,22 @@
     }
   }
 
-  // 配合 2 秒黑底消散連續噴灑細小單色粒子
+  // 配合黑底消散，僅在圖片周圍噴灑細小單色粒子（3 秒內完全消散）
   function triggerBackgroundDissolve() {
     if (bgDissolveTriggered) return;
     bgDissolveTriggered = true;
     document.body.classList.add("is-remover-bg-dissolving");
 
-    spawnBackgroundDissolveBatch(120);
+    spawnAroundTargetBatch(previewBtn, 48);
     let waves = 0;
     bgParticleIntervalId = setInterval(() => {
       waves += 1;
-      spawnBackgroundDissolveBatch(75);
-      if (waves >= 5) {
+      spawnAroundTargetBatch(previewBtn, 36);
+      if (waves >= 2) {
         clearInterval(bgParticleIntervalId);
         bgParticleIntervalId = null;
       }
-    }, 320);
+    }, 650);
   }
 
   function fitCardToImage(imgEl, cardEl, maxWLimit = Math.min(420, window.innerWidth * 0.76), maxHLimit = window.innerHeight * 0.46) {
@@ -317,7 +349,7 @@
   });
   handleDownloadSectionVisible();
 
-  // 精準銜接原本卡片位置與尺寸，並以更慢的速度反彈亂飄
+  // 精準銜接原本卡片位置與尺寸，並以較快的速度反彈亂飄
   function startBouncing() {
     const rect = previewBtn.getBoundingClientRect();
     const currentW = Math.round(rect.width) || previewBtn.offsetWidth || 240;
@@ -333,8 +365,8 @@
 
     let x = Math.max(0, Math.min(window.innerWidth - currentW, rect.left));
     let y = Math.max(0, Math.min(window.innerHeight - currentH, rect.top));
-    let vx = (Math.random() > 0.5 ? 1 : -1) * 0.95;
-    let vy = (Math.random() > 0.5 ? 1 : -1) * 0.72;
+    let vx = (Math.random() > 0.5 ? 1 : -1) * 2.6;
+    let vy = (Math.random() > 0.5 ? 1 : -1) * 2.0;
 
     previewBtn.style.transform = `translate3d(${x}px, ${y}px, 0)`;
 
