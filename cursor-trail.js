@@ -1,4 +1,4 @@
-/* 游標軌跡文字（流星尾跡＋光暈）＋左下角液態變形能量滑動開關（主視覺 #220088） */
+/* 游標軌跡文字（流星尾跡）＋左下角液態變形滑動開關 */
 (function () {
   if (window.__cursorTrail) return;
   window.__cursorTrail = true;
@@ -9,9 +9,9 @@
   // ================= 🎛️ 視覺手感設定區（改這裡的數字就好） =================
   var SPACING = 32; // 【1. 字距】：滑鼠每移動多少 px 出現一個字
   var DURATION = 750; // 【2. 流星消散時間】：尾跡淡出總毫秒數（越小越俐落）
-  var FONT_SIZE = 24; // 【3. 字體大小】：流星文字大小
+  var FONT_SIZE = 18; // 【3. 字體大小】：流星文字大小
   var TRAIL_LEN = 48; // 【4. 流星尾跡長度】：沿著滑鼠移動方向滑出的 px 距離
-  var GLOW_COLOR = "#220088"; // 【5. 主視覺光暈顏色 #220088】
+  var TEXT_COLOR = "#ffffff"; // 【5. 文字顏色】：純白無發光（可改成 rgba(255,255,255,0.85)）
   var POOL = 32; // 同時存在畫面上的最大字數
   // =========================================================================
 
@@ -37,10 +37,8 @@
       "opacity:0",
       "white-space:nowrap",
       "font:400 " + FONT_SIZE + 'px/1 "Noto Sans TC","Inter",sans-serif',
-      "color:#ffffff",
-      "text-shadow:0 0 8px " +
-        GLOW_COLOR +
-        ", 0 0 18px rgba(34, 0, 136, 0.8), 0 0 28px rgba(34, 0, 136, 0.55)",
+      "color:" + TEXT_COLOR,
+      "text-shadow:none",
       "filter:blur(0px)",
       "will-change:transform,opacity,filter",
     ].join(";");
@@ -48,11 +46,11 @@
     nodes.push(n);
   }
 
-  // 注入關鍵影格與微光樣式（#220088）
+  // 注入關鍵影格樣式
   var styleEl = document.createElement("style");
   styleEl.textContent = [
     "@keyframes abandonPulseRing { 0% { transform: scale(0.95); opacity: 0.75; } 100% { transform: scale(1.65); opacity: 0; } }",
-    "@keyframes abandonNeonFlow { 0%, 100% { box-shadow: 0 0 12px rgba(34, 0, 136, 0.65), inset 0 0 8px rgba(34, 0, 136, 0.4); } 50% { box-shadow: 0 0 22px rgba(34, 0, 136, 0.95), inset 0 0 12px rgba(34, 0, 136, 0.6); } }",
+    "@keyframes abandonNeonFlow { 0%, 100% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); } 50% { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45); } }",
   ].join("\n");
   document.head.appendChild(styleEl);
 
@@ -71,7 +69,7 @@
     "gap: 8px",
     "padding: 6px 10px 6px 13px",
     "border-radius: 999px",
-    "border: 1px solid rgba(34, 0, 136, 0.45)",
+    "border: 1px solid rgba(255, 255, 255, 0.25)",
     "background: rgba(14, 14, 18, 0.85)",
     "backdrop-filter: blur(14px)",
     "-webkit-backdrop-filter: blur(14px)",
@@ -89,14 +87,14 @@
     "position: absolute",
     "inset: -1px",
     "border-radius: 999px",
-    "border: 1.5px solid #220088",
+    "border: 1.5px solid rgba(255, 255, 255, 0.45)",
     "pointer-events: none",
     "opacity: 0",
   ].join(";");
 
   var label = document.createElement("span");
   label.textContent = "惡魔低語";
-  label.style.transition = "color 0.3s ease, text-shadow 0.3s ease";
+  label.style.transition = "color 0.3s ease";
 
   var track = document.createElement("span");
   track.style.cssText = [
@@ -128,10 +126,27 @@
   wrapper.appendChild(track);
   document.body.appendChild(wrapper);
 
+  function alignBottomWithCsFab() {
+    var fab = document.querySelector(".cs-fab");
+    if (!fab) {
+      wrapper.style.bottom = "20px";
+      return;
+    }
+    var rect = fab.getBoundingClientRect();
+    if (rect.height > 0) {
+      var bottomOffset = Math.max(
+        12,
+        Math.round(window.innerHeight - rect.bottom),
+      );
+      wrapper.style.bottom = bottomOffset + "px";
+    }
+  }
+
+  alignBottomWithCsFab();
+  window.addEventListener("resize", alignBottomWithCsFab, { passive: true });
+
   function playLiquidMorph(turningOn) {
-    pulseRing.style.borderColor = turningOn
-      ? "#220088"
-      : "rgba(255,255,255,0.45)";
+    pulseRing.style.borderColor = "rgba(255, 255, 255, 0.45)";
     pulseRing.animate(
       [
         { transform: "scale(0.96)", opacity: 0.9 },
@@ -188,18 +203,18 @@
     if (animate) playLiquidMorph(isEnabled);
 
     if (isEnabled) {
-      track.style.background =
-        "linear-gradient(135deg, #220088 0%, #3b00e6 100%)";
-      track.style.boxShadow = "0 0 12px rgba(34, 0, 136, 0.85)";
-      wrapper.style.borderColor = "#220088";
-      wrapper.style.animation = "abandonNeonFlow 3s ease-in-out infinite";
+      track.style.background = "rgba(255, 255, 255, 0.38)";
+      track.style.boxShadow = "none";
+      wrapper.style.borderColor = "rgba(255, 255, 255, 0.45)";
+      wrapper.style.animation = "none";
+      wrapper.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.35)";
       label.style.color = "#ffffff";
-      label.style.textShadow = "0 0 10px rgba(34, 0, 136, 0.95)";
+      label.style.textShadow = "none";
       if (!animate) thumb.style.transform = "translateX(16px)";
     } else {
       track.style.background = "rgba(255, 255, 255, 0.18)";
       track.style.boxShadow = "none";
-      wrapper.style.borderColor = "rgba(34, 0, 136, 0.35)";
+      wrapper.style.borderColor = "rgba(255, 255, 255, 0.2)";
       wrapper.style.animation = "none";
       wrapper.style.boxShadow = "0 8px 24px rgba(0, 0, 0, 0.35)";
       label.style.color = "rgba(255, 255, 255, 0.55)";
