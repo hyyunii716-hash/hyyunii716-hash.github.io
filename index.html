@@ -184,10 +184,10 @@
     <!-- 品牌宣言 -->
     <section class="container manifesto" aria-label="品牌宣言">
       <p>
-        我們致力於消除設計認知落差，<br>
-        使設計師不必花費大量時間理解術語。
+        歡迎進入惡夢<br>
+        現在凌晨四點，剛剛存檔了嗎？
       </p>
-      <p>不再解釋，直接執行。</p>
+      <p>放棄放棄放棄放棄...</p>
     </section>
 
     <!-- 三項理念 -->
@@ -216,7 +216,7 @@
         <li class="program">
           <div class="program__body">
             <h3 class="program__name">Photoshop</h3>
-            <p class="program__desc">修圖的第一步：先選一張好照片</p>
+            <p class="program__desc">修圖的第一步：先選一張好照片<br>什麼是好照片？</p>
           </div>
           <a class="program__link" href="photoshop.html">試試Photoshop
             <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
@@ -225,7 +225,7 @@
         <li class="program">
           <div class="program__body">
             <h3 class="program__name">Abandon illustrator</h3>
-            <p class="program__desc">這是最好的時代，也是最壞的時代</p>
+            <p class="program__desc">這是最好的時代，也是最壞的時代<br>夢裡的Ai會是哪種Ai</p>
           </div>
           <a class="program__link program__link--underline" href="https://chatgpt.com/zh-TW/" target="_blank" rel="noopener noreferrer">試試Abandon illustrator
             <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
@@ -234,7 +234,7 @@
         <li class="program">
           <div class="program__body">
             <h3 class="program__name">Lightroom</h3>
-            <p class="program__desc">照片需要光線，人需要房間</p>
+            <p class="program__desc">照片需要光線，人需要房間<br>睡前忘記關燈了吧</p>
           </div>
           <a class="program__link" href="lightroom.html">試試Lightroom
             <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
@@ -243,7 +243,7 @@
         <li class="program">
           <div class="program__body">
             <h3 class="program__name">InDesign</h3>
-            <p class="program__desc">證明你引以為傲的身份</p>
+            <p class="program__desc">證明你引以為傲的身份<br>媽媽我是值得驕傲的孩子嗎？</p>
           </div>
           <a class="program__link" href="indesign.html">試試InDesign
             <svg class="icon-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg>
@@ -259,7 +259,7 @@
 
     <!-- 現在可以使用的工具 -->
     <section class="container tools" aria-labelledby="tools-title">
-      <h2 id="tools-title" class="section-title">快去試用這些好工具吧</h2>
+      <h2 id="tools-title" class="section-title">睡前用過的工具...</h2>
 
       <ul class="tools__grid">
         <li>
@@ -277,7 +277,7 @@
               <span class="card__title">去背工具</span>
               <span class="card__text">Background Remover</span>
             </span>
-            <span class="card__text card__text--lh">還給你最簡潔的畫面。</span>
+            <span class="card__text card__text--lh">給我最簡潔的畫面。</span>
           </a>
         </li>
         <li>
@@ -286,7 +286,7 @@
               <span class="card__title">翻轉圖片</span>
               <span class="card__text">Flip Image</span>
             </span>
-            <span class="card__text card__text--lh">我們需要從不同角度看世界。</span>
+            <span class="card__text card__text--lh">我要從不同角度看世界。</span>
           </a>
         </li>
         <li>
@@ -483,12 +483,13 @@
     curScroll += (targetScroll - curScroll) * .14;
     if (Math.abs(targetScroll - curScroll) < .0003) curScroll = targetScroll;
 
-    render(introP, curScroll);
-    requestAnimationFrame(loop);
     if (dreamEye) {
-      const eyeFade = ease(seg(scrollP, 0.55, 0.98));
+      const eyeFade = ease(seg(curScroll, 0.55, 0.98));
       dreamEye.style.opacity = `${1 - eyeFade}`;
     }
+
+    render(introP, curScroll);
+    requestAnimationFrame(loop);
   }
 
   addEventListener('scroll', readScroll, {passive:true});

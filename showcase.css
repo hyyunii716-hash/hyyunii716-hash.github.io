@@ -13,13 +13,10 @@ html.js-fx .sc__title .fx-char {
 }
 html.js-fx .sc__title.is-in .fx-char { opacity: 1; translate: 0 0; }
 
-.sc-open { margin-top: 18px; }
 .sc__burst { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
 .sc__burst-glow { position: absolute; inset: -20%; opacity: 0; will-change: opacity, transform; }
 .sc__burst-icon { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; line-height: 1; opacity: 0; will-change: transform, opacity; }
 .sc__burst-name { position: absolute; left: 50%; top: 50%; margin: 0; white-space: nowrap; color: #fff; font-family: var(--font-en, inherit); font-size: clamp(22px, 3vw, 42px); opacity: 0; will-change: transform, opacity; }
-.apps-features-head { display: flex; justify-content: center; align-items: center; margin-top: clamp(8px, 2vw, 32px); min-height: calc(100vh - 200px); }   /* 比照其他區塊成為一個「停靠點」，提示文字停在畫面中間 */
-.apps-features-head .sc-open { margin-top: 0; }
 /* 介紹內容只在「全螢幕展示」裡看：頁面上的直排區塊收起來，不能往下滑看到。
    （區塊還留在頁面裡，因為展示是從這裡讀文字與圖示；要整個移除的話，展示程式要一起改） */
 .tools-features, .apps-features { position: absolute !important; left: -9999px !important; top: 0 !important; width: 1200px !important; height: 0 !important; overflow: hidden !important; visibility: hidden !important; pointer-events: none !important; margin: 0 !important; padding: 0 !important; }
@@ -119,10 +116,62 @@ html.sc-lock, html.sc-lock body { overflow: hidden; }
 /* 網頁程式：詳細頁不放下方大圖（往下滑不會再出現一張圖） */
 .sc--apps .sc__big { display: none; }
 
-/* 「下滑展開內容」提示文字：純文字，不是按鈕。原地閃爍、不跟著滑鼠；往下滑進入展示、往上滑離開 */
-.sc-hint { margin: 18px 0 0; padding: 12px 18px; font-size: 14px; letter-spacing: .12em; color: rgb(255 255 255 / .7); display: inline-flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; user-select: none; -webkit-user-select: none; cursor: default; animation: sc-hint-blink 1.8s ease-in-out infinite; }
-@keyframes sc-hint-blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .sc-hint { animation: none; opacity: .7; } }
 
-/* 網頁工具：「更多功能」＋提示文字獨佔一整個畫面、置中，跟頁尾之間留出空間（跟網頁程式一樣） */
-.tools-more { min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; }
+/* ===== 嵌在頁面裡的滿版輪播（往下滑就是這個畫面）===== */
+.sc--inline { position: relative; inset: auto; z-index: 1; width: 100%; height: calc(100vh - var(--sc-top, 88px)); height: calc(100svh - var(--sc-top, 88px)); min-height: 520px; opacity: 1; visibility: visible; pointer-events: auto; transition: none; background: transparent; }
+.sc--inline .sc__brand, .sc--inline .sc__label { display: none; }
+.sc--inline .sc__bar { justify-content: flex-end; padding-top: 18px; }
+.sc--inline .sc__panel { min-height: 100%; padding-top: 90px; padding-bottom: 90px; }
+.sc--inline .sc__big { display: none; }                                   /* 詳細頁只放文字，不放大圖 */
+.sc--inline .sc__media .tools-media > * { display: none !important; }      /* 圖示（框線、圓圈、EDU 章）拿掉，只留底色與標題文字 */
+.sc--inline .sc__arrow { top: calc(50% + 14px); }
+@media (max-width: 760px) { .sc--inline { min-height: 480px; } .sc--inline .sc__panel { padding-top: 84px; padding-bottom: 100px; } }
+.sc--inline .sc__inner { position: absolute; inset: 0; overflow: hidden; }
+
+.sc__head { position: absolute; z-index: 2; left: 0; right: 0; top: clamp(70px, 11vh, 120px); pointer-events: none; transition: opacity .5s var(--sc-ease); }
+.sc.is-detail .sc__head { opacity: 0; }
+
+/* 詳細頁：對應軟體的 LOGO（Ai / Ps / Id / Lr），與標題＋說明文字同一列、垂直置中對齊 */
+.sc__d-row { display: flex; align-items: center; justify-content: space-between; gap: clamp(24px, 5vw, 80px); }
+.sc__d-copy { flex: 1 1 auto; min-width: 0; }
+.sc__logo { display: none; }
+.sc--apps .sc__logo { display: grid; flex: none; }
+.sc__logo span { display: grid; place-items: center; width: clamp(52px, 5vw, 76px); aspect-ratio: 1; border-radius: 8.64%; font-weight: 700; font-size: clamp(36px, 3.5vw, 52px); letter-spacing: -.04em; line-height: 1; padding: 0 .04em .06em 0; }
+@media (max-width: 760px) { .sc__d-row { gap: 16px; align-items: flex-start; } .sc__logo span { width: 44px; font-size: 30px; } }
+.sc__d-copy { display: flex; flex-direction: column; gap: clamp(18px, 3vh, 34px); }
+
+/* 點進內文的轉場（參考 resn）：圖卡先歪斜、縮小、淡出 → 背景沉下去 → 標題從左滑入、說明文字由上往下浮現 → 資訊列與按鈕、LOGO 最後出現 */
+.sc__media-box { transition: transform .9s var(--sc-ease); transform-origin: 50% 50%; }
+.sc.is-detail .sc__media-box { transform: translate(-50%, -50%) perspective(900px) rotateY(-16deg) rotateX(9deg) skewY(-3.5deg) scale(.66); }
+.sc.is-detail .sc__stage { transform: none; transition: opacity .75s cubic-bezier(.5, 0, .75, .4) .08s; }
+.sc:not(.is-detail) .sc__stage { transition: opacity .6s var(--sc-ease) .25s; }
+.sc.is-detail .sc__detail { transition: opacity .45s var(--sc-ease) .55s; }
+.sc__d-title, .sc__d-text { opacity: 0; }
+.sc__d-title { transform: translateX(-44px); transition: opacity .8s var(--sc-ease), transform 1s var(--sc-ease); }
+.sc__d-text { transform: translateY(26px); clip-path: inset(0 0 100% 0); transition: opacity .8s var(--sc-ease), transform 1s var(--sc-ease), clip-path 1.1s var(--sc-ease); }
+.sc.is-detail .sc__d-title { opacity: 1; transform: none; transition-delay: .72s; }
+.sc.is-detail .sc__d-text { opacity: 1; transform: none; clip-path: inset(0 0 -20% 0); transition-delay: .9s; }
+.sc.is-detail .sc__panel > :nth-child(1) { transition-delay: .55s; }
+.sc.is-detail .sc__panel > :nth-child(2) { transition-delay: 1.1s; }
+.sc__detail.is-swap .sc__d-title, .sc__detail.is-swap .sc__d-text { opacity: 0; transition-duration: .22s; transition-delay: 0s; }
+.sc--apps .sc__logo { opacity: 0; transform: scale(.82); transition: opacity .8s var(--sc-ease), transform 1s var(--sc-ease); }
+.sc--apps.is-detail .sc__logo { opacity: 1; transform: none; transition-delay: 1s; }
+.sc--apps .sc__detail.is-swap .sc__logo { opacity: 0; transition-delay: 0s; transition-duration: .22s; }
+@media (prefers-reduced-motion: reduce) { .sc__media-box, .sc__d-title, .sc__d-text, .sc--apps .sc__logo { transition-duration: .01s !important; transition-delay: 0s !important; } }
+
+/* 微調：圖卡變暗、標題由中間「滑」到左邊接手，不留空白斷層（更貼近參考影片） */
+.sc__media { transition: filter .9s var(--sc-ease); }
+.sc.is-detail .sc__media { filter: brightness(.38) saturate(.8); }
+.sc.is-detail .sc__stage { transition: opacity .75s cubic-bezier(.4, 0, .6, 1) .18s; }
+.sc.is-detail .sc__detail { transition: opacity .35s var(--sc-ease) .28s; }
+.sc__d-title { transform: translateX(min(24vw, 340px)); transition: opacity .7s var(--sc-ease), transform 1.2s cubic-bezier(.22, 1, .36, 1); }
+.sc.is-detail .sc__d-title { transition-delay: .34s; }
+.sc__d-text { transform: translateY(34px); }
+.sc.is-detail .sc__d-text { transition-delay: .62s; }
+.sc.is-detail .sc__panel > :nth-child(1) { transition-delay: .28s; }
+.sc.is-detail .sc__panel > :nth-child(2) { transition-delay: .9s; }
+.sc--apps.is-detail .sc__logo { transition-delay: .85s; }
+
+/* LOGO 與標題頂端對齊（右緣仍對齊「前往」按鈕） */
+.sc__d-row { align-items: flex-start; }
+.sc--apps .sc__logo { margin-top: .6vw; }

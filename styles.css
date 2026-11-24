@@ -560,7 +560,13 @@ svg { display: block; }
 
 /* ---------- Animated full-screen cover ---------- */
 :root { --cover-nav-h: 88px; --cover-pad-x: 8vw; }
-body.cover-intro-lock, body.intro-lock { overflow: hidden; height: 100vh; touch-action: pan-y; }
+body.cover-intro-lock, body.intro-lock {
+  overflow-x: clip;
+  overflow-y: auto;
+  min-height: 100vh;
+  height: auto;
+  touch-action: pan-y;
+}
 .cover-track { height: 210vh; position: relative; }
 .cover-stage {
   position: sticky;
@@ -839,4 +845,112 @@ section.qa {
 /* 只保留「投資者關係」（.u）的底線 */
 .site-footer .footer-col a.u {
   text-decoration: underline;
+}
+
+.abandon-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(6, 6, 10, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+}
+
+.abandon-modal-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.abandon-modal {
+  width: min(440px, 100%);
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid rgba(34, 0, 136, 0.65);
+  background: rgba(16, 15, 22, 0.94);
+  color: #ffffff;
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.65),
+    0 0 28px rgba(34, 0, 136, 0.45);
+  transform: translateY(10px) scale(0.97);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.abandon-modal-backdrop.is-open .abandon-modal {
+  transform: translateY(0) scale(1);
+}
+
+.abandon-modal__eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.abandon-modal__title {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffffff;
+}
+
+.abandon-modal__body {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.abandon-modal__repeat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 22px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 0, 136, 0.5);
+  background: rgba(34, 0, 136, 0.16);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.abandon-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.abandon-modal__btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: #ffffff;
+  font-family: "Inter", "Noto Sans TC", sans-serif;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.abandon-modal__btn:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.abandon-modal__btn--primary {
+  border-color: #220088;
+  background: #220088;
+}
+
+.abandon-modal__btn--primary:hover {
+  background: #3300cc;
+  border-color: #3300cc;
 }

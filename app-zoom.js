@@ -180,7 +180,13 @@
     if (!card || !link) return;
     var href = link.getAttribute('href') || '';
     var external = /^https?:\/\//i.test(href) && link.target === '_blank';   // Illustrator：外部連結，新分頁開啟
-    if (!external && (link.target === '_blank' || !/^[\w.-]+\.html?$/i.test(href))) return;
+    if (!external && link.target === '_blank') {
+      if (hit && hit === link) return;
+      e.preventDefault();
+      window.open(link.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    if (!external && !/^[\w.-]+\.html?$/i.test(href)) return;
     if (hit && hit !== link) return;
     e.preventDefault();
     if (leave(card, link, external) === false) { if (external) window.open(link.href, '_blank'); else location.href = link.href; }
