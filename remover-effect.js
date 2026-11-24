@@ -2,6 +2,13 @@
    Abandon — 去背結果頁互動與細小單色粒子撞擊消散（remover-effect.js）
    ========================================================= */
 (() => {
+  // ===== 速度與手感快速調整區（想更快/更慢改這裡） =====
+  const BOUNCE_BASE_VX = 9.5; // 圖片水平基礎速度（原本約 2.6）
+  const BOUNCE_BASE_VY = 7.8; // 圖片垂直基礎速度（原本約 2.0）
+  const BOUNCE_RANDOM_JITTER = 3.5; // 每次觸發的隨機速度浮動幅度
+  const COLLISION_KEYWORDS = ["惡魔低語", "耳機客服"]; // 圖片碰到時會直接消散的目標文字
+  // =======================================================
+
   const fileInput = document.querySelector("[data-file-input]");
   const previewBtn = document.querySelector("[data-result-preview]");
   const previewImg = document.querySelector("[data-remover-img]");
@@ -22,6 +29,7 @@
   let particleRafId = null;
   let vanishTimers = [];
   let restoreTimerId = null;
+  let collisionTargets = [];
   const particles = [];
 
   function resizeCanvas() {
@@ -103,8 +111,8 @@
       const dx = x - cx;
       const dy = y - cy;
       const dist = Math.hypot(dx, dy) || 1;
-      const speed = 0.75 + Math.random() * 1.5;
-      const radius = 0.75 + Math.random() * 1.2;
+      const speed = 10 + Math.random() * 10;
+      const radius = 0.75 + Math.random() * 1;
 
       pushTinyMonochromeParticle(
         x,
@@ -349,24 +357,82 @@
   });
   handleDownloadSectionVisible();
 
+  // 收集頁面中需要被撞擊消散的目標（「惡魔低語」、「耳機客服」與 [data-thanos-item]）
+  function collectCollisionTargets() {
+    const targetSet = new Set(document.querySelectorAll("[data-thanos-item]"));
+    const candidates = document.querySelectorAll("a, button, li, [role='button'], [data-nav-item], nav *, header *");
+
+    candidates.forEach((el) => {
+      if (el === previewBtn || previewBtn.contains(el) || el.contains(previewBtn)) return;
+      const text = (el.textContent || "").trim();
+      if (!text || text.length > 24) return;
+      if (COLLISION_KEYWORDS.some((kw) => text.includes(kw))) {
+        // 優先取按鈕或連結外層，避免只讓裡面的 span 消失而外框還在
+        const clickable = el.closest("a, button, li, [role='button']") || el;
+        if (!clickable.contains(previewBtn)) {
+          targetSet.add(clickable);
+        }
+      }
+    });
+
+    return Array.from(targetSet);
+  }
+
+  // 讓單一元件立刻消散並噴出粒子
+  function dissolveTargetElement(el) {
+    if (!el || el.classList.contains("thanos-gone")) return;
+    el.classList.remove("is-restored");
+    el.classList.add("thanos-gone");
+    el.style.pointerEvents = "none";
+    spawnParticlesFromElement(el, 64);
+  }
+
+  // 檢查飛行圖片是否與目標元件重疊碰撞
+  function checkImageCollisions(imgLeft, imgTop, imgRight, imgBottom) {
+    if (!collisionTargets.length) return;
+    for (let i = collisionTargets.length - 1; i >= 0; i--) {
+      const el = collisionTargets[i];
+      if (!el || el.classList.contains("thanos-gone")) {
+        collisionTargets.splice(i, 1);
+        continue;
+      }
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) continue;
+
+      const isHit =
+        imgLeft < r.right &&
+        imgRight > r.left &&
+        imgTop < r.bottom &&
+        imgBottom > r.top;
+
+      if (isHit) {
+        dissolveTargetElement(el);
+        collisionTargets.splice(i, 1);
+      }
+    }
+  }
+
   // 精準銜接原本卡片位置與尺寸，並以較快的速度反彈亂飄
   function startBouncing() {
     const rect = previewBtn.getBoundingClientRect();
     const currentW = Math.round(rect.width) || previewBtn.offsetWidth || 240;
     const currentH = Math.round(rect.height) || previewBtn.offsetHeight || 180;
 
-    // 停掉 idle 呼吸動畫並鎖定當下精準寬高，避免切換 fixed 時跳動
+    // 停掉 idle 呼吸動畫與 CSS transition 干擾，避免位移變慢或卡頓
     previewBtn.style.animation = "none";
+    previewBtn.style.transition = "none";
     previewBtn.style.width = `${currentW}px`;
     previewBtn.style.height = `${currentH}px`;
     previewBtn.style.maxWidth = "none";
     previewBtn.style.maxHeight = "none";
     previewBtn.classList.add("is-bouncing");
 
+    collisionTargets = collectCollisionTargets();
+
     let x = Math.max(0, Math.min(window.innerWidth - currentW, rect.left));
     let y = Math.max(0, Math.min(window.innerHeight - currentH, rect.top));
-    let vx = (Math.random() > 0.5 ? 1 : -1) * 2.6;
-    let vy = (Math.random() > 0.5 ? 1 : -1) * 2.0;
+    let vx = (Math.random() > 0.5 ? 1 : -1) * (BOUNCE_BASE_VX + Math.random() * BOUNCE_RANDOM_JITTER);
+    let vy = (Math.random() > 0.5 ? 1 : -1) * (BOUNCE_BASE_VY + Math.random() * BOUNCE_RANDOM_JITTER);
 
     previewBtn.style.transform = `translate3d(${x}px, ${y}px, 0)`;
 
@@ -396,6 +462,7 @@
       }
 
       previewBtn.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      checkImageCollisions(x, y, x + w, y + h);
       bounceRafId = requestAnimationFrame(tick);
     };
 
@@ -413,9 +480,7 @@
 
     items.forEach((el, i) => {
       const tid = setTimeout(() => {
-        el.classList.remove("is-restored");
-        el.classList.add("thanos-gone");
-        spawnParticlesFromElement(el, 64);
+        dissolveTargetElement(el);
       }, Math.round(i * stepMs));
       vanishTimers.push(tid);
     });
@@ -424,6 +489,7 @@
       if (backBtn) {
         backBtn.classList.remove("thanos-gone");
         backBtn.classList.add("is-restored");
+        backBtn.style.pointerEvents = "";
       }
     }, 10000);
   }
