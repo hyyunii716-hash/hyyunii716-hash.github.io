@@ -689,3 +689,4 @@
 /* 標題：Abandon 字標（點陣特效）獨立一行，中文在下方 */
 .title-logo { display:block; width:clamp(260px,40vw,760px); max-width:100%; height:auto; margin:0 auto; }
 .title-sub { display:block; margin-top:clamp(14px,2vw,30px); font-size: var(--fs-h2); font-weight: 700; letter-spacing:.01em; line-height:1.2; }
+
