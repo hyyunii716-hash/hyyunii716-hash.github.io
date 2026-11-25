@@ -77,6 +77,29 @@ button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 .back{position:fixed;left:16px;bottom:16px;z-index:5;min-height:44px;padding:8px 20px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--color-stroke);border-radius:27px;background:rgb(12 12 12 / .9);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);color:var(--color-text);font-size:14px;text-decoration:none;box-shadow:0 0 5px rgba(255,255,255,.2);transition:border-color .25s,box-shadow .25s,transform .25s var(--ease)}
 .back:is(:hover,:focus-visible){border-color:var(--color-text-muted);box-shadow:0 0 10px rgb(255 255 255 / .3);outline:none}
 .back:active{transform:scale(.98)}
+/* ===== 星光大道 → 噓聲 → 000 ===== */
+#stageFlash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:20}
+#booTxt{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.8);z-index:15;pointer-events:none;font:900 clamp(56px,12vw,150px)/1 var(--font-zh);letter-spacing:.08em;color:#fff;opacity:0;text-shadow:0 0 30px rgba(0,0,0,.9),0 0 2px #000;white-space:nowrap;transition:opacity .25s,transform .9s var(--ease)}
+#booTxt.on{opacity:.92;transform:translate(-50%,-50%) scale(1.06)}
+#booTxt.on span{display:inline-block;animation:booWob .5s ease-in-out infinite alternate}
+#booTxt.on span:nth-child(2n){animation-delay:.12s}
+@keyframes booWob{from{transform:translateY(-6px) rotate(-3deg)}to{transform:translateY(6px) rotate(3deg)}}
+#verdict{top:50%;left:50%;transform:translate(-50%,-50%);z-index:12;width:min(400px,calc(100vw - 32px));text-align:center;padding:26px 22px 22px}
+#verdict .vk{font:600 11px/1.4 var(--font-en);letter-spacing:.18em;color:var(--color-text-muted);margin:0 0 6px}
+#verdict h2{font-size:20px;line-height:1.35;margin:0 0 18px}
+.reels{display:flex;justify-content:center;gap:10px}
+.reels span{width:84px;height:110px;display:grid;place-items:center;border:1px solid var(--color-stroke);border-radius:16px;background:#000;font:800 72px/1 var(--font-en);font-variant-numeric:tabular-nums;color:#fff;box-shadow:inset 0 0 18px rgba(255,255,255,.08)}
+.reels.rolling span{animation:reelRoll .09s linear infinite;filter:blur(1.5px);color:#ffe27a;text-shadow:0 0 18px #ffb800}
+.reels.rolling span:nth-child(2){animation-duration:.07s}.reels.rolling span:nth-child(3){animation-duration:.11s}
+@keyframes reelRoll{0%{transform:translateY(-10px)}50%{transform:translateY(10px)}100%{transform:translateY(-10px)}}
+.reels.tease span{color:#ffe27a;border-color:#ffb800;box-shadow:0 0 26px rgba(255,184,0,.6)}
+.reels.slam{animation:slam .45s cubic-bezier(.3,1.6,.5,1)}
+.reels.slam span{color:var(--warn);border-color:var(--warn);box-shadow:0 0 22px rgb(255 107 107 / .45)}
+@keyframes slam{0%{transform:translateY(-26px) scale(1.12)}40%{transform:translateY(6px) scale(.97)}60%{transform:translateX(-8px)}75%{transform:translateX(8px)}90%{transform:translateX(-4px)}100%{transform:none}}
+#verdict .vu{font-size:12px;color:var(--color-text-muted);margin:10px 0 0;font-family:var(--font-en)}
+#verdict .vm{min-height:3em;margin:14px 0 0;font-size:14px;line-height:1.5}
+#verdict .row{justify-content:center}
+@media(prefers-reduced-motion:reduce){.reels.rolling span,.reels.slam,#booTxt.on span{animation:none}}
 @media(max-width:820px){
   #lights{top:auto;bottom:0;right:0;left:0;width:auto;border-radius:var(--radius-card) var(--radius-card) 0 0}
   #cap{width:min(270px,calc(100vw - 32px))}
@@ -111,6 +134,8 @@ button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
       <button id="camBtn" type="button" disabled>暫停鏡頭</button>
       <button id="skipBtn" type="button" disabled>跳過此角度</button>
       <button id="finishBtn" type="button" disabled>用現有角度生成</button>
+      <button id="scoreBtn" type="button" disabled>看分數</button>
+      <button id="sfxBtn" type="button" aria-pressed="true">🔊 音效開</button>
     </div>
   </div>
 </section>
@@ -127,6 +152,19 @@ button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
   </div>
 </section>
 <div class="hint">拖曳旋轉視角・滾輪縮放</div>
+<div id="stageFlash" aria-hidden="true"></div>
+<div id="booTxt" aria-hidden="true"><span>噓</span><span>～</span><span>～</span><span>～</span></div>
+<section class="panel" id="verdict" role="dialog" aria-label="設計師適性分數" aria-live="polite" hidden>
+  <p class="vk">ABANDON DESIGNER FIT TEST</p>
+  <h2>你有多適合成為設計師？</h2>
+  <div class="reels" id="reels"><span>-</span><span>-</span><span>-</span></div>
+  <p class="vu">/ 999 分</p>
+  <p class="vm" id="vMsg"></p>
+  <div class="row">
+    <button id="vClose" type="button">看看我的臉</button>
+    <button id="vAgain" type="button">重新掃描</button>
+  </div>
+</section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script type="module">
@@ -342,9 +380,12 @@ buildHead({});
 
 /* ================= orbit ================= */
 let rotY=.35,rotX=.12,dist=7.2,drag=null,pinch=null;
+// 開場運鏡：從房間外的遠處緩慢拉近到正常視角（拖曳或滾輪就會中斷）
+let intro=reduce0()?null:{dur:7,from:{d:26,y:1.25,x:.32},to:{d:7.2,y:.35,x:.12}};
+function reduce0(){return matchMedia('(prefers-reduced-motion: reduce)').matches}
 const look=new THREE.Vector3(0,HEAD_Y-.2,0);
 const pts=new Map();
-host.addEventListener('pointerdown',e=>{host.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY]});
+host.addEventListener('pointerdown',e=>{intro=null;host.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY]});
 host.addEventListener('pointermove',e=>{
   if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);
   if(pts.size===2){const[a,b]=[...pts.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch)dist=Math.max(3,Math.min(7.6,dist*pinch/d));pinch=d;return}
@@ -352,21 +393,27 @@ host.addEventListener('pointermove',e=>{
 });
 const up=e=>{pts.delete(e.pointerId);pinch=null;drag=pts.size?[...pts.values()][0]:null};
 host.addEventListener('pointerup',up);host.addEventListener('pointercancel',up);
-host.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(3,Math.min(7.6,dist*(1+e.deltaY*.001)))},{passive:false});
+host.addEventListener('wheel',e=>{e.preventDefault();intro=null;dist=Math.max(3,Math.min(7.6,dist*(1+e.deltaY*.001)))},{passive:false});
 $('capMin').addEventListener('click',()=>{const m=$('cap').classList.toggle('min');$('capMin').textContent=m?'展開':'收合'});
 function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
 new ResizeObserver(resize).observe(host);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const clock=new THREE.Clock();
 const pose={yaw:0,pitch:0,roll:0},poseT={yaw:0,pitch:0,roll:0};
+let fxTick=null;   // 星光大道特效（在下方「show」區塊設定）
 function render(){
   const t=clock.getElapsedTime();
+  if(intro){
+    const u=Math.min(1,t/intro.dur),e=1-Math.pow(1-u,3),f=intro.from,o=intro.to;   // ease-out：一開始快、最後慢慢停下
+    dist=f.d+(o.d-f.d)*e;rotY=f.y+(o.y-f.y)*e;rotX=f.x+(o.x-f.x)*e;if(u>=1)intro=null;
+  }
   const d=dist*Math.cos(rotX);
-  cam.position.set(Math.sin(rotY)*d,Math.max(.4,Math.min(WALL_H-.3,look.y+dist*Math.sin(rotX))),Math.cos(rotY)*d);cam.lookAt(look);
+  cam.position.set(Math.sin(rotY)*d,Math.max(.4,Math.min(intro?9:WALL_H-.3,look.y+dist*Math.sin(rotX))),Math.cos(rotY)*d);cam.lookAt(look);
   for(const k in pose)pose[k]+=(poseT[k]-pose[k])*.18;
   const bob=reduce?0:Math.sin(t*1.3)*.08;
   float.position.y=HEAD_Y+bob;target.position.y=HEAD_Y+bob;
   float.rotation.set(pose.pitch,pose.yaw+(reduce?0:Math.sin(t*.7)*.04),pose.roll,'YXZ');
+  if(fxTick)try{fxTick(t)}catch(e){console.error(e);fxTick=null}
   renderer.render(scene,cam);requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
@@ -518,7 +565,7 @@ const frame=document.createElement('canvas'),fctx=frame.getContext('2d',{willRea
 const prev=$('preview'),pctx=prev.getContext('2d');
 let face=null,seg=null,stream=null,running=false;
 let state='loading',progress=0,lastT=0,lastCenter=null,lostAt=0,baseRatio=.45,cool=0;
-let scanIdx=0,caps=[],front=null;
+let scanIdx=0,caps=[],front=null,facePresent=false;
 // yaw 為正＝「你的左邊」（畫面鏡像後在左側）；pitch 為正＝低頭
 const STAGES=[
   {id:'front',name:'正面',tip:'正面看鏡頭、頭擺正，保持不動',yaw:[-9,9],pit:[-30,30]},
@@ -560,7 +607,7 @@ async function startCam(){
 }
 function stopCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;running=false;$('camBtn').textContent='開啟鏡頭'}
 $('camBtn').addEventListener('click',()=>{running?stopCam():startCam()});
-function restart(){state='scan';scanIdx=0;caps=[];front=null;progress=0;baseRatio=.45;poseT.yaw=poseT.pitch=poseT.roll=0;refreshStages();setStatus('重新掃描：請先正面看鏡頭','busy')}
+function restart(){show.reset();state='scan';scanIdx=0;caps=[];front=null;progress=0;baseRatio=.45;poseT.yaw=poseT.pitch=poseT.roll=0;refreshStages();setStatus('重新掃描：請先正面看鏡頭','busy')}
 $('againBtn').addEventListener('click',restart);
 $('skipBtn').addEventListener('click',()=>{if(state!=='scan'||scanIdx===0)return;scanIdx++;progress=0;if(scanIdx>=STAGES.length)finishScan();else refreshStages()});
 $('finishBtn').addEventListener('click',()=>{if(state==='scan'&&scanIdx>0)finishScan()});
@@ -593,11 +640,13 @@ function loop(now){
     pctx.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<468;i+=3)pctx.fillRect(lm[i].x*W-1,lm[i].y*H-1,2,2);
     // 小圓盤：白點＝你現在頭的方向，藍框＝這一步要到的位置（畫面是鏡像，與鏡子一致）
     dialD.style.left=(50-clamp(yawDeg,-75,75)/75*42)+'%';dialD.style.top=(50+clamp(pitDeg,-55,55)/55*42)+'%';dialD.style.opacity=1;
-    if(state==='done'){poseT.yaw=clamp(m.yawN*1.1,-.7,.7);poseT.roll=-m.roll;poseT.pitch=clamp((m.ratio-baseRatio)*1.6,-.35,.35);lostAt=0}
+    // 掃描中黑色剪影也會跟著你轉頭（被掃描的那一塊會轉向前方的攝影機）
+    if(state==='done'||state==='scan'||state==='show'){poseT.yaw=clamp(m.yawN*1.1,-.7,.7);poseT.roll=-m.roll;poseT.pitch=clamp((m.ratio-baseRatio)*1.6,-.35,.35);lostAt=0}
   }else{
     lastCenter=null;dialD.style.opacity=.2;
-    if(state==='done'){if(!lostAt)lostAt=now;else if(now-lostAt>2500){restart()}}
+    if(state==='done'){if(!lostAt)lostAt=now;else if(now-lostAt>2500&&$('verdict').hidden){restart()}}
   }
+  facePresent=!!lm;
   if(state==='scan'){
     const st=STAGES[scanIdx];
     // 正面這一步額外用特徵點的深度檢查「頭有沒有偏」（只看大小，不分左右），偏超過約 8° 就不拍，避免正面照歪掉造成臉變形
@@ -646,6 +695,7 @@ function captureStage(lm,W,H,m,yawDeg,pitDeg,now){
   if(st.id==='up'&&bd>-5)return bad('再把下巴抬高一點');
   if(st.id==='down'&&bd<5)return bad('再低頭一點');
   const fl=$('flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='opacity .5s';fl.style.opacity=0});
+  show.onCapture(st.id);
   const sg=segmentFrame(cv,W,H);
   const cap={fit,W,H,img,hairS:sg.hairS,faceS:sg.faceS,lm,id:st.id};
   if(scanIdx===0){
@@ -703,14 +753,469 @@ function doBuild(){
     for(let k=0;k<W*H;k++){const t=Math.max(0,Math.min(1,(bl[k]-.3)/.4));id.data[k*4+3]=255*t*t*(3-2*t)}
     sc.putImageData(id,0,0);snapTex.needsUpdate=true;
   }
+  faceM.color.set(0x000000);                       // 先以全黑剪影登場，揭曉那一刻才顯影
   buildHead({face:faceGrid(fm),onlyFace:true});
-  state='done';lostAt=0;refreshStages();
-  const side=Math.max(fwid,fhei)*1.1;
-  const ft=$('faceThumb').getContext('2d');ft.clearRect(0,0,96,96);ft.drawImage(front.cv,(fx0+fx1)/2-side/2,(fy0+fy1)/2-side/2,side,side,0,0,96,96);
+  state='show';lostAt=0;refreshStages();
   $('againBtn').disabled=false;
-  const got=caps.length;
-  setStatus(got>=STAGES.length?'臉部已生成（'+got+' 個角度）！轉頭時會跟著動；離開鏡頭再回來會重新掃描':'臉部已生成（只用了 '+got+' 個角度）；可按「重新生成」補拍','on');
+  const got=caps.length,side=Math.max(fwid,fhei)*1.1;
+  show.run(()=>{                                   // 鎂光燈 → 顯影 → 噓聲 → 000，結束後回到原本的「完成」狀態
+    state='done';lostAt=0;refreshStages();
+    const ft=$('faceThumb').getContext('2d');ft.clearRect(0,0,96,96);ft.drawImage(front.cv,(fx0+fx1)/2-side/2,(fy0+fy1)/2-side/2,side,side,0,0,96,96);
+    setStatus(got>=STAGES.length?'臉部已生成（'+got+' 個角度）！轉頭時會跟著動；可以切換燈光，或按「重新生成」再挑戰一次':'臉部已生成（只用了 '+got+' 個角度）；可按「重新生成」補拍','on');
+  });
 }
+
+/* ================= show：星光大道鎂光燈 → 完整露臉變噓聲 → 老虎機急停 000 ================= */
+/* ---- 音效：預設開啟。
+   歡呼聲、噓聲：如果 audio/ 資料夾裡有 cheer.mp3、boo.mp3（真實錄音），會自動改用錄音；沒有的話用 Web Audio 即時合成
+   （一群人的「woo／yeah／ah」人聲＋多層拍手＋口哨＋體育館殘響，噓聲是十幾個男女聲的「Boo～」）。
+   瀏覽器若擋下自動播放，會在使用者第一次點畫面／按鍵時自動出聲；不支援時全部安靜略過，不會報錯。 ---- */
+const sfx=(()=>{
+  let shutBus=null,ctx=null,master=null,rev=null,noise=null,pink=null,muted=false,unlockedAt=0;
+  const btn=$('sfxBtn'),buf={},SAMPLES={cheer:['audio/cheer.mp3','audio/cheer.wav'],boo:['audio/boo.mp3','audio/boo.wav'],cricket:['audio/cricket.mp3','audio/cricket.wav']};
+  function label(){
+    if(!ctx){btn.textContent='此瀏覽器不支援音效';btn.disabled=true;return}
+    btn.setAttribute('aria-pressed',String(!muted));
+    btn.textContent=muted?'🔇 音效關':ctx.state==='running'?'🔊 音效開':'🔊 點畫面任一處出聲';
+  }
+  (function init(){
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    try{
+      ctx=new AC();
+      master=ctx.createGain();master.gain.value=1;
+      const comp=ctx.createDynamicsCompressor();comp.threshold.value=-18;comp.knee.value=8;comp.ratio.value=8;comp.attack.value=.003;comp.release.value=.25;
+      const makeup=ctx.createGain();makeup.gain.value=1.8;                 // 壓縮後再整體放大＝更大聲但不爆音
+      master.connect(comp).connect(makeup).connect(ctx.destination);
+      const len=ctx.sampleRate*3|0;
+      noise=ctx.createBuffer(1,len,ctx.sampleRate);const w=noise.getChannelData(0);for(let i=0;i<len;i++)w[i]=Math.random()*2-1;
+      pink=ctx.createBuffer(2,len,ctx.sampleRate);
+      for(let ch=0;ch<2;ch++){const d=pink.getChannelData(ch);let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+        for(let i=0;i<len;i++){const x=Math.random()*2-1;b0=.99886*b0+x*.0555179;b1=.99332*b1+x*.0750759;b2=.969*b2+x*.153852;b3=.8665*b3+x*.3104856;b4=.55*b4+x*.5329522;b5=-.7616*b5-x*.016898;d[i]=(b0+b1+b2+b3+b4+b5+b6+x*.5362)*.11;b6=x*.115926}}
+      // 體育館殘響：程式產生的立體聲脈衝響應
+      rev=ctx.createConvolver();const il=ctx.sampleRate*2.6|0,ir=ctx.createBuffer(2,il,ctx.sampleRate);
+      for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch),pre=ctx.sampleRate*.015;for(let i=0;i<il;i++)d[i]=i<pre?0:(Math.random()*2-1)*Math.pow(1-i/il,3.2)}
+      rev.buffer=ir;const rg=ctx.createGain();rg.gain.value=.55;rev.connect(rg).connect(master);
+      ctx.onstatechange=()=>{if(ctx.state==='running')unlockedAt=performance.now();label()};
+      for(const k in SAMPLES)(async()=>{for(const url of SAMPLES[k]){try{const r=await fetch(url);if(!r.ok)continue;buf[k]=await ctx.decodeAudioData(await r.arrayBuffer());return}catch(e){}}})();
+      shutBus=ctx.createGain();shutBus.gain.value=1;shutBus.connect(master);   // 快門聲專用音量（歡呼時壓小）
+      ctx.resume().catch(()=>{});            // 預設開啟：直接嘗試出聲（從網站其他頁點進來時，多數瀏覽器會允許）
+    }catch(e){ctx=null;console.warn('Web Audio 無法使用',e)}
+  })();
+  function unlock(){if(ctx&&ctx.state!=='running')ctx.resume().then(label).catch(()=>{})}
+  const ok=()=>!!ctx&&ctx.state==='running'&&!muted;
+  const rr=(a,b)=>a+Math.random()*(b-a);
+  // 輸出：左右聲像＋乾聲＋殘響
+  function out(node,pan=0,wet=.2,dest=master){
+    let n=node;if(ctx.createStereoPanner){const p=ctx.createStereoPanner();p.pan.value=pan;node.connect(p);n=p}
+    n.connect(dest);if(wet>0){const s=ctx.createGain();s.gain.value=wet;n.connect(s).connect(rev)}
+  }
+  function nz(t,dur,{type='bandpass',f=1000,q=1,g=.3,attack=.002,pan=0,wet=.15,dest=master}={}){
+    const s=ctx.createBufferSource();s.buffer=noise;
+    const fl=ctx.createBiquadFilter();fl.type=type;fl.frequency.value=f;fl.Q.value=q;
+    const gn=ctx.createGain();gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(g,t+attack);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    s.connect(fl).connect(gn);out(gn,pan,wet,dest);s.start(t,Math.random()*2.5);s.stop(t+dur+.05);
+  }
+  function tone(t,dur,{type='sine',f0=440,f1=f0,g=.2,attack=.005,pan=0,wet=.1,dest=master}={}){
+    const o=ctx.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);if(f1!==f0)o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);
+    const gn=ctx.createGain();gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(g,t+attack);gn.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    o.connect(gn);out(gn,pan,wet,dest);o.start(t);o.stop(t+dur+.05);
+  }
+  function shutter(vol=1,delay=0,size=1){   // 喀嚓：前簾＋後簾（＋閃光燈充電高音）。size 大＝大台相機，聲音較低沉
+    if(!ok())return;const t=ctx.currentTime+delay,p=(1.25-.35*size)*rr(.9,1.1),gap=.05+.05*size*Math.random(),pan=rr(-.9,.9);
+    const dest=shutBus;nz(t,.035,{type:'highpass',f:2600*p,g:.95*vol,pan,wet:.12,dest});tone(t,.05,{type:'square',f0:170*p,f1:70*p,g:.18*vol,pan,dest});
+    nz(t+gap,.055,{type:'highpass',f:1900*p,g:.8*vol,pan,wet:.12,dest});tone(t+gap,.04,{type:'square',f0:130*p,f1:60*p,g:.12*vol,pan,dest});
+    if(Math.random()<.4)tone(t+.02,.22,{f0:2400,f1:5200,g:.025*vol,pan,dest});
+  }
+  function shutterBurst(n,spread,big){for(let i=0;i<n;i++)shutter(rr(.6,1),Math.random()*spread,big?rr(.7,1.3):rr(.4,1.3))}
+
+  /* ---- 歡呼群眾 ---- */
+  let crowd=null,level=0,spawnIv=null;const voices=new Set();
+  function startCrowd(){
+    if(crowd||!ok())return;
+    const bus=ctx.createGain(),lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=14000;
+    bus.connect(lp).connect(master);const send=ctx.createGain();send.gain.value=.5;lp.connect(send).connect(rev);
+    const bed=ctx.createGain(),swell=ctx.createGain();bed.gain.value=0;bed.connect(swell).connect(bus);
+    const src=ctx.createBufferSource();src.loop=true;let sw=null;
+    if(buf.cheer){src.buffer=buf.cheer;src.connect(bed)}
+    else{                                       // 遠處一大片人聲的「轟～」：粉紅雜訊經過母音共振峰
+      src.buffer=pink;
+      for(const[f,q,g]of[[620,1.3,1],[1150,1.8,.7],[2600,2.6,.3]]){const b=ctx.createBiquadFilter();b.type='bandpass';b.frequency.value=f;b.Q.value=q;const gg=ctx.createGain();gg.gain.value=g*2.4;src.connect(b).connect(gg).connect(bed)}
+      sw=ctx.createOscillator();const sg=ctx.createGain();sw.frequency.value=.23;sg.gain.value=.25;sw.connect(sg).connect(swell.gain);sw.start();   // 慢慢起伏的聲浪
+    }
+    src.onended=()=>{try{sw&&sw.stop()}catch(e){}};
+    src.start(0,Math.random()*2);
+    crowd={bus,lp,bed,src,sample:!!buf.cheer};
+    spawnIv=setInterval(spawn,50);
+  }
+  function spawn(){
+    if(!crowd||!ok()||level<.04)return;const t=ctx.currentTime;
+    let n=level*level*(crowd.sample?.8:2.6);n=Math.floor(n)+(Math.random()<n%1?1:0);
+    for(let i=0;i<n;i++)clap(t+Math.random()*.05);
+    if(!crowd.sample&&Math.random()<level*.6)voice(t+Math.random()*.05);
+    if(Math.random()<level*.025)whistle(t);
+  }
+  function clap(t){                             // 真實拍手有 2～3 個很密的小尖峰
+    const s=ctx.createBufferSource();s.buffer=noise;
+    const b=ctx.createBiquadFilter();b.type='bandpass';b.frequency.value=rr(800,2000);b.Q.value=rr(.8,1.6);
+    const g=ctx.createGain(),pk=rr(.25,.6),dec=rr(.06,.12);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(pk,t+.002);g.gain.exponentialRampToValueAtTime(pk*.25,t+.008);
+    g.gain.linearRampToValueAtTime(pk*.85,t+.011);g.gain.exponentialRampToValueAtTime(.0005,t+dec);
+    s.connect(b).connect(g);out(g,rr(-.85,.85),0,crowd.bus);s.start(t,Math.random()*2.5);s.stop(t+dec+.05);
+  }
+  function voice(t){                            // 單一觀眾：「woo!」「yeah!」「ahh～」
+    const female=Math.random()<.5,base=female?rr(210,300):rr(110,170),kind=Math.random(),dur=rr(.35,1.1),sc=female?1.15:1;
+    const o=ctx.createOscillator();o.type='sawtooth';const f=o.frequency;
+    if(kind<.45){f.setValueAtTime(base*1.1,t);f.exponentialRampToValueAtTime(base*1.9,t+dur*.35);f.exponentialRampToValueAtTime(base*1.2,t+dur)}
+    else if(kind<.8){f.setValueAtTime(base*1.75,t);f.exponentialRampToValueAtTime(base*1.05,t+dur)}
+    else{f.setValueAtTime(base*1.4,t);f.linearRampToValueAtTime(base*1.28,t+dur)}
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=rr(5,8);lg.gain.value=base*.03;lfo.connect(lg).connect(f);
+    const V=kind<.45?[[340,700],[620,1050]]:kind<.8?[[480,2050],[760,1250]]:[[760,1220],[740,1180]];   // 共振峰 F1/F2：起始 → 結束
+    const sum=ctx.createGain();
+    [[V[0][0],V[1][0],8,1],[V[0][1],V[1][1],10,.6],[female?2900:2500,female?2900:2500,14,.25]].forEach(([a,b,q,amp])=>{
+      const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.setValueAtTime(a*sc,t);bp.frequency.linearRampToValueAtTime(b*sc,t+dur*.6);bp.Q.value=q;
+      const g=ctx.createGain();g.gain.value=amp*4;o.connect(bp).connect(g).connect(sum);
+    });
+    const br=ctx.createBufferSource();br.buffer=noise;const bf=ctx.createBiquadFilter();bf.type='bandpass';bf.frequency.value=V[1][1]*sc;bf.Q.value=2;const bg=ctx.createGain();bg.gain.value=.3;br.connect(bf).connect(bg).connect(sum);
+    const env=ctx.createGain(),pk=rr(.06,.14);env.gain.setValueAtTime(0,t);env.gain.linearRampToValueAtTime(pk,t+.04);env.gain.setValueAtTime(pk,t+dur*.6);env.gain.exponentialRampToValueAtTime(.0005,t+dur);
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=rr(2500,7500);   // 遠的觀眾比較悶
+    sum.connect(env).connect(lp);out(lp,rr(-.9,.9),0,crowd.bus);
+    const end=t+dur+.05;o.start(t);lfo.start(t);br.start(t,Math.random()*2.5);o.stop(end);lfo.stop(end);br.stop(end);
+    const v={f};voices.add(v);o.onended=()=>voices.delete(v);
+  }
+  function whistle(t){
+    const o=ctx.createOscillator(),g=ctx.createGain(),d=rr(.4,.8),b=rr(1900,2500);
+    o.frequency.setValueAtTime(b,t);o.frequency.exponentialRampToValueAtTime(b*1.35,t+d*.3);o.frequency.exponentialRampToValueAtTime(b*1.15,t+d);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07*level,t+.03);g.gain.setValueAtTime(.07*level,t+d*.7);g.gain.exponentialRampToValueAtTime(.0005,t+d);
+    o.connect(g);out(g,rr(-.8,.8),0,crowd.bus);o.start(t);o.stop(t+d+.05);
+  }
+  function setCrowd(v){level=v;if(v>.01)startCrowd();if(crowd)crowd.bed.gain.setTargetAtTime((crowd.sample?1.2:1)*v,ctx.currentTime,.25)}
+  function stopCrowd(){
+    level=0;clearInterval(spawnIv);spawnIv=null;if(!crowd)return;const c=crowd;crowd=null;
+    try{const t=ctx.currentTime;c.bus.gain.setTargetAtTime(0,t,.08);c.src.stop(t+.5)}catch(e){}
+    setTimeout(()=>{try{c.bus.disconnect()}catch(e){}},900);
+  }
+  /* ---- 歡呼只播一次：用 audio/cheer.mp3（沒有檔案時改用合成的 3 秒歡呼）。播放期間快門聲壓小，播完恢復 ---- */
+  let cheerSrc=null,cheerTimer=null;
+  function duck(on){if(shutBus)shutBus.gain.setTargetAtTime(on?.25:1,ctx.currentTime,on?.08:.3)}
+  function cheerOnce(){
+    if(!ok())return false;
+    clearTimeout(cheerTimer);duck(true);
+    if(buf.cheer){
+      const s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf.cheer;g.gain.value=1.5;s.connect(g);out(g,0,.15);
+      s.onended=()=>{if(cheerSrc&&cheerSrc.s===s){cheerSrc=null;duck(false)}};
+      cheerSrc={s,g};s.start();
+    }else{                                         // 備用：合成歡呼 3 秒
+      setCrowd(1);cheerTimer=setTimeout(()=>{stopCrowd();duck(false)},3000);
+    }
+    return true;
+  }
+  function stopCheer(){clearTimeout(cheerTimer);if(cheerSrc){try{cheerSrc.s.stop()}catch(e){}cheerSrc=null}if(ctx)duck(false)}
+  function tapeStop(){                          // 卡帶被按停：歡呼（如果還在播）一起「降速、變低、消失」
+    clearTimeout(cheerTimer);const had=!!cheerSrc||!!crowd;
+    if(cheerSrc&&ok()){const{s,g}=cheerSrc,t=ctx.currentTime;cheerSrc=null;
+      try{s.playbackRate.setValueAtTime(1,t);s.playbackRate.exponentialRampToValueAtTime(.05,t+.5);g.gain.setValueAtTime(g.gain.value,t);g.gain.linearRampToValueAtTime(0,t+.55);s.stop(t+.6)}catch(e){}}
+    if(ctx)duck(false);
+    if(had&&ok())tone(ctx.currentTime,.5,{type:'sawtooth',f0:420,f1:40,g:.09});
+    level=0;clearInterval(spawnIv);spawnIv=null;if(!crowd)return;const c=crowd;crowd=null;const t=ctx.currentTime,T=.5;
+    try{c.src.playbackRate.setValueAtTime(1,t);c.src.playbackRate.exponentialRampToValueAtTime(.05,t+T)}catch(e){}
+    for(const v of voices){try{const now=v.f.value;v.f.cancelScheduledValues(t);v.f.setValueAtTime(now,t);v.f.exponentialRampToValueAtTime(Math.max(20,now*.08),t+T)}catch(e){}}
+    try{c.lp.frequency.setValueAtTime(14000,t);c.lp.frequency.exponentialRampToValueAtTime(150,t+T);c.bus.gain.setValueAtTime(1,t);c.bus.gain.linearRampToValueAtTime(0,t+T+.05);c.src.stop(t+T+.1)}catch(e){}
+    setTimeout(()=>{try{c.bus.disconnect()}catch(e){}},1300);
+  }
+  /* ---- 蟋蟀聲：全場安靜的尷尬（audio/cricket.mp3；沒有檔案時用合成的唧唧聲） ---- */
+  function cricket(){
+    if(!ok())return;const t=ctx.currentTime;
+    if(buf.cricket){const s=ctx.createBufferSource();s.buffer=buf.cricket;const g=ctx.createGain();g.gain.value=1.3;s.connect(g);out(g,0,.1);s.start(t);return}
+    for(let c=0;c<3;c++)for(let i=0;i<3;i++)tone(t+c*.42+i*.05,.035,{f0:4400,g:.08,wet:.2});
+  }
+  /* ---- 噓聲：十幾個男女聲的「Boo～」 ---- */
+  function boo(dur=2.4){
+    if(!ok())return 0;const t=ctx.currentTime;
+    if(buf.boo){const s=ctx.createBufferSource();s.buffer=buf.boo;const g=ctx.createGain();g.gain.value=1.4;s.connect(g);out(g,0,.2);s.start(t);return buf.boo.duration}
+    for(let i=0;i<16;i++){
+      const female=Math.random()<.4,base=female?rr(165,235):rr(85,135),sc=female?1.12:1,st=t+Math.random()*.45,d=Math.max(.9,dur-(st-t)+rr(-.3,.3));
+      const o=ctx.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(base*1.1,st);o.frequency.linearRampToValueAtTime(base,st+.25);o.frequency.linearRampToValueAtTime(base*.84,st+d);
+      const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=rr(4,6);lg.gain.value=base*.025;lfo.connect(lg).connect(o.frequency);
+      const sum=ctx.createGain();
+      for(const[f,q,a]of[[320,6,1],[800,8,.45],[2400,12,.12]]){const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f*sc;bp.Q.value=q;const g=ctx.createGain();g.gain.value=a*4;o.connect(bp).connect(g).connect(sum)}
+      const th=ctx.createBufferSource();th.buffer=noise;const tf=ctx.createBiquadFilter();tf.type='lowpass';tf.frequency.value=180;   // 「B」的爆破音
+      const tg=ctx.createGain();tg.gain.setValueAtTime(0,st);tg.gain.linearRampToValueAtTime(.6,st+.005);tg.gain.exponentialRampToValueAtTime(.001,st+.07);
+      th.connect(tf).connect(tg).connect(sum);th.start(st,Math.random()*2.5);th.stop(st+.1);
+      const env=ctx.createGain(),pk=rr(.1,.18);env.gain.setValueAtTime(0,st);env.gain.linearRampToValueAtTime(pk,st+.12);env.gain.setValueAtTime(pk,st+d*.7);env.gain.exponentialRampToValueAtTime(.0005,st+d);
+      sum.connect(env);out(env,rr(-.9,.9),.45);
+      o.start(st);lfo.start(st);o.stop(st+d+.05);lfo.stop(st+d+.05);
+    }
+    nz(t,dur+.3,{type:'bandpass',f:380,q:1.5,g:.4,attack:.25,wet:.45});   // 一整片的「嗚～」氣聲
+    return dur;
+  }
+  function tick(){if(ok())tone(ctx.currentTime,.03,{type:'square',f0:1500,g:.06,wet:0})}
+  function ding(){if(!ok())return;const t=ctx.currentTime;tone(t,.5,{f0:1319,g:.2});tone(t+.08,.6,{f0:1760,g:.16})}
+  function thud(){                              // 急煞「碰」＋失落的「哇～哇～」
+    if(!ok())return;const t=ctx.currentTime;
+    tone(t,.4,{f0:150,f1:40,g:.8,wet:.2});nz(t,.25,{type:'lowpass',f:260,g:.6});
+    tone(t+.35,.42,{type:'triangle',f0:233,f1:220,g:.2});tone(t+.8,.9,{type:'triangle',f0:220,f1:150,g:.2});
+  }
+  function button(){
+    if(!ctx)return;
+    if(ctx.state!=='running'){muted=false;unlock();label();return}
+    if(performance.now()-unlockedAt<800){label();return}   // 剛被這次點擊解鎖，不要馬上又切成靜音
+    muted=!muted;master.gain.setTargetAtTime(muted?0:1,ctx.currentTime,.05);if(muted)stopCrowd();label();
+  }
+  ['pointerdown','pointerup','click','keydown','touchstart'].forEach(ev=>document.addEventListener(ev,unlock,{passive:true}));
+  label();
+  return{shutter,shutterBurst,setCrowd,stopCrowd,cheerOnce,stopCheer,tapeStop,cricket,boo,tick,ding,thud,button};
+})();
+$('sfxBtn').addEventListener('click',()=>sfx.button());
+
+const show=(()=>{
+  const GLOW=new THREE.Color('#6d7dff'),SIL='#060606';
+  // 真正的臉在揭曉前都先藏起來（顯影時才換成白色）
+  function silhouette(){faceM.color.set(0x000000)}
+  silhouette();
+
+  /* ---- 掃描用的灰色面具：切成五塊（正臉／左臉／右臉／頭頂／下巴）。
+     平常每塊只有淡淡的起伏；掃到哪一塊，那一塊邊緣亮起、整塊微微浮出、五官起伏長出來；掃完的塊保持立體。
+     「左臉」＝你往左轉時轉向前方攝影機的那一側（右臉同理），所以面具跟著你轉頭時，亮起的那塊會正對鏡頭。 ---- */
+  const G2=(x,y,cx,cy,sx,sy)=>Math.exp(-(((x-cx)/sx)**2+((y-cy)/sy)**2)/2);
+  function maskHW(y){                                   // 面具輪廓：額頭寬圓、往下巴收窄
+    if(y>=.82||y<=-.96)return 0;
+    if(y>=.15){const t=(y-.15)/.67;return .6*Math.cbrt(Math.max(0,1-t*t*t))}
+    const t=(.15-y)/1.11;return .6*(1-.42*t*t)*Math.pow(Math.max(0,1-t**4),.25);
+  }
+  const maskZ0=(x,y)=>.55*Math.pow(Math.max(0,1-(x/.66)**2),.6)*Math.sqrt(Math.max(0,1-(y/1.15)**2));   // 臉型弧度加深，兩側往後包
+  function maskFeat(x,y){                               // 五官起伏
+    const m=s=>G2(x,y,-s[0],s[1],s[2],s[3])+G2(x,y,s[0],s[1],s[2],s[3]);
+    return 1.6*(.16*G2(x,y,0,-.1,.055,.17)+.07*G2(x,y,0,-.3,.07,.06)+.035*m([.075,-.33,.035,.03])
+      +.05*m([.2,.2,.13,.05])-.08*m([.2,.06,.1,.065])+.035*m([.32,-.1,.1,.1])
+      +.04*G2(x,y,0,-.5,.11,.03)+.05*G2(x,y,0,-.6,.09,.035)-.025*G2(x,y,0,-.55,.13,.01)
+      +.05*G2(x,y,0,-.8,.11,.07)+.025*G2(x,y,0,.45,.28,.2));   // 五官起伏整體加強 1.6 倍
+  }
+  const EYE={x:.2,y:.06,rx:.095,ry:.038};
+  const eyeIn=(x,y)=>(((Math.abs(x)-EYE.x)/EYE.rx)**2+((y-EYE.y)/EYE.ry)**2)<1;
+  function regionOf(x,y){return y>.36?'down':y<-.68?'up':x<-.3?'left':x>.3?'right':'front'}
+  const REG_IDS=['front','left','right','down','up'];
+  // 掃到某塊時，那塊零件往外「突起」的方向（面具座標）
+  const POP={front:[0,0,1],left:[0,0,1],right:[0,0,1],down:[0,0,1],up:[0,0,1]};   // 全部沿 Z 軸往前突起
+  const THICK=.15,BEVEL_W=.035,BEVEL_D=.026,INSET=0;   // 面具加厚；零件之間不留縫
+  const maskG=new THREE.Group();maskG.scale.setScalar(1.3);maskG.position.set(0,0,-.12);float.add(maskG);
+  const maskGray=new THREE.Color('#5a5a5a').convertSRGBToLinear();   // 轉成線性色彩，強光下才會是灰色而不是發白
+  const regions={};
+  {
+    const NX=112,NY=152,X0=-.62,X1=.62,Y0=-.96,Y1=.82;
+    const vx=new Float32Array((NX+1)*(NY+1)),vy=new Float32Array((NX+1)*(NY+1));
+    for(let j=0;j<=NY;j++)for(let i=0;i<=NX;i++){
+      const k=j*(NX+1)+i;let x=X0+(X1-X0)*i/NX,y=Y0+(Y1-Y0)*j/NY;
+      if(Math.abs(x)>=maskHW(y)){                                   // 輪廓外的點沿著放射方向拉回輪廓上，邊緣才會圓順、沒有鋸齒
+        const oy=-.07;let lo=0,hi=1;
+        for(let it=0;it<30;it++){const m=(lo+hi)/2,yy=oy+(y-oy)*m;if(Math.abs(x*m)<maskHW(yy))lo=m;else hi=m}
+        x*=lo;y=oy+(y-oy)*lo;
+      }
+      if(eyeIn(x,y)){                                               // 眼洞：洞內的點推到洞的邊上
+        const sx=Math.sign(x)||1,dx=(Math.abs(x)-EYE.x)/EYE.rx,dy=(y-EYE.y)/EYE.ry,l=Math.hypot(dx,dy)||1;
+        x=sx*(EYE.x+dx/l*EYE.rx);y=EYE.y+dy/l*EYE.ry;
+      }
+      vx[k]=x;vy[k]=y;
+    }
+    const tris={};REG_IDS.forEach(id=>tris[id]=[]);
+    for(let j=0;j<NY;j++)for(let i=0;i<NX;i++){
+      const cx=X0+(X1-X0)*(i+.5)/NX,cy=Y0+(Y1-Y0)*(j+.5)/NY;
+      if(Math.abs(cx)>=maskHW(cy)||eyeIn(cx,cy))continue;
+      const a=j*(NX+1)+i,b=a+1,c=a+NX+1,d=c+1;tris[regionOf(cx,cy)].push(a,b,c,b,d,c);
+    }
+    const gEdge=new Map();
+    for(const id of REG_IDS){const T=tris[id];for(let t=0;t<T.length;t+=3)for(const[p,q]of[[T[t],T[t+1]],[T[t+1],T[t+2]],[T[t+2],T[t]]]){const key=p<q?p*1e7+q:q*1e7+p;gEdge.set(key,(gEdge.get(key)||0)+1)}}
+    for(const id of REG_IDS){
+      const T=tris[id],map=new Map(),xs=[],ys=[];
+      const idx=T.map(g=>{if(!map.has(g)){map.set(g,xs.length);xs.push(vx[g]);ys.push(vy[g])}return map.get(g)});
+      const n=xs.length;
+      // 外框邊、鄰接表
+      const ec=new Map(),adj=Array.from({length:n},()=>new Set());
+      for(let t=0;t<idx.length;t+=3)for(const[p,q]of[[idx[t],idx[t+1]],[idx[t+1],idx[t+2]],[idx[t+2],idx[t]]]){
+        const key=p<q?p*1e6+q:q*1e6+p;ec.set(key,(ec.get(key)||0)+1);adj[p].add(q);adj[q].add(p);
+      }
+      const edges=[],outer=[],g=[];map.forEach((l,gi)=>g[l]=gi);
+      for(const[key,c]of ec)if(c===1){
+        const a=Math.floor(key/1e6),b=key%1e6;edges.push(a,b);
+        const ga=g[a],gb=g[b],gk=ga<gb?ga*1e7+gb:gb*1e7+ga;if(gEdge.get(gk)===1)outer.push(a,b);   // 只有面具外緣與眼洞算外框
+      }
+      // 每個點離外框多遠（真實距離，倒邊才會平順）
+      const bv=[...new Set(outer)],dist=new Float32Array(n);
+      for(let v=0;v<n;v++){let m=1e9;for(const b of bv){const d=(xs[v]-xs[b])**2+(ys[v]-ys[b])**2;if(d<m)m=d}dist[v]=Math.sqrt(m)}
+      // 外框往內縮一點，零件之間留出組裝縫
+      const X=Float32Array.from(xs),Y=Float32Array.from(ys);
+      for(let v=0;v<n;v++)if(dist[v]<1e-6){
+        let ax=0,ay=0,c=0;for(const w of adj[v])if(dist[w]>1e-6){ax+=xs[w];ay+=ys[w];c++}
+        if(!c)continue;ax=ax/c-xs[v];ay=ay/c-ys[v];const l=Math.hypot(ax,ay)||1;X[v]+=ax/l*INSET;Y[v]+=ay/l*INSET;
+      }
+      const zb=new Float32Array(n),zf=new Float32Array(n),drop=new Float32Array(n);
+      let cx=0,cy=0,cz=0;
+      for(let k=0;k<n;k++){
+        const z0=maskZ0(X[k],Y[k]),f=maskFeat(X[k],Y[k]);zf[k]=z0+f;zb[k]=z0+f*.35;
+        const t=Math.max(0,1-dist[k]/BEVEL_W);drop[k]=BEVEL_D*(1-Math.sqrt(1-t*t));   // 圓弧倒邊
+        cx+=X[k];cy+=Y[k];cz+=zf[k];
+      }
+      cx/=n;cy/=n;cz/=n;
+      // 幾何：正面 n 點＋背面 n 點＋側牆（每條外框邊 4 點）
+      const E=edges.length/2,pos=new Float32Array((2*n+4*E)*3),ind=[];
+      for(let t=0;t<idx.length;t+=3){ind.push(idx[t],idx[t+1],idx[t+2]);ind.push(n+idx[t],n+idx[t+2],n+idx[t+1])}
+      for(let e=0;e<E;e++){const b=2*n+4*e;ind.push(b,b+1,b+2,b,b+2,b+3)}
+      const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setIndex(ind);
+      const mat=new THREE.MeshStandardMaterial({color:maskGray,roughness:.7,metalness:0,side:THREE.DoubleSide,emissive:GLOW.clone(),emissiveIntensity:0});
+      const mesh=new THREE.Mesh(geo,mat);mesh.castShadow=true;mesh.receiveShadow=true;maskG.add(mesh);
+      const lgeo=new THREE.BufferGeometry();lgeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(edges.length*3),3));
+      const lmat=new THREE.LineBasicMaterial({color:'#b9c1ff',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+      const line=new THREE.LineSegments(lgeo,lmat);mesh.add(line);
+      regions[id]={mesh,geo,mat,lgeo,lmat,edges,X,Y,zb,zf,drop,n,c:[cx,cy,cz],pop:new THREE.Vector3(...POP[id]).normalize(),rel:-1,relT:.35,liftT:0,done:false,burst:0};
+    }
+  }
+  function applyRegion(r,rel,lift){
+    const[cx,cy,cz]=r.c;
+    r.mesh.position.set(cx,cy,cz).addScaledVector(r.pop,lift);
+    if(Math.abs(rel-r.rel)<.002)return;r.rel=rel;
+    const P=r.geo.attributes.position.array,n=r.n;
+    for(let k=0;k<n;k++){
+      const z=r.zb[k]+rel*(r.zf[k]-r.zb[k])-r.drop[k]-cz,x=r.X[k]-cx,y=r.Y[k]-cy;
+      P[k*3]=x;P[k*3+1]=y;P[k*3+2]=z;P[(n+k)*3]=x;P[(n+k)*3+1]=y;P[(n+k)*3+2]=z-THICK;
+    }
+    const L=r.lgeo.attributes.position.array;
+    for(let e=0;e<r.edges.length;e+=2){
+      const p=r.edges[e],q=r.edges[e+1],b=(2*n+2*e)*3;
+      P.set([P[p*3],P[p*3+1],P[p*3+2], P[q*3],P[q*3+1],P[q*3+2], P[(n+q)*3],P[(n+q)*3+1],P[(n+q)*3+2], P[(n+p)*3],P[(n+p)*3+1],P[(n+p)*3+2]],b);
+      L.set([P[p*3],P[p*3+1],P[p*3+2]+.004,P[q*3],P[q*3+1],P[q*3+2]+.004],e*3);
+    }
+    r.geo.attributes.position.needsUpdate=true;r.geo.computeVertexNormals();r.geo.computeBoundingSphere();
+    r.lgeo.attributes.position.needsUpdate=true;r.lgeo.computeBoundingSphere();
+  }
+  for(const id of REG_IDS)applyRegion(regions[id],1,0);
+  if(head)head.visible=false;                          // 掃描期間顯示面具，不顯示預設頭殼
+
+  const scanFX=new THREE.Group();scanFX.scale.set(.87,.96,.88);float.add(scanFX);
+  const ringM=new THREE.MeshBasicMaterial({color:'#c7ccff',transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.06,.012,6,120),ringM);ring.rotation.x=Math.PI/2;scanFX.add(ring);
+
+  /* ---- 房間四周的攝影機（腳架＋機身＋閃光燈），閃光時共用一盞點光源 ---- */
+  const camBodyM=new THREE.MeshStandardMaterial({color:0x1a1a1a,roughness:.4}),poleM=new THREE.MeshStandardMaterial({color:0x2a2a2a,roughness:.6});
+  let seed=7;const rnd=()=>((seed=(seed*16807)%2147483647)/2147483647);   // 固定亂數：每次載入擺位都一樣
+  const cams=[];
+  for(let i=0;i<30;i++){
+    // 三圈：靠牆一圈、中間一圈、前排一圈；前排避開觀眾預設視角，避免擋住面具
+    const ringI=i%3,base=(i*12+rnd()*10)*D2R,rad=ringI===0?R-.55:ringI===1?R-1.5-rnd()*.6:R-2.6-rnd()*.6;
+    let a=base;if(ringI>0){const deg=((a/D2R)%360+360)%360;if(deg<55||deg>345)a+=70*D2R}
+    const sz=.55+rnd()*1.35,h=1.4+rnd()*3.4-(sz-1)*.6;          // 有大有小：大台的架低一點
+    const x=Math.sin(a)*rad,z=Math.cos(a)*rad;
+    const pole=new THREE.Mesh(new THREE.CylinderGeometry(.022*sz,.032*sz,h,8),poleM);pole.position.set(x,h/2,z);pole.castShadow=true;scene.add(pole);
+    const g=new THREE.Group();g.position.set(x,h+.14*sz,z);g.lookAt(0,HEAD_Y,0);g.scale.setScalar(sz);
+    const body=new THREE.Mesh(new THREE.BoxGeometry(.42,.28,.24),camBodyM);   // 機身不投影，避免擋住打在面具上的燈
+    const ll=.14+rnd()*.35;                                     // 鏡頭長短也不一樣
+    const lens=new THREE.Mesh(new THREE.CylinderGeometry(.085,.11,ll,20),camBodyM);lens.rotation.x=Math.PI/2;lens.position.z=.12+ll/2;
+    const plate=new THREE.Mesh(new THREE.BoxGeometry(.17,.09,.05),new THREE.MeshBasicMaterial({color:0x333333}));plate.position.set(0,.21,.06);
+    g.add(body,lens,plate);scene.add(g);cams.push({g,plate,hot:0,sz});
+  }
+  const flashLight=new THREE.PointLight(0xffffff,0,18,1.5);scene.add(flashLight);
+
+  const scrFlash=$('stageFlash');
+  function screenFlash(a){a*=reduce?.4:1;scrFlash.style.transition='none';scrFlash.style.opacity=a;void scrFlash.offsetWidth;scrFlash.style.transition='opacity .5s ease-out';scrFlash.style.opacity=0}
+  let nextFlash=0;
+  function popFlash(strong){
+    const now=performance.now()/1000;nextFlash=Math.max(nextFlash,now+.34);   // 全域限制：一秒最多 3 次閃光（避免光敏不適）
+    const n=strong?5+(Math.random()*5|0):2+(Math.random()*3|0);   // 一次好幾台一起閃
+    let c;for(let i=0;i<n;i++){c=cams[Math.random()*cams.length|0];c.hot=1}
+    flashLight.position.copy(c.g.position);flashLight.intensity=strong?3.4:2.4;
+    screenFlash(strong?.32:.12);sfx.shutterBurst(n+2,strong?.35:.22,strong);
+  }
+
+  let mode='idle',token=0,boost=0,lastT=0,crowdT=0,hasScore=false,cheered=false;
+  function tick(){
+    const now=performance.now()/1000,dt=Math.min(.1,now-(lastT||now));lastT=now;
+    const scanning=state==='scan',climax=state==='show'&&mode==='climax';
+    // 閃光頻率：越接近拍下越密集；揭曉前全開
+    let rate=0;if(scanning&&facePresent)rate=.5+1.8*progress;if(climax)rate=3;if(reduce)rate*=.5;
+    if(rate>0&&Math.random()<rate*dt*2.2)sfx.shutterBurst(1+(Math.random()*3|0),.15,climax);   // 沒閃光的快門聲，讓現場更吵
+    if(rate>0){if(now>=nextFlash){popFlash(climax);nextFlash=now+Math.max(.34,-Math.log(1-Math.random())/rate)}}else nextFlash=Math.max(nextFlash,now+.3);
+    flashLight.intensity*=Math.exp(-dt*10);
+    for(const c of cams){c.hot*=Math.exp(-dt*8);c.plate.material.color.setScalar(.2+.8*c.hot)}
+    // 歡呼聲
+    boost*=Math.exp(-dt*.8);
+    if(scanning&&facePresent&&!cheered)cheered=sfx.cheerOnce();   // 歡呼只播一次：掃描中第一次看到臉時
+    // 面具五塊零件：一開始全部拼在一起；掃到哪一塊，那塊邊緣亮起並往外突起、五官立體感長出來；拍下那刻「喀」地壓回原位
+    const maskOn=state!=='done'&&mode!=='silent'&&mode!=='boo'&&mode!=='verdict';
+    maskG.visible=maskOn;
+    const cur=scanning?STAGES[scanIdx]&&STAGES[scanIdx].id:null,k=1-Math.exp(-dt*7);
+    REG_IDS.forEach((id,i)=>{
+      const r=regions[id];r.burst*=Math.exp(-dt*4);
+      const pulse=.5+.5*Math.sin(now*(6+10*progress)),act=facePresent?1:.35;
+      let liftT=0,edge=0,emi=0;
+      if(id===cur){liftT=(.08+.14*progress+.012*pulse)*act;edge=(.4+.45*progress+.15*pulse)*act;emi=(.04+.16*progress)*act}
+      if(climax){liftT=.02+.02*Math.sin(now*12+i);edge=.4+.3*Math.sin(now*14);emi=.08}
+      r.liftT+=(liftT-r.liftT)*k;
+      if(maskOn)applyRegion(r,1,r.liftT-r.burst*.03);
+      r.lmat.opacity=Math.min(1,edge+r.burst);r.mat.emissiveIntensity=emi+r.burst*.4;
+    });
+    const ringOn=(scanning&&facePresent)||climax;
+    ringM.opacity=ringOn?.55:0;
+    if(ringOn){const y=Math.sin(now*(climax?4:1.8))*.88,r=Math.sqrt(Math.max(.05,1-y*y));ring.position.y=y;ring.scale.setScalar(r)}
+    // 微幅震動
+    const jit=reduce?0:scanning&&progress>.15?.03*progress:climax?.02:0;
+    float.position.x=(Math.random()-.5)*jit;float.position.z=(Math.random()-.5)*jit;
+  }
+  fxTick=tick;
+
+  function onCapture(id){const r=regions[id];if(r){r.done=true;r.burst=.8;r.liftT=0}boost=.7;popFlash(true)}
+
+  /* ---- 分數：老虎機滾高分 → 停在 999 吊胃口 → 急停 000 ---- */
+  const verdict=$('verdict'),reels=$('reels'),vMsg=$('vMsg'),booTxt=$('booTxt');
+  const HIGH=[780,888,999,912,968,997,860,950,925],MSGS=['系統判定：建議轉行。不過燈光選得不錯。','評審團一致決定：下一位。','AI 已經很努力了。','恭喜獲得 Abandon 認證：放棄吧。'];
+  const setReels=n=>{const s=String(n).padStart(3,'0');[...reels.children].forEach((el,i)=>el.textContent=s[i])};
+  function rollScore(tk){
+    verdict.hidden=false;reels.className='reels';vMsg.textContent='分數計算中…';setReels(780);
+    reels.classList.add('rolling');const t0=performance.now();
+    return new Promise(res=>{
+      const iv=setInterval(()=>{
+        if(tk!==token){clearInterval(iv);res(false);return}
+        setReels(HIGH[Math.random()*HIGH.length|0]);sfx.tick();
+        if(performance.now()-t0<1300)return;
+        clearInterval(iv);reels.classList.remove('rolling');setReels(999);reels.classList.add('tease');vMsg.textContent='……！？';sfx.ding();
+        setTimeout(()=>{
+          if(tk!==token)return res(false);
+          reels.classList.remove('tease');setReels('000');void reels.offsetWidth;reels.classList.add('slam');sfx.thud();
+          vMsg.textContent=MSGS[Math.random()*MSGS.length|0];$('vClose').focus({preventScroll:true});res(true);
+        },280);
+      },60);
+    });
+  }
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+  async function run(onDone){
+    const tk=++token;
+    try{
+      if(head)head.visible=false;mode='climax';setStatus('鎂光燈全開！正在顯影你的 3D 臉…','busy');
+      await wait(1800);if(tk!==token)return;
+      // 顯影：白屏一閃，面具消失、真正的臉完整出現
+      mode='silent';screenFlash(1);faceM.color.set(0xffffff);maskG.visible=false;if(head)head.visible=true;
+      await wait(320);if(tk!==token)return;
+      // 臉清楚出現的那一刻：歡呼聲像卡帶被按停
+      sfx.tapeStop();sfx.cricket();setStatus('……','');   // 臉展示約 1 秒：全場安靜，只剩蟋蟀聲
+      await wait(1000);if(tk!==token)return;
+      mode='boo';const booLen=sfx.boo(2.1)||2;setStatus('噓————','warn');
+      await wait(Math.max(2000,Math.min(4500,booLen*1000-150)));   // 等噓聲播完再揭曉分數if(tk!==token)return;
+      booTxt.classList.remove('on');mode='verdict';
+      const done=await rollScore(tk);if(!done||tk!==token)return;
+      hasScore=true;$('scoreBtn').disabled=false;
+    }catch(e){console.error(e);faceM.color.set(0xffffff);if(head)head.visible=true}
+    if(tk===token)onDone();
+  }
+  function reset(){
+    token++;mode='idle';boost=0;cheered=false;sfx.stopCrowd();sfx.stopCheer();
+    booTxt.classList.remove('on');verdict.hidden=true;reels.className='reels';
+    hasScore=false;$('scoreBtn').disabled=true;
+    for(const id of REG_IDS){regions[id].done=false;regions[id].burst=0;regions[id].liftT=0}
+    silhouette();buildHead({});head.visible=false;   // 回到灰色面具
+  }
+  $('vClose').addEventListener('click',()=>{verdict.hidden=true});
+  $('vAgain').addEventListener('click',()=>{verdict.hidden=true;restart()});
+  $('scoreBtn').addEventListener('click',()=>{if(hasScore)verdict.hidden=false});
+  return{run,reset,onCapture};
+})();
 
 /* ================= boot ================= */
 (async()=>{
