@@ -58,6 +58,13 @@ button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 .checks{list-style:none;margin:10px 0 0;padding:0;font-size:12px;color:var(--color-text-muted);display:flex;flex-wrap:wrap;gap:4px 14px}
 .checks li::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;border:1px solid #666;margin-right:6px;vertical-align:1px}
 .checks li.ok{color:var(--color-text)}.checks li.ok::before{background:var(--color-glow);border-color:var(--color-glow);box-shadow:0 0 6px var(--color-glow)}
+.dial{position:absolute;right:8px;bottom:8px;width:64px;height:64px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgb(12 12 12 / .55);overflow:hidden;pointer-events:none}
+.dial::before,.dial::after{content:"";position:absolute;background:rgba(255,255,255,.18)}
+.dial::before{left:50%;top:0;bottom:0;width:1px}.dial::after{top:50%;left:0;right:0;height:1px}
+#dialT{position:absolute;transform:translate(-50%,-50%);border:1.5px solid var(--color-glow);border-radius:50%;box-shadow:0 0 8px var(--color-glow)}
+#dialD{position:absolute;width:9px;height:9px;margin:-4.5px 0 0 -4.5px;border-radius:50%;background:#fff;box-shadow:0 0 6px #fff;transition:left .08s linear,top .08s linear,opacity .2s}
+.stagetip{font-size:13px;color:var(--color-text);margin:12px 0 0;line-height:1.5}
+.checks li.cur{color:var(--color-glow)}.checks li.cur::before{border-color:var(--color-glow);box-shadow:0 0 6px var(--color-glow)}
 .thumbs{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--color-text-muted);margin-top:12px}
 .thumbs canvas{width:44px;height:44px;border-radius:10px;border:1px solid var(--color-stroke);background:#1d1d1d}
 .collapse{position:absolute;top:14px;right:14px;min-height:32px;padding:2px 14px;font-size:12px}
@@ -86,24 +93,24 @@ button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
 <section class="panel" id="cap">
   <button class="collapse" id="capMin" type="button">收合</button>
   <h1><span class="en">Lightroom</span> 頭像</h1>
-  <p class="sub">正面看鏡頭並保持不動，會自動拍下你的五官與髮型</p>
+  <p class="sub">依序轉動頭部：正面、左側、右側、抬頭、低頭，完整掃描整顆頭</p>
   <div class="body">
     <div class="view">
       <canvas id="preview"></canvas>
       <div class="empty" id="empty">正在載入偵測模型…</div>
       <div class="flash" id="flash"></div>
+      <div class="dial" id="dial" hidden><b id="dialT"></b><i id="dialD"></i></div>
     </div>
     <div class="bar" aria-hidden="true"><i id="progress"></i></div>
-    <ul class="checks">
-      <li id="ckFace">偵測到人臉</li>
-      <li id="ckFront">正面看鏡頭</li>
-      <li id="ckStill">保持不動</li>
-    </ul>
-    <div class="thumbs"><canvas id="faceThumb" width="96" height="96"></canvas>五官<canvas id="hairThumb" width="96" height="96"></canvas>髮型</div>
+    <p class="stagetip" id="stageTip"></p>
+    <ul class="checks" id="stageList"></ul>
+    <div class="thumbs"><canvas id="faceThumb" width="96" height="96"></canvas>五官</div>
     <div class="status"><span class="dot busy" id="dot"></span><span id="statusText">正在載入偵測模型（第一次約需 10～20 秒）</span></div>
     <div class="row">
       <button id="againBtn" type="button" disabled>重新生成</button>
       <button id="camBtn" type="button" disabled>暫停鏡頭</button>
+      <button id="skipBtn" type="button" disabled>跳過此角度</button>
+      <button id="finishBtn" type="button" disabled>用現有角度生成</button>
     </div>
   </div>
 </section>
@@ -180,35 +187,158 @@ setLight('front');
 
 /* ================= head ================= */
 const HEAD_R=.82,FACE_W=1.3;
+/* 頭型：不是球，而是依這個人的臉長、下顎寬度算出來的頭（上方顱骨、下方收成下顎與下巴）。
+   sh = {W 頭半寬, YT 頭頂高, YB 下巴低, RZf 前後深(前), RZb(後), jawG 下顎收縮係數, jawY 下顎高度} */
+const DEF_SHAPE={W:HEAD_R,YT:.98,YB:.8,RZf:HEAD_R,RZb:.92,jawG:.86,jawY:-.5};
+const ssm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
+const jawTaper=(sh,y)=>1-(1-sh.jawG)*ssm(0,sh.jawY,y);       // 眼睛以下開始往下顎收窄
+function headPt(sh,dx,dy,dz){                                   // 單位方向 -> 頭表面的點
+  const y=dy*(dy>=0?sh.YT:sh.YB),g=jawTaper(sh,y);
+  return[sh.W*g*dx,y,(dz>=0?sh.RZf:sh.RZb)*(1+g)/2*dz];
+}
+function headNrm(sh,dx,dy,dz){                                  // 近似法線（橢球）
+  const y=dy*(dy>=0?sh.YT:sh.YB),g=jawTaper(sh,y);
+  const nx=dx/(sh.W*g),ny=dy/(dy>=0?sh.YT:sh.YB),nz=dz/((dz>=0?sh.RZf:sh.RZb)*(1+g)/2),l=Math.hypot(nx,ny,nz)||1;
+  return[nx/l,ny/l,nz/l];
+}
+function shapeZ(sh,x,y){                                        // 頭前側表面在 (x,y) 的 z
+  const dy=y/(y>=0?sh.YT:sh.YB),g=jawTaper(sh,y),dx=x/(sh.W*g),r=1-dx*dx-dy*dy;
+  return r<=0?0:sh.RZf*(1+g)/2*Math.sqrt(r);
+}
+function makeShape(V){
+  const faceH=Math.abs(V[10][1]-V[152][1]),y172=(V[172][1]+V[397][1])/2;
+  const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const YB=cl(faceH/2+.012,.68,.95);
+  const sh={W:HEAD_R,YT:cl(faceH/2+.22*faceH,.88,1.25),YB,RZf:HEAD_R,RZb:HEAD_R*1.1,jawY:cl(y172,-YB*.8,-YB*.3)};
+  const jawHalf=Math.abs(V[397][0]-V[172][0])/2+.07;            // 下顎半寬（加上一點側面厚度）
+  const dy=y172/sh.YB,rad=Math.sqrt(Math.max(.05,1-dy*dy));
+  sh.jawG=Math.max(.6,Math.min(1,jawHalf/(sh.W*rad)));
+  return sh;
+}
 const skinM=new THREE.MeshStandardMaterial({color:'#e9bfa0',roughness:.7});
 const hairM=new THREE.MeshStandardMaterial({color:'#2b211c',roughness:.55,side:THREE.DoubleSide});
-const hairFrontCan=document.createElement('canvas'),hairBackCan=document.createElement('canvas');hairFrontCan.width=hairFrontCan.height=hairBackCan.width=hairBackCan.height=4;
-const hairFrontTex=new THREE.CanvasTexture(hairFrontCan);hairFrontTex.encoding=THREE.sRGBEncoding;
-const hairBackTex=new THREE.CanvasTexture(hairBackCan);
-const hairFrontM=new THREE.MeshStandardMaterial({map:hairFrontTex,alphaTest:.5,roughness:.5,side:THREE.DoubleSide});
-const hairBackM=new THREE.MeshStandardMaterial({map:hairBackTex,color:'#2b211c',alphaTest:.5,roughness:.55,side:THREE.DoubleSide});
+// 掃描完成後：頭殼貼圖（膚色）與髮殼貼圖（髮色＋有沒有頭髮）都是由各角度照片烘出來的
+const skinCan=document.createElement('canvas'),hairCan=document.createElement('canvas');skinCan.width=hairCan.width=4;skinCan.height=hairCan.height=4;
+const skinTex=new THREE.CanvasTexture(skinCan);skinTex.encoding=THREE.sRGBEncoding;skinTex.anisotropy=4;
+const hairTex=new THREE.CanvasTexture(hairCan);hairTex.encoding=THREE.sRGBEncoding;hairTex.anisotropy=4;
+const skinBakedM=new THREE.MeshStandardMaterial({map:skinTex,roughness:.7,side:THREE.DoubleSide});
+const hairShellM=new THREE.MeshStandardMaterial({map:hairTex,alphaTest:.5,roughness:.55,side:THREE.DoubleSide});
+const hairDepthM=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:hairTex,alphaTest:.5});
 const snapCan=document.createElement('canvas');snapCan.width=snapCan.height=4;
 const snapTex=new THREE.CanvasTexture(snapCan);snapTex.encoding=THREE.sRGBEncoding;
-const faceM=new THREE.MeshStandardMaterial({map:snapTex,roughness:.6});
+const faceM=new THREE.MeshStandardMaterial({map:snapTex,roughness:.6,side:THREE.DoubleSide,alphaTest:.5});
+const faceDepthM=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:snapTex,alphaTest:.5});
 const float=new THREE.Group();float.position.y=HEAD_Y;float.scale.setScalar(HEAD_SCALE);scene.add(float);
 let head=null;
+// 頭殼：頭髮的地方整塊「長」出來（沿球面法線外推，邊緣是平滑斜坡），頭髮因此是有厚度、連在頭殼上的立體形狀，不是懸空的薄殼
+function skullGeometry(sh,fd,mask){
+  const g=fd?new THREE.SphereGeometry(1,240,150):new THREE.SphereGeometry(1,96,64);
+  const pos=g.attributes.position;
+  for(let i=0;i<pos.count;i++){
+    const dx=pos.getX(i),dy=pos.getY(i),dz=pos.getZ(i);
+    let[x,y,z]=headPt(sh,dx,dy,dz);
+    if(fd&&dz>0){const d=fd.sample(x,y);if(d)z+=d}   // 臉部起伏直接長在頭型表面上，邊緣平滑歸零，沒有接縫
+    pos.setXYZ(i,x,y,z);
+  }
+  if(mask){                                            // 只保留臉的範圍：頭殼其餘部分整個拿掉，只剩一張立體臉
+    const idx=g.index.array,keep=[],cx=mask.reduce((q,v)=>q+v[0],0)/mask.length,cy=mask.reduce((q,v)=>q+v[1],0)/mask.length;
+    const poly=mask.map(([x,y])=>[cx+(x-cx)*1.04,cy+(y-cy)*1.03]);
+    const ok=new Uint8Array(pos.count);
+    for(let i=0;i<pos.count;i++)ok[i]=pos.getZ(i)>0&&inPoly(pos.getX(i),pos.getY(i),poly)?1:0;
+    for(let t=0;t<idx.length;t+=3)if(ok[idx[t]]&&ok[idx[t+1]]&&ok[idx[t+2]])keep.push(idx[t],idx[t+1],idx[t+2]);
+    g.setIndex(keep);
+  }
+  g.computeVertexNormals();return g;
+}
+// 把臉的特徵點深度（相對球面的高低）畫成一張高度網格，邊緣淡出，之後貼到球面上
+function makeFaceDepth(fm){
+  const G=320,X0=-1,X1=1,Y0=-1.3,Y1=1.3,V=fm.ref,dep=new Float32Array(G*G),cov=new Float32Array(G*G);
+  const gx=x=>(x-X0)/(X1-X0)*(G-1),gy=y=>(y-Y0)/(Y1-Y0)*(G-1),sh=fm.shape;
+  const sph=(x,y)=>shapeZ(sh,x,y);
+  for(const[a,b,c]of fm.tris){
+    const A=V[a],B=V[b],C=V[c];
+    const x0=Math.max(0,Math.floor(Math.min(gx(A[0]),gx(B[0]),gx(C[0])))),x1=Math.min(G-1,Math.ceil(Math.max(gx(A[0]),gx(B[0]),gx(C[0]))));
+    const y0=Math.max(0,Math.floor(Math.min(gy(A[1]),gy(B[1]),gy(C[1])))),y1=Math.min(G-1,Math.ceil(Math.max(gy(A[1]),gy(B[1]),gy(C[1]))));
+    const den=(B[1]-C[1])*(A[0]-C[0])+(C[0]-B[0])*(A[1]-C[1]);if(Math.abs(den)<1e-12)continue;
+    for(let j=y0;j<=y1;j++)for(let i=x0;i<=x1;i++){
+      const px=X0+i/(G-1)*(X1-X0),py=Y0+j/(G-1)*(Y1-Y0);
+      const l1=((B[1]-C[1])*(px-C[0])+(C[0]-B[0])*(py-C[1]))/den,l2=((C[1]-A[1])*(px-C[0])+(A[0]-C[0])*(py-C[1]))/den,l3=1-l1-l2;
+      if(l1<-1e-6||l2<-1e-6||l3<-1e-6)continue;
+      const z=l1*A[2]+l2*B[2]+l3*C[2];dep[j*G+i]=Math.min(HEAD_R*.3,Math.max(0,z-sph(px,py)));cov[j*G+i]=1;
+    }
+  }
+  const w=blurAlpha(cov,G,G,10,2);   // 邊緣淡出：越靠近臉輪廓越趨近 0
+  const ds=blurAlpha(dep,G,G,2,1);
+  const ss=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
+  return{sample(x,y){
+    const fx=gx(x),fy=gy(y);if(fx<0||fy<0||fx>G-1||fy>G-1)return 0;
+    const i=Math.round(fx),j=Math.round(fy),k=j*G+i;return ds[k]*ss(.55,.95,w[k]);
+  }};
+}
+// 1:1 立體臉：用很細的網格取樣特徵點的深度，輪廓交給貼圖的透明度（柔邊）裁切，所以邊緣是平滑的，不會有三角形鋸齒
+function faceGrid(fm){
+  const V=fm.V.map(v=>v.slice()),uvA=fm.geo.attributes.uv.array,poly=fm.poly;
+  {const R=OVAL.length,z0=OVAL.map(i=>V[i][2]);          // 輪廓上的特徵點深度有雜訊，先沿著輪廓平均，避免側臉邊緣出現鋸齒
+   for(let q=0;q<R;q++){let t=0;for(let d=-4;d<=4;d++)t+=z0[(q+d+R*2)%R];V[OVAL[q]][2]=t/9}}
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;for(const[x,y]of poly){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+  const mx=(x1-x0)*.06,my=(y1-y0)*.06;x0-=mx;x1+=mx;y0-=my;y1+=my;
+  const NX=170,NY=Math.round(NX*(y1-y0)/(x1-x0)),N=NX*NY;
+  const dep=new Float32Array(N),U=new Float32Array(N),T=new Float32Array(N),fil=new Uint8Array(N);
+  const gx=x=>(x-x0)/(x1-x0)*(NX-1),gy=y=>(y-y0)/(y1-y0)*(NY-1);
+  for(const[a,b,c]of fm.tris){
+    const A=V[a],B=V[b],C=V[c];
+    const ix0=Math.max(0,Math.floor(Math.min(gx(A[0]),gx(B[0]),gx(C[0])))),ix1=Math.min(NX-1,Math.ceil(Math.max(gx(A[0]),gx(B[0]),gx(C[0]))));
+    const iy0=Math.max(0,Math.floor(Math.min(gy(A[1]),gy(B[1]),gy(C[1])))),iy1=Math.min(NY-1,Math.ceil(Math.max(gy(A[1]),gy(B[1]),gy(C[1]))));
+    const den=(B[1]-C[1])*(A[0]-C[0])+(C[0]-B[0])*(A[1]-C[1]);if(Math.abs(den)<1e-12)continue;
+    for(let j=iy0;j<=iy1;j++)for(let i=ix0;i<=ix1;i++){
+      const px=x0+i/(NX-1)*(x1-x0),py=y0+j/(NY-1)*(y1-y0);
+      const l1=((B[1]-C[1])*(px-C[0])+(C[0]-B[0])*(py-C[1]))/den,l2=((C[1]-A[1])*(px-C[0])+(A[0]-C[0])*(py-C[1]))/den,l3=1-l1-l2;
+      if(l1<-1e-6||l2<-1e-6||l3<-1e-6)continue;
+      const k=j*NX+i;dep[k]=l1*A[2]+l2*B[2]+l3*C[2];
+      U[k]=l1*uvA[a*2]+l2*uvA[b*2]+l3*uvA[c*2];T[k]=l1*uvA[a*2+1]+l2*uvA[b*2+1]+l3*uvA[c*2+1];fil[k]=1;
+    }
+  }
+  const cov0=Float32Array.from(fil);
+  for(let it=0;it<10;it++){                                   // 向外延伸幾格，網格邊緣超出輪廓一點，由透明度柔邊裁掉
+    const nf=fil.slice();
+    for(let j=0;j<NY;j++)for(let i=0;i<NX;i++){const k=j*NX+i;if(fil[k])continue;let n=0,d=0,u=0,t=0;
+      for(const[di,dj]of[[1,0],[-1,0],[0,1],[0,-1]]){const a=i+di,b=j+dj;if(a<0||b<0||a>=NX||b>=NY)continue;const q=b*NX+a;if(fil[q]){n++;d+=dep[q];u+=U[q];t+=T[q]}}
+      if(n){dep[k]=d/n;U[k]=u/n;T[k]=t/n;nf[k]=1}}
+    fil.set(nf);
+  }
+  const pos=[],uv=[],idx=[];
+  for(let j=0;j<NY;j++)for(let i=0;i<NX;i++){const k=j*NX+i;pos.push(x0+i/(NX-1)*(x1-x0),y0+j/(NY-1)*(y1-y0),dep[k]);uv.push(U[k],T[k])}
+  for(let j=0;j<NY-1;j++)for(let i=0;i<NX-1;i++){const a=j*NX+i,b=a+1,c=a+NX,d=c+1;if(!(fil[a]&&fil[b]&&fil[c]&&fil[d]))continue;idx.push(a,b,c,b,d,c)}
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(idx);
+  // 平滑深度，去掉特徵點三角形造成的稜角
+  const sm=blurAlpha(dep,NX,NY,2,1),hv=blurAlpha(dep,NX,NY,8,3),cb=blurAlpha(cov0,NX,NY,7,2),P=g.attributes.position;
+  for(let k=0;k<N;k++){const e=1-ssm(.5,.92,cb[k]);P.setZ(k,sm[k]*(1-e)+hv[k]*e)}   // 越靠近邊緣越平滑，輪廓是圓順的曲線
+  g.computeVertexNormals();return g;
+}
+function blurAlpha(a,W,H,r,iters){
+  let src=a,dst=new Float32Array(a.length);const win=2*r+1;
+  for(let it=0;it<iters;it++){
+    for(let j=0;j<H;j++){let sum=0;const o=j*W;for(let k=-r;k<=r;k++)sum+=src[o+((k+W)%W)];
+      for(let i=0;i<W;i++){dst[o+i]=sum/win;sum+=src[o+((i+r+1)%W)]-src[o+((i-r+W)%W)]}}
+    const t=src;src=dst;dst=t;
+    for(let i=0;i<W;i++){let sum=0;for(let k=-r;k<=r;k++)sum+=src[Math.min(H-1,Math.max(0,k))*W+i];
+      for(let j=0;j<H;j++){dst[j*W+i]=sum/win;sum+=src[Math.min(H-1,j+r+1)*W+i]-src[Math.max(0,j-r)*W+i]}}
+    const t2=src;src=dst;dst=t2;
+  }
+  return src;
+}
 function buildHead(p){
   if(head){float.remove(head);head.traverse(o=>{if(o.geometry)o.geometry.dispose()})}
   head=new THREE.Group();float.add(head);
   const add=(g,m,x=0,y=0,z=0)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;head.add(o);return o};
-  const ry=p.ry;
-  const skull=add(new THREE.SphereGeometry(HEAD_R,64,40),skinM);skull.scale.y=ry/HEAD_R;
-  for(const s of[-1,1]){const ear=add(new THREE.SphereGeometry(.15,16,12),skinM,s*HEAD_R*.97,-.08*ry,-.02);ear.scale.set(.5,1,.8)}
-  if(p.face)add(p.face,faceM);
-  else for(const s of[-1,1])add(new THREE.SphereGeometry(.07,16,12),hairM,s*.26,.08,HEAD_R*.94);
-  if(p.hairFront){
-    const f=add(p.hairFront,hairFrontM),b=add(p.hairBack,hairBackM);
-    f.customDepthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:hairFrontTex,alphaTest:.5});
-    b.customDepthMaterial=new THREE.MeshDepthMaterial({depthPacking:THREE.RGBADepthPacking,map:hairBackTex,alphaTest:.5});
-  }
-  else{const hr=HEAD_R+.04;const cap=add(new THREE.SphereGeometry(hr,64,24,0,Math.PI*2,0,1.15),hairM);cap.scale.y=(ry+.04)/hr;cap.rotation.x=-.5}
+  const sh=p.shape||DEF_SHAPE;
+  if(p.onlyFace){const m=add(p.face,faceM);m.customDepthMaterial=faceDepthM;return}   // 只有一張 1:1 的立體臉，沒有頭殼
+  add(skullGeometry(sh,p.faceDepth,p.mask),p.baked?skinBakedM:skinM);
+  if(!p.faceDepth)for(const s of[-1,1])add(new THREE.SphereGeometry(.07,16,12),hairM,s*.26,.08,shapeZ(sh,s*.26,.08)-.02);
 }
-buildHead({ry:.9});
+buildHead({});
 
 /* ================= orbit ================= */
 let rotY=.35,rotX=.12,dist=7.2,drag=null,pinch=null;
@@ -282,11 +412,11 @@ function headFrame(lm,W,H){
 function faceMesh(F,W,H){
   const{P,k,to}=F;
   const V=P.map(([x,y,z])=>{const[X,Y]=to(x,y);return[X,Y,-z*k]});
-  const faceH=Math.abs(V[10][1]-V[152][1]);
-  const ry=Math.max(.88,faceH/2+.1);
-  const sz=(x,y)=>HEAD_R*Math.sqrt(Math.max(0,1-(x/HEAD_R)**2-(y/ry)**2));
+  const shape=makeShape(V);
+  const sz=(x,y)=>shapeZ(shape,x,y);
   let off=0;for(const i of OVAL)off+=sz(V[i][0],V[i][1])-V[i][2];off/=OVAL.length;
-  for(const v of V){v[2]+=off;v[2]=Math.max(v[2],sz(v[0],v[1])+.02)}
+  const ref=V.map(v=>[v[0],v[1],v[2]+off]);   // 以頭殼中心為原點的特徵點（拿來對齊其他角度的照片）
+  for(const v of V)v[2]+=off;   // 1:1：深度直接用特徵點，不再被頭殼限制
   const poly=OVAL.map(i=>[V[i][0],V[i][1]]);
   let tris=delaunay(V.map(v=>[v[0],v[1]])).filter(([a,b,c])=>inPoly((V[a][0]+V[b][0]+V[c][0])/3,(V[a][1]+V[b][1]+V[c][1])/3,poly));
   tris=tris.map(([a,b,c])=>((V[b][0]-V[a][0])*(V[c][1]-V[a][1])-(V[b][1]-V[a][1])*(V[c][0]-V[a][0]))<0?[a,c,b]:[a,b,c]);
@@ -294,64 +424,125 @@ function faceMesh(F,W,H){
   g.setAttribute('position',new THREE.Float32BufferAttribute(V.flat(),3));
   g.setAttribute('uv',new THREE.Float32BufferAttribute(P.flatMap(([x,y])=>[x/W,1-y/H]),2));
   g.setIndex(tris.flat());g.computeVertexNormals();
-  return{geo:g,ry,poly,V};
+  return{geo:g,shape,poly,V,ref,tris};
 }
-// hair: smooth probability mask -> alpha-cut texture on a surface fitted to this person's hair volume
-function hairMesh(F,W,H,prob,ry,facePoly,snap,win){
-  const{to,fw}=F;
-  // bounding box of confident hair inside the search window
-  const st=Math.max(2,fw/50);let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity,n=0;
-  for(let y=win.y0;y<win.y1;y+=st)for(let x=win.x0;x<win.x1;x+=st)if(prob(x,y)>.4){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y);n++}
-  if(n<40)return null;
-  const pad=fw*.08;x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(W,x1+pad);y1=Math.min(H,y1+pad);
-  // measure the hairstyle in head units
-  let side=HEAD_R+.04,top=ry+.04,bottom=0,topCover=0,topCount=0;
-  for(let y=y0;y<y1;y+=st)for(let x=x0;x<x1;x+=st){
-    const[X,Y]=to(x,y),p=prob(x,y);
-    if(Y>ry*.55&&Y<ry&&Math.abs(X)<.45){topCount++;topCover+=p}
-    if(p<.5)continue;
-    if(Math.abs(Y)<.35)side=Math.max(side,Math.abs(X));
-    top=Math.max(top,Y);bottom=Math.min(bottom,Y);
+/* ================= head-scan core（純運算，不碰 DOM） ================= */
+const D2R=Math.PI/180;
+// 頭部座標：x 向右、y 向上、z 朝向鏡頭。q = Rz(roll)·Rx(pitch)·Ry(yaw)·p（pitch>0＝低頭，yaw>0＝鼻子往 +x，也就是「你的左邊」）
+function rotM(a,b,g){
+  const ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b),cg=Math.cos(g),sg=Math.sin(g);
+  const m00=ca,m01=0,m02=sa,m10=sb*sa,m11=cb,m12=-sb*ca,m20=-cb*sa,m21=sb,m22=cb*ca;
+  return[cg*m00-sg*m10,cg*m01-sg*m11,cg*m02-sg*m12,sg*m00+cg*m10,sg*m01+cg*m11,sg*m02+cg*m12,m20,m21,m22];
+}
+// 用正面掃描得到的 3D 特徵點（ref）去對齊另一張照片的 2D 特徵點（tgt，像素），求 yaw/pitch/roll、縮放、位移（正交投影、最小平方法）
+function fitPose(ref,tgt,hint){
+  const n=ref.length;let bu=0,bv=0;for(const t of tgt){bu+=t[0];bv+=t[1]}bu/=n;bv/=n;
+  let varT=0;for(const t of tgt)varT+=(t[0]-bu)**2+(t[1]-bv)**2;varT/=n;
+  const A=new Float32Array(2*n);
+  const ev=(a,b,g)=>{
+    const m=rotM(a,b,g);let ax=0,ay=0;
+    for(let i=0;i<n;i++){const p=ref[i];const x=m[0]*p[0]+m[1]*p[1]+m[2]*p[2],y=m[3]*p[0]+m[4]*p[1]+m[5]*p[2];A[2*i]=x;A[2*i+1]=-y;ax+=x;ay-=y}
+    ax/=n;ay/=n;let sxy=0,sxx=0;
+    for(let i=0;i<n;i++){const dx=A[2*i]-ax,dy=A[2*i+1]-ay;sxy+=dx*(tgt[i][0]-bu)+dy*(tgt[i][1]-bv);sxx+=dx*dx+dy*dy}
+    const s=sxy/sxx;if(!(s>0))return{err:Infinity};
+    let err=0;for(let i=0;i<n;i++){const ex=s*(A[2*i]-ax)-(tgt[i][0]-bu),ey=s*(A[2*i+1]-ay)-(tgt[i][1]-bv);err+=ex*ex+ey*ey}
+    return{err:err/n/varT,s,tx:bu-s*ax,ty:bv-s*ay,a,b,g,m};
+  };
+  const hs=hint||{};const ys=hs.ys||0,ps=hs.ps||0;
+  const aLo=ys>0?-12:ys<0?-85:-18,aHi=ys>0?85:ys<0?12:18,bLo=ps>0?-12:ps<0?-50:-22,bHi=ps>0?50:ps<0?12:22;
+  const g0=hs.g0||0;let best={err:Infinity};
+  for(let a=aLo;a<=aHi;a+=5)for(let b=bLo;b<=bHi;b+=5)for(let g=-10;g<=10;g+=5){const r=ev(a*D2R,b*D2R,g0+g*D2R);if(r.err<best.err)best=r}
+  if(!isFinite(best.err))return null;
+  for(const st of[3,1.5,.7,.35]){
+    let imp=true,it=0;
+    while(imp&&it++<12){imp=false;
+      for(const[da,db,dg]of[[st,0,0],[-st,0,0],[0,st,0],[0,-st,0],[0,0,st],[0,0,-st]]){
+        const r=ev(best.a+da*D2R,best.b+db*D2R,best.g+dg*D2R);if(r.err<best.err-1e-9){best=r;imp=true}
+      }
+    }
   }
-  const hx=Math.min(1.45,side+.02),hy=Math.min(ry+.6,top+.02),hz=HEAD_R+.05+(hx-HEAD_R-.05)*.55;
-  const covered=topCount?topCover/topCount>.3:false; // false: bald / very short hair -> don't invent hair at the back
-  const zAt=(X,Y)=>{const t=1-(X/hx)**2-(Y/hy)**2;return Math.max(.1,hz*Math.sqrt(Math.max(0,t)))};
-  // textures
-  const TW=512,TH=Math.max(64,Math.round(TW*(y1-y0)/(x1-x0)));
-  hairFrontCan.width=hairBackCan.width=TW;hairFrontCan.height=hairBackCan.height=TH;
-  const fctx2=hairFrontCan.getContext('2d'),bctx=hairBackCan.getContext('2d');
-  fctx2.drawImage(snap,x0,y0,x1-x0,y1-y0,0,0,TW,TH);
-  const fd=fctx2.getImageData(0,0,TW,TH),bd=bctx.createImageData(TW,TH);
-  const ss=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
-  for(let j=0;j<TH;j++)for(let i=0;i<TW;i++){
-    const x=x0+(i+.5)/TW*(x1-x0),y=y0+(j+.5)/TH*(y1-y0),o=(j*TW+i)*4;
-    const[X,Y]=to(x,y);let p=prob(x,y);
-    if(Y<.35&&inPoly(X,Y,facePoly))p=0; // never cover eyes, nose, mouth
-    const a=ss(.3,.6,p);fd.data[o+3]=a*255;
-    const inHead=1-(X/hx)**2-(Y/hy)**2>0&&Y>-ry*.6;
-    const b=covered&&inHead?1:a;
-    bd.data[o]=bd.data[o+1]=bd.data[o+2]=255;bd.data[o+3]=b*255;
+  return best;
+}
+function bilerp(img,W,H,x,y,out){
+  const fx=x-.5,fy=y-.5;let i=Math.floor(fx),j=Math.floor(fy);const u=fx-i,v=fy-j;
+  i=Math.max(0,Math.min(W-2,i));j=Math.max(0,Math.min(H-2,j));
+  const o=(j*W+i)*4,o2=o+W*4,w00=(1-u)*(1-v),w10=u*(1-v),w01=(1-u)*v,w11=u*v;
+  out[0]=img[o]*w00+img[o+4]*w10+img[o2]*w01+img[o2+4]*w11;
+  out[1]=img[o+1]*w00+img[o+5]*w10+img[o2+1]*w01+img[o2+5]*w11;
+  out[2]=img[o+2]*w00+img[o+6]*w10+img[o2+2]*w01+img[o2+6]*w11;
+}
+/* 把多張不同角度的照片「烘」成兩張貼圖（等距圓柱展開）：
+   skin = 頭殼膚色貼圖；hair = 髮殼貼圖（RGB 髮色 + alpha 是否有頭髮）。
+   caps: [{fit:{m,s,tx,ty},W,H,img(RGBA),hairS(x,y)->0..1}]；o: {TW,TH,RX,RY,RZ(頭殼半徑),SX,SY,SZ(髮殼半徑),skinFb,hairFb} */
+function bakeHead(caps,o){
+  const{TW,TH}=o,sh=o.shape,N=TW*TH;
+  const sW=new Float32Array(N),sC=new Float32Array(N*3),hW=new Float32Array(N),hA=new Float32Array(N),hC=new Float32Array(N*3),hWa=new Float32Array(N);
+  const col=[0,0,0],lonA=new Float32Array(TW),latA=new Float32Array(TH);
+  for(let i=0;i<TW;i++)lonA[i]=((i+.5)/TW-.25)*2*Math.PI;
+  for(let j=0;j<TH;j++)latA[j]=Math.PI/2-(j+.5)/TH*Math.PI;
+  for(let j=0;j<TH;j++){
+    const lat=latA[j],cl=Math.cos(lat),sl=Math.sin(lat);
+    for(let i=0;i<TW;i++){
+      const lon=lonA[i],dx=cl*Math.sin(lon),dy=sl,dz=cl*Math.cos(lon),k=j*TW+i;
+      const[nx,ny,nz]=headNrm(sh,dx,dy,dz),[px,py,pz]=headPt(sh,dx,dy,dz);
+      for(const c of caps){
+        const m=c.fit.m,s=c.fit.s,tx=c.fit.tx,ty=c.fit.ty;
+        const f1=m[6]*nx+m[7]*ny+m[8]*nz;
+        if(f1>.12){
+          const u=s*(m[0]*px+m[1]*py+m[2]*pz)+tx,v=-s*(m[3]*px+m[4]*py+m[5]*pz)+ty;
+          const zw=c.okS?c.okS(u,v):1;
+          if(zw>0&&u>2&&v>2&&u<c.W-3&&v<c.H-3){const w=f1*f1*f1*zw;bilerp(c.img,c.W,c.H,u,v,col);sW[k]+=w;sC[k*3]+=w*col[0];sC[k*3+1]+=w*col[1];sC[k*3+2]+=w*col[2]}
+        }
+      }
+    }
   }
-  fctx2.putImageData(fd,0,0);bctx.putImageData(bd,0,0);hairFrontTex.needsUpdate=hairBackTex.needsUpdate=true;
-  // geometry: one grid over the box, front surface and mirrored back surface
-  const nx=Math.min(160,Math.ceil((x1-x0)/(fw/40))),ny=Math.min(180,Math.ceil((y1-y0)/(fw/40)));
-  const pos=[],posB=[],uv=[],idx=[];
-  for(let j=0;j<=ny;j++)for(let i=0;i<=nx;i++){
-    const u=i/nx,v=j/ny,x=x0+u*(x1-x0),y=y0+v*(y1-y0);const[X,Y]=to(x,y);const Z=zAt(X,Y);
-    pos.push(X,Y,Z);posB.push(X,Y,-Z);uv.push(u,1-v);
+  // 沒被任何照片拍到的區域（後腦勺）：用兩側「被拍得很清楚的頭髮覆蓋率」來推測
+  let sa=0,sn=0;
+  for(let j=0;j<TH;j++){const lat=latA[j];if(lat<-15*D2R||lat>55*D2R)continue;
+    for(let i=0;i<TW;i++){const lon=Math.abs(lonA[i]);if(lon<50*D2R||lon>95*D2R)continue;const k=j*TW+i;if(hW[k]>.25){sa+=hA[k]/hW[k];sn++}}}
+  let fbA=sn>20?sa/sn:0;fbA=fbA>.55?1:fbA<.3?0:fbA;
+  const w0=.05,skin=new Uint8ClampedArray(N*4),hair=new Uint8ClampedArray(N*4),sf=o.skinFb,hf=o.hairFb;
+  for(let k=0;k<N;k++){
+    const ws=sW[k]+w0;
+    skin[k*4]=(sC[k*3]+w0*sf[0])/ws;skin[k*4+1]=(sC[k*3+1]+w0*sf[1])/ws;skin[k*4+2]=(sC[k*3+2]+w0*sf[2])/ws;skin[k*4+3]=255;
+    const wh=hWa[k]+.02;
+    hair[k*4]=(hC[k*3]+.02*hf[0])/wh;hair[k*4+1]=(hC[k*3+1]+.02*hf[1])/wh;hair[k*4+2]=(hC[k*3+2]+.02*hf[2])/wh;
+    hair[k*4+3]=255*(hA[k]+w0*fbA)/(hW[k]+w0);
   }
-  for(let j=0;j<ny;j++)for(let i=0;i<nx;i++){const a=j*(nx+1)+i,b=a+1,c=a+nx+1,d=c+1;idx.push(a,c,b,b,c,d)}
-  const mk=(P)=>{const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx.slice());g.computeVertexNormals();return g};
-  return{front:mk(pos),back:mk(posB),long:bottom<-ry*.9,covered,hx,hy};
+  return{skin,hair,fbA,hConf:hW};
 }
 
-/* ================= detection ================= */
+/* ================= scan (multi-angle) ================= */
 const video=document.createElement('video');video.playsInline=true;video.muted=true;
 const frame=document.createElement('canvas'),fctx=frame.getContext('2d',{willReadFrequently:true});
 const prev=$('preview'),pctx=prev.getContext('2d');
 let face=null,seg=null,stream=null,running=false;
-let state='loading',progress=0,lastT=0,lastCenter=null,lostAt=0,baseRatio=.42;
-
+let state='loading',progress=0,lastT=0,lastCenter=null,lostAt=0,baseRatio=.45,cool=0;
+let scanIdx=0,caps=[],front=null;
+// yaw 為正＝「你的左邊」（畫面鏡像後在左側）；pitch 為正＝低頭
+const STAGES=[
+  {id:'front',name:'正面',tip:'正面看鏡頭、頭擺正，保持不動',yaw:[-9,9],pit:[-30,30]},
+  {id:'left',name:'左側',tip:'慢慢把頭轉向你的左邊（約 40°），眼睛仍看向畫面',yaw:[24,72],pit:[-15,15]},
+  {id:'right',name:'右側',tip:'慢慢把頭轉向你的右邊（約 40°），眼睛仍看向畫面',yaw:[-72,-24],pit:[-15,15]},
+  {id:'up',name:'抬頭',tip:'下巴微微抬高，露出下巴與鼻孔，保持不動',yaw:[-14,14],pit:[-50,-9]},
+  {id:'down',name:'低頭',tip:'慢慢低頭，讓鏡頭看到額頭與頭頂，保持不動',yaw:[-14,14],pit:[9,50]}
+];
+const stageList=$('stageList');
+stageList.innerHTML=STAGES.map(s=>'<li data-st="'+s.id+'">'+s.name+'</li>').join('');
+const dial=$('dial'),dialD=$('dialD'),dialT=$('dialT'),tipEl=$('stageTip');
+function refreshStages(){
+  [...stageList.children].forEach((li,i)=>{li.classList.toggle('ok',i<scanIdx||state==='done');li.classList.toggle('cur',state==='scan'&&i===scanIdx)});
+  const st=STAGES[Math.min(scanIdx,STAGES.length-1)];
+  if(state==='scan'){
+    tipEl.textContent='第 '+(scanIdx+1)+' / '+STAGES.length+' 步・'+st.tip;
+    dialT.style.left=(50-(st.yaw[0]+st.yaw[1])/2/75*42)+'%';dialT.style.top=(50+(st.pit[0]+st.pit[1])/2/55*42)+'%';
+    dialT.style.width=Math.max(14,(st.yaw[1]-st.yaw[0])/75*84)+'%';dialT.style.height=Math.max(14,(st.pit[1]-st.pit[0])/55*84)+'%';
+  }
+  dial.hidden=state!=='scan';
+  $('skipBtn').disabled=!(state==='scan'&&scanIdx>0);
+  $('finishBtn').disabled=!(state==='scan'&&scanIdx>0);
+}
+refreshStages();
 async function loadModels(){
   const fs=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
   const mk=async(Cls,opts)=>{try{return await Cls.createFromOptions(fs,{...opts,baseOptions:{...opts.baseOptions,delegate:'GPU'}})}catch(e){return await Cls.createFromOptions(fs,{...opts,baseOptions:{...opts.baseOptions,delegate:'CPU'}})}};
@@ -364,14 +555,16 @@ async function startCam(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false});
     video.srcObject=stream;await video.play();running=true;$('empty').hidden=true;$('camBtn').textContent='暫停鏡頭';$('camBtn').disabled=false;
-    if(state!=='done')state='search';requestAnimationFrame(loop);
+    if(state==='loading'){state='scan';refreshStages()}requestAnimationFrame(loop);
   }catch(e){setStatus('無法開啟攝影機：請點網址列左側的圖示允許攝影機，然後重新整理','warn');$('empty').hidden=false;$('empty').textContent='需要攝影機權限'}
 }
 function stopCam(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;running=false;$('camBtn').textContent='開啟鏡頭'}
 $('camBtn').addEventListener('click',()=>{running?stopCam():startCam()});
-$('againBtn').addEventListener('click',()=>{state='search';progress=0;setStatus('重新偵測中，請正面看鏡頭','busy')});
+function restart(){state='scan';scanIdx=0;caps=[];front=null;progress=0;baseRatio=.45;poseT.yaw=poseT.pitch=poseT.roll=0;refreshStages();setStatus('重新掃描：請先正面看鏡頭','busy')}
+$('againBtn').addEventListener('click',restart);
+$('skipBtn').addEventListener('click',()=>{if(state!=='scan'||scanIdx===0)return;scanIdx++;progress=0;if(scanIdx>=STAGES.length)finishScan();else refreshStages()});
+$('finishBtn').addEventListener('click',()=>{if(state==='scan'&&scanIdx>0)finishScan()});
 
-const mark=(id,ok)=>$(id).classList.toggle('ok',!!ok);
 function measures(lm,W,H){
   const p=i=>[lm[i].x*W,lm[i].y*H];
   const L=p(234),Rr=p(454),N=p(1),E1=p(33),E2=p(263),C=p(152);
@@ -379,6 +572,7 @@ function measures(lm,W,H){
   const ey=(E1[1]+E2[1])/2;
   return{fw,yawN:(N[0]-(L[0]+Rr[0])/2)/fw*2,roll:Math.atan2(E2[1]-E1[1],E2[0]-E1[0]),ratio:(N[1]-ey)/Math.max(1,C[1]-ey),center:[(L[0]+Rr[0])/2,(ey+C[1])/2]};
 }
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function loop(now){
   if(!running)return;
   if(video.readyState<2){requestAnimationFrame(loop);return}
@@ -389,66 +583,133 @@ function loop(now){
   const lm=fr.faceLandmarks&&fr.faceLandmarks[0];
   pctx.drawImage(frame,0,0);
   const dt=Math.min(.1,(now-(lastT||now))/1000);lastT=now;
-  let m=null,front=false,still=false;
+  let m=null,yawDeg=0,pitDeg=0,still=false;
   if(lm){
     m=measures(lm,W,H);
-    front=Math.abs(m.yawN)<.16&&Math.abs(m.roll)<.2&&m.fw>W*.07;
-    const mv=lastCenter?Math.hypot(m.center[0]-lastCenter[0],m.center[1]-lastCenter[1])/m.fw:1;lastCenter=m.center;still=mv<.035;
+    yawDeg=Math.atan(m.yawN/1.1)/D2R;pitDeg=(m.ratio-baseRatio)*100;
+    const mv=lastCenter?Math.hypot(m.center[0]-lastCenter[0],m.center[1]-lastCenter[1])/m.fw:1;lastCenter=m.center;still=mv<.05;
     pctx.strokeStyle='#6d7dff';pctx.lineWidth=Math.max(2,W/400);pctx.beginPath();
     OVAL.forEach((i,j)=>{const x=lm[i].x*W,y=lm[i].y*H;j?pctx.lineTo(x,y):pctx.moveTo(x,y)});pctx.closePath();pctx.stroke();
     pctx.fillStyle='rgba(255,255,255,.7)';for(let i=0;i<468;i+=3)pctx.fillRect(lm[i].x*W-1,lm[i].y*H-1,2,2);
-    if(state==='done'){
-      poseT.yaw=Math.max(-.7,Math.min(.7,m.yawN*1.1));poseT.roll=-m.roll;poseT.pitch=Math.max(-.35,Math.min(.35,(m.ratio-baseRatio)*1.6));lostAt=0;
-    }
-  }else{lastCenter=null;if(state==='done'){if(!lostAt)lostAt=now;else if(now-lostAt>2500){state='search';progress=0;poseT.yaw=poseT.pitch=poseT.roll=0}}}
-  mark('ckFace',lm);mark('ckFront',front);mark('ckStill',still&&front);
-  if(state==='search'){
-    const ok=lm&&front&&still;
-    progress=ok?progress+dt/1.2:Math.max(0,progress-dt*.8);
-    if(!lm)setStatus('請站到鏡頭前','');
-    else if(!front)setStatus('請正面看鏡頭、頭擺正','warn');
-    else setStatus('保持不動…即將自動拍照','busy');
-    if(progress>=1){progress=0;capture(lm,W,H,m)}
+    // 小圓盤：白點＝你現在頭的方向，藍框＝這一步要到的位置（畫面是鏡像，與鏡子一致）
+    dialD.style.left=(50-clamp(yawDeg,-75,75)/75*42)+'%';dialD.style.top=(50+clamp(pitDeg,-55,55)/55*42)+'%';dialD.style.opacity=1;
+    if(state==='done'){poseT.yaw=clamp(m.yawN*1.1,-.7,.7);poseT.roll=-m.roll;poseT.pitch=clamp((m.ratio-baseRatio)*1.6,-.35,.35);lostAt=0}
+  }else{
+    lastCenter=null;dialD.style.opacity=.2;
+    if(state==='done'){if(!lostAt)lostAt=now;else if(now-lostAt>2500){restart()}}
   }
-  $('progress').style.width=(state==='search'?Math.min(1,progress)*100:0)+'%';
+  if(state==='scan'){
+    const st=STAGES[scanIdx];
+    // 正面這一步額外用特徵點的深度檢查「頭有沒有偏」（只看大小，不分左右），偏超過約 8° 就不拍，避免正面照歪掉造成臉變形
+    const zYaw=lm?Math.atan(Math.abs(lm[454].z-lm[234].z)/Math.max(1e-4,Math.abs(lm[454].x-lm[234].x)))/D2R:0;
+    const tilted=st.id==='front'&&zYaw>8;
+    const inWin=!!lm&&!tilted&&m.fw>W*.07&&yawDeg>=st.yaw[0]&&yawDeg<=st.yaw[1]&&pitDeg>=st.pit[0]&&pitDeg<=st.pit[1];
+    const ok=inWin&&still&&now>cool;
+    progress=ok?progress+dt/.9:Math.max(0,progress-dt*1.2);
+    if(now>cool){
+      if(!lm)setStatus('請站到鏡頭前','');
+      else if(tilted)setStatus('頭有點偏了，請把臉正對鏡頭、頭擺正','warn');
+      else if(!inWin)setStatus(st.tip,'warn');
+      else if(!still)setStatus('很好，現在保持不動','busy');
+      else setStatus('保持不動…即將拍下「'+st.name+'」','busy');
+    }
+    if(progress>=1){progress=0;captureStage(lm,W,H,m,yawDeg,pitDeg,now)}
+  }
+  $('progress').style.width=(state==='scan'?Math.min(1,progress)*100:0)+'%';
   requestAnimationFrame(loop);
 }
 
-function capture(lm,W,H,m){
-  state='busy';setStatus('拍照中，正在生成頭像…','busy');
-  const fl=$('flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='opacity .5s';fl.style.opacity=0});
-  snapCan.width=W;snapCan.height=H;const s=snapCan.getContext('2d',{willReadFrequently:true});s.drawImage(frame,0,0);
-  const img=s.getImageData(0,0,W,H).data;
-  // confidence masks: 0 bg, 1 hair, 2 body skin, 3 face skin, 4 clothes, 5 other
-  const res=seg.segment(snapCan);const cm=res.confidenceMasks;const mw=cm[0].width,mh=cm[0].height;
+function segmentFrame(canvas,W,H){
+  const res=seg.segment(canvas);const cm=res.confidenceMasks;const mw=cm[0].width,mh=cm[0].height;
   const hairP=cm[1].getAsFloat32Array().slice(),faceP=cm[3].getAsFloat32Array().slice();res.close();
-  const sample=(A,x,y)=>{const fx=Math.max(0,Math.min(mw-1.001,x*mw/W-.5)),fy=Math.max(0,Math.min(mh-1.001,y*mh/H-.5));const i=fx|0,j=fy|0,u=fx-i,v=fy-j,o=j*mw+i;
+  const sample=A=>(x,y)=>{const fx=Math.max(0,Math.min(mw-1.001,x*mw/W-.5)),fy=Math.max(0,Math.min(mh-1.001,y*mh/H-.5));const i=fx|0,j=fy|0,u=fx-i,v=fy-j,o=j*mw+i;
     return A[o]*(1-u)*(1-v)+A[o+1]*u*(1-v)+A[o+mw]*(1-u)*v+A[o+mw+1]*u*v};
-  const avgWhere=(A,th,x0,y0,x1,y1)=>{let r=0,g=0,b=0,n=0;x0=Math.max(0,x0|0);y0=Math.max(0,y0|0);x1=Math.min(W,x1|0);y1=Math.min(H,y1|0);
-    for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){if(sample(A,x,y)<th)continue;const i=(y*W+x)*4;r+=img[i];g+=img[i+1];b+=img[i+2];n++}
-    return n>20?hex(r/n,g/n,b/n):null};
-  const F=headFrame(lm,W,H);
-  const fm=faceMesh(F,W,H);
-  snapTex.needsUpdate=true;
-  const fx0=Math.min(...OVAL.map(i=>lm[i].x*W)),fx1=Math.max(...OVAL.map(i=>lm[i].x*W)),fy0=Math.min(...OVAL.map(i=>lm[i].y*H)),fy1=Math.max(...OVAL.map(i=>lm[i].y*H));
-  const fwid=fx1-fx0,fhei=fy1-fy0;
-  skinM.color.set(avgWhere(faceP,.7,fx0,fy0,fx1,fy1)||'#e9bfa0');
-  // only hair connected to this head: limit to a window around the face
-  const wx0=Math.max(0,fx0-fwid*1.6),wx1=Math.min(W,fx1+fwid*1.6),wy0=Math.max(0,fy0-fhei*1.2),wy1=Math.min(H,fy1+fhei*2.4);
-  const prob=(x,y)=>(x<wx0||x>wx1||y<wy0||y>wy1)?0:sample(hairP,x,y);
-  const isHair=(x,y)=>prob(x,y)>.5;
-  const hc0=avgWhere(hairP,.75,wx0,wy0,wx1,wy1)||'#2b211c';hairM.color.set(hc0);hairBackM.color.set(hc0);
-  const hm=hairMesh(F,W,H,prob,fm.ry,fm.poly,snapCan,{x0:wx0,y0:wy0,x1:wx1,y1:wy1});
-  buildHead({ry:fm.ry,face:fm.geo,hairFront:hm&&hm.front,hairBack:hm&&hm.back,long:hm&&hm.long});
-  baseRatio=m.ratio;state='done';lostAt=0;
-  // thumbnails
+  return{hairS:sample(hairP),faceS:sample(faceP)};
+}
+function captureStage(lm,W,H,m,yawDeg,pitDeg,now){
+  const st=STAGES[scanIdx];
+  const tgt=lm.slice(0,468).map(p=>[p.x*W,p.y*H]);
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(frame,0,0);
+  const img=cx.getImageData(0,0,W,H).data;
+  let fit,Fr=null,fm=null;
+  if(scanIdx===0){
+    Fr=headFrame(lm,W,H);fm=faceMesh(Fr,W,H);
+    fit=fitPose(fm.ref,tgt,{ys:0,ps:0,g0:-m.roll});
+  }else{
+    fit=fitPose(front.fm.ref,tgt,{ys:Math.sign(yawDeg),ps:st.id==='up'||st.id==='down'?Math.sign(pitDeg):0,g0:-m.roll});
+  }
+  const bad=msg=>{progress=0;cool=now+900;setStatus(msg,'warn')};
+  if(!fit||fit.err>.05)return bad('這個角度算不準，請放慢動作再試一次');
+  const ad=fit.a/D2R,bd=fit.b/D2R;
+  if(st.id==='left'&&ad<14)return bad('再多轉一點（轉向你的左邊）');
+  if(st.id==='right'&&ad>-14)return bad('再多轉一點（轉向你的右邊）');
+  if(st.id==='up'&&bd>-5)return bad('再把下巴抬高一點');
+  if(st.id==='down'&&bd<5)return bad('再低頭一點');
+  const fl=$('flash');fl.style.transition='none';fl.style.opacity=.9;requestAnimationFrame(()=>{fl.style.transition='opacity .5s';fl.style.opacity=0});
+  const sg=segmentFrame(cv,W,H);
+  const cap={fit,W,H,img,hairS:sg.hairS,faceS:sg.faceS,lm,id:st.id};
+  if(scanIdx===0){
+    snapCan.width=W;snapCan.height=H;snapCan.getContext('2d').drawImage(cv,0,0);snapTex.needsUpdate=true;
+    baseRatio=m.ratio;front={cap,F:Fr,fm,W,H,cv};
+  }
+  caps.push(cap);scanIdx++;
+  if(scanIdx>=STAGES.length)finishScan();else{refreshStages();setStatus('已拍下「'+st.name+'」！接著：'+STAGES[scanIdx].name,'on');cool=now+700}
+}
+
+// 量出這個人的髮型相對頭殼的厚度（髮殼因此會貼著頭，而不是飄在外面）
+function measureHair(F,prob,ry,win){
+  const{to,fw}=F,st=Math.max(2,fw/50);let side=0,top=0,n=0;
+  for(let y=win.y0;y<win.y1;y+=st)for(let x=win.x0;x<win.x1;x+=st){
+    if(prob(x,y)<.5)continue;const[X,Y]=to(x,y);n++;
+    if(Math.abs(Y)<.35)side=Math.max(side,Math.abs(X));top=Math.max(top,Y);
+  }
+  if(n<40)return{none:true,thS:.05,thT:.05};
+  return{none:false,thS:clamp(side-HEAD_R,.04,.3),thT:clamp(top-ry,.04,.45)};
+}
+function avgColor(cap,S,th,x0,y0,x1,y1){
+  let r=0,g=0,b=0,n=0;x0=Math.max(0,x0|0);y0=Math.max(0,y0|0);x1=Math.min(cap.W,x1|0);y1=Math.min(cap.H,y1|0);
+  for(let y=y0;y<y1;y+=2)for(let x=x0;x<x1;x+=2){if(S(x,y)<th)continue;const i=(y*cap.W+x)*4;r+=cap.img[i];g+=cap.img[i+1];b+=cap.img[i+2];n++}
+  return n>20?[r/n,g/n,b/n]:null;
+}
+function finishScan(){
+  state='busy';progress=0;refreshStages();setStatus('正在把各個角度合成完整頭像…','busy');
+  setTimeout(()=>{try{doBuild()}catch(e){console.error(e);state='scan';scanIdx=0;caps=[];front=null;refreshStages();setStatus('合成失敗，請重新掃描','warn')}},40);
+}
+function doBuild(){
+  // 只做「臉」：膚色頭殼 + 各角度照片只貼在臉的範圍（正面與左右側臉頰、耳前），不建頭髮
+  const{cap,fm,W,H}=front,lm=cap.lm;
+  const xs=OVAL.map(i=>lm[i].x*W),ys=OVAL.map(i=>lm[i].y*H);
+  const fx0=Math.min(...xs),fx1=Math.max(...xs),fy0=Math.min(...ys),fy1=Math.max(...ys),fwid=fx1-fx0,fhei=fy1-fy0;
+  const skinC=avgColor(cap,cap.faceS,.7,fx0,fy0,fx1,fy1)||[233,191,160];
+  // 每張照片各自的臉輪廓（向外放大一圈），只有落在輪廓內的像素才會被拿來貼頭殼，避免把頭髮、背景貼上去
+  const zone=caps.map(c=>{
+    const px=OVAL.map(i=>c.lm[i].x*c.W),py=OVAL.map(i=>c.lm[i].y*c.H),cx=px.reduce((q,v)=>q+v,0)/px.length,cy=py.reduce((q,v)=>q+v,0)/py.length;
+    const mk=(kx,ky)=>px.map((x,i)=>[cx+(x-cx)*kx,cy+(py[i]-cy)*ky]);
+    const inner=mk(1.0,1.0),outer=mk(1.12,1.06);
+    return(u,v)=>inPoly(u,v,inner)?1:inPoly(u,v,outer)?.3:0;
+  });
+  const o={TW:1024,TH:512,shape:fm.shape,skinFb:skinC,hairFb:[0,0,0]};
+  const out=bakeHead(caps.map((c,i)=>({fit:c.fit,W:c.W,H:c.H,img:c.img,hairS:()=>0,okS:zone[i]})),o);
+  const put=(can,data)=>{can.width=o.TW;can.height=o.TH;can.getContext('2d').putImageData(new ImageData(data,o.TW,o.TH),0,0)};
+  put(skinCan,out.skin);skinTex.needsUpdate=true;
+  skinM.color.set(hex(...skinC));
+  { // 臉的貼圖：正面照片 + 以臉輪廓為界的柔邊透明度（輪廓稍微內縮，避免帶到頭髮與背景）
+    snapCan.width=W;snapCan.height=H;const sc=snapCan.getContext('2d');sc.drawImage(front.cv,0,0);
+    const mc=document.createElement('canvas');mc.width=W;mc.height=H;const mctx=mc.getContext('2d');
+    const px=OVAL.map(i=>lm[i].x*W),py=OVAL.map(i=>lm[i].y*H),cx=px.reduce((q,v)=>q+v,0)/px.length,cy=py.reduce((q,v)=>q+v,0)/py.length;
+    mctx.fillStyle='#fff';mctx.beginPath();px.forEach((x,i)=>{const X=cx+(x-cx)*.97,Y=cy+(py[i]-cy)*.97;i?mctx.lineTo(X,Y):mctx.moveTo(X,Y)});mctx.closePath();mctx.fill();
+    const md=mctx.getImageData(0,0,W,H).data,fa=new Float32Array(W*H);for(let k=0;k<W*H;k++)fa[k]=md[k*4]/255;
+    const bl=blurAlpha(fa,W,H,Math.max(2,Math.round(fwid/45)),2),id=sc.getImageData(0,0,W,H);
+    for(let k=0;k<W*H;k++){const t=Math.max(0,Math.min(1,(bl[k]-.3)/.4));id.data[k*4+3]=255*t*t*(3-2*t)}
+    sc.putImageData(id,0,0);snapTex.needsUpdate=true;
+  }
+  buildHead({face:faceGrid(fm),onlyFace:true});
+  state='done';lostAt=0;refreshStages();
   const side=Math.max(fwid,fhei)*1.1;
-  const ft=$('faceThumb').getContext('2d');ft.clearRect(0,0,96,96);ft.drawImage(snapCan,(fx0+fx1)/2-side/2,(fy0+fy1)/2-side/2,side,side,0,0,96,96);
-  const hs=Math.max(wx1-wx0,wy1-wy0),hc=document.createElement('canvas');hc.width=hc.height=96;const hctx=hc.getContext('2d'),hid=hctx.createImageData(96,96);
-  for(let y=0;y<96;y++)for(let x=0;x<96;x++){const sx=(wx0+wx1)/2-hs/2+x/96*hs,sy=wy0+y/96*hs,o=(y*96+x)*4;if(isHair(sx,sy)){const i=((sy|0)*W+(sx|0))*4;hid.data[o]=img[i];hid.data[o+1]=img[i+1];hid.data[o+2]=img[i+2];hid.data[o+3]=255}}
-  hctx.putImageData(hid,0,0);const ht=$('hairThumb').getContext('2d');ht.fillStyle='#333';ht.fillRect(0,0,96,96);ht.drawImage(hc,0,0);
+  const ft=$('faceThumb').getContext('2d');ft.clearRect(0,0,96,96);ft.drawImage(front.cv,(fx0+fx1)/2-side/2,(fy0+fy1)/2-side/2,side,side,0,0,96,96);
   $('againBtn').disabled=false;
-  setStatus(hm?'頭像已生成！轉頭時會跟著動；離開鏡頭再回來會重新生成':'頭像已生成（沒偵測到頭髮，使用預設髮型）','on');
+  const got=caps.length;
+  setStatus(got>=STAGES.length?'臉部已生成（'+got+' 個角度）！轉頭時會跟著動；離開鏡頭再回來會重新掃描':'臉部已生成（只用了 '+got+' 個角度）；可按「重新生成」補拍','on');
 }
 
 /* ================= boot ================= */
