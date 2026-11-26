@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="floating-words.css">
   <script src="cover-dream-audio.js?v=1122d" defer></script>
 <script src="button_sound.js?v=1122f" data-click-sound="audio/click.mp3" data-click-volume="0.85" defer></script>
+
 </head>
 <body class="intro-lock">
 
@@ -483,10 +484,7 @@
     curScroll += (targetScroll - curScroll) * .14;
     if (Math.abs(targetScroll - curScroll) < .0003) curScroll = targetScroll;
 
-    if (dreamEye) {
-      const eyeFade = ease(seg(curScroll, 0.55, 0.98));
-      dreamEye.style.opacity = `${1 - eyeFade}`;
-    }
+    
 
     render(introP, curScroll);
     requestAnimationFrame(loop);
