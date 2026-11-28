@@ -111,7 +111,7 @@
       const dx = x - cx;
       const dy = y - cy;
       const dist = Math.hypot(dx, dy) || 1;
-      const speed = 10 + Math.random() * 10;
+      const speed = 10 + Math.random() * 2;
       const radius = 0.75 + Math.random() * 1;
 
       pushTinyMonochromeParticle(
