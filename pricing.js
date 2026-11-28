@@ -162,8 +162,6 @@ const PLANS = {
 
 const cardsEl = document.getElementById("pricing-cards");
 const tabs = document.querySelectorAll(".pricing-tab");
-const buyButton = document.getElementById("pricing-buy");
-const successDialog = document.getElementById("pricing-success");
 let current = null;
 
 function el(tag, cls, text) {
@@ -173,16 +171,29 @@ function el(tag, cls, text) {
   return n;
 }
 
+function goToCoupon(pct) {
+  const slot = document.querySelector(`.coupon-slot[data-coupon="${pct}"]`);
+  if (!slot) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  slot.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+  const item = slot.closest(".pricing-coupons__item");
+  if (item) {
+    item.classList.remove("is-pulse");
+    void item.offsetWidth;
+    item.classList.add("is-pulse");
+  }
+}
+
 function render(key) {
   const plan = PLANS[key];
   cardsEl.innerHTML = "";
   plan.cards.forEach((c, index) => {
     const card = el("article", "pricing-card");
-    const destination = index === 2 ? "discount-50.html" : "discount-25.html";
-    card.dataset.href = destination;
+    const couponPct = index === 2 ? "50" : "25";
+    card.dataset.coupon = couponPct;
     card.tabIndex = 0;
-    card.setAttribute("role", "link");
-    card.setAttribute("aria-label", `${c.who}，前往購買`);
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", `${c.who}，查看適用的 ${couponPct}% 折價券`);
     card.appendChild(
       el("div", "pricing-card__name", plan.label + "/單一應用程式"),
     );
@@ -206,13 +217,11 @@ function render(key) {
       ul.appendChild(li);
     });
     card.appendChild(ul);
-    card.addEventListener("click", () => {
-      window.open(destination, "_blank", "noopener,noreferrer");
-    });
+    card.addEventListener("click", () => goToCoupon(couponPct));
     card.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        window.open(destination, "_blank", "noopener,noreferrer");
+        goToCoupon(couponPct);
       }
     });
     cardsEl.appendChild(card);
@@ -233,16 +242,6 @@ function select(key, animate = true) {
     render(key);
     cardsEl.classList.remove("is-switching");
   }, 280);
-}
-
-if (buyButton && successDialog) {
-  buyButton.addEventListener("click", () => successDialog.showModal());
-  successDialog
-    .querySelector(".pricing-success__close")
-    .addEventListener("click", () => successDialog.close());
-  successDialog.addEventListener("click", (event) => {
-    if (event.target === successDialog) successDialog.close();
-  });
 }
 
 tabs.forEach((t) => t.addEventListener("click", () => select(t.dataset.plan)));

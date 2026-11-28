@@ -1,0 +1,655 @@
+/* 內嵌折價券：由 coupon25.css / coupon50.css 加上 .cp25 / .cp50 範圍後合併，兩張券樣式互不衝突 */
+/* 折價券 25%（discount-25.html）：由提供的 double-fold.css 加上 .cp25 範圍，避免和網站其他樣式衝突 */
+.cp25 {
+  --bg: #0b0b0b;
+  --card: #0a0a0b;
+  --card-back: #141417;
+  --line: #2e2e32;
+  --fg: #f6f6f4;
+  --muted: #a9a9b0;
+  --btn: #1f0a8f;
+  --btn-line: #3d3866;
+  --radius: 3.5cqw;
+  --font-text:
+    "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --ease: cubic-bezier(0.65, 0, 0.25, 1);
+  --dur: 0.85s;
+  --u: 0.2cqw; 
+  color-scheme: dark;
+}
+.cp25 {
+  margin: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: max(24px, 19vh) max(24px, 6.5vh);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-text);
+  overflow-x: hidden;
+}
+.cp25 .cp-main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: max(56px, 9vh);
+}
+.cp25 .stage {
+  position: relative;
+  width: min(100%, max(46.2vw, 340px));
+  container-type: inline-size;
+}
+.cp25 .slide1 {
+  width: 100%;
+  transition:
+    transform var(--dur) var(--ease) var(--dur),
+    filter var(--dur) var(--ease) var(--dur);
+}
+.cp25 .slide2 {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 798 / 345;
+  perspective: 160cqw;
+  transition: transform var(--dur) var(--ease) 0s;
+  -webkit-tap-highlight-color: transparent;
+}
+.cp25 .stage.is-folded .slide1 {
+  transform: translateX(-25cqw);
+  filter: drop-shadow(0 1.6cqw 2.4cqw rgba(0, 0, 0, 0.7));
+  transition-delay: 0s;
+}
+.cp25 .stage.is-folded .slide2 {
+  transform: translateX(-12.5cqw);
+  transition-delay: var(--dur);
+}
+.cp25 .panel {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  transform-origin: 100% 50%; 
+}
+.cp25 .q4 {
+  left: 75%;
+  width: 25%;
+}
+.cp25 .q3,
+.cp25 .q2,
+.cp25 .q1 {
+  right: 100%; 
+  transform: translateZ(0) rotateY(0deg);
+}
+.cp25 .q3 {
+  transition: transform var(--dur) var(--ease) 0s;
+}
+.cp25 .q1 {
+  transition: transform var(--dur) var(--ease) 0s;
+}
+.cp25 .stage.is-folded .q3 {
+  transform: translateZ(calc(var(--u) * 3)) rotateY(180deg);
+  transition-delay: var(--dur);
+}
+.cp25 .stage.is-folded .q1 {
+  transform: translateZ(calc(var(--u) * -1)) rotateY(-180deg);
+  transition-delay: var(--dur);
+}
+.cp25 .q2 {
+  transition: transform var(--dur) var(--ease) var(--dur);
+}
+.cp25 .stage.is-folded .q2 {
+  transform: translateZ(var(--u)) rotateY(180deg);
+  transition-delay: 0s;
+}
+.cp25 .face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.cp25 .back {
+  transform: rotateY(180deg);
+  background: var(--card-back);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  box-sizing: border-box;
+}
+.cp25 .q1 > .back {
+  border-right: 1px solid var(--line);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.cp25 .content {
+  position: absolute;
+  top: 0;
+  width: 400%;
+  height: 100%;
+}
+.cp25 .q1 > .face > .content {
+  left: 0;
+}
+.cp25 .q2 > .face > .content {
+  left: -100%;
+}
+.cp25 .q3 > .face > .content {
+  left: -200%;
+}
+.cp25 .q4 > .face > .content {
+  left: -300%;
+}
+.cp25 .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 76.4%;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.cp25 .title {
+  position: absolute;
+  left: 8.2%;
+  top: 11%;
+  font-size: 4cqw;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.cp25 .save {
+  position: absolute;
+  right: 9%;
+  bottom: 11%;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5cqw;
+  line-height: 1;
+  white-space: nowrap;
+}
+.cp25 .save .lead {
+  font-size: 4.2cqw;
+  font-weight: 400;
+}
+.cp25 .save .pct {
+  font: 800 14cqw/1 var(--font-num);
+  letter-spacing: -0.02em;
+}
+.cp25 .tab {
+  position: absolute;
+  top: 0;
+  left: calc(76.4% - 1px);
+  width: calc(23.6% + 1px);
+  height: 100%;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cp25 .tab:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 4px;
+}
+.cp25 .tab svg {
+  width: 6.4cqw;
+  height: 6.4cqw;
+}
+.cp25 .tab .ic-done {
+  display: none;
+}
+.cp25 .tab[aria-pressed="true"] .ic-down {
+  display: none;
+}
+.cp25 .tab[aria-pressed="true"] .ic-done {
+  display: block;
+}
+.cp25 .shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease) var(--dur);
+}
+.cp25 .stage.is-folded .shade {
+  transition-delay: 0s;
+}
+.cp25 .q4 > .front > .shade {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0) 40%);
+}
+.cp25 .q3 > .front > .shade,
+.cp25 .q2 > .front > .shade,
+.cp25 .q1 > .front > .shade {
+  background: rgba(0, 0, 0, 0.6);
+}
+.cp25 .stage.is-folded .q4 > .front > .shade,
+.cp25 .stage.is-folded .q3 > .front > .shade,
+.cp25 .stage.is-folded .q2 > .front > .shade,
+.cp25 .stage.is-folded .q1 > .front > .shade {
+  opacity: 1;
+}
+.cp25 .q3 > .front > .shade {
+  transition-delay: 0s;
+}
+.cp25 .stage.is-folded .q3 > .front > .shade {
+  transition-delay: var(--dur);
+}
+.cp25 .back > .shade {
+  opacity: 1;
+  transition: none;
+}
+.cp25 .q3 > .back > .shade,
+.cp25 .q2 > .back > .shade {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.45),
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(0, 0, 0, 0.12)
+  );
+}
+.cp25 .q1 > .back > .shade {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.05));
+}
+.cp25 .hint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  display: block;
+  margin: 1cqw 0 0;
+  padding: 6px 12px;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  font: 400 max(13px, 2cqw)/1.4 var(--font-text);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.cp25 .hint:hover {
+  color: var(--fg);
+}
+.cp25 .hint:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 2px;
+}
+.cp25 .actions {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.cp25 .back-btn {
+  appearance: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--btn);
+  border: 1px solid var(--btn-line);
+  border-radius: 20px;
+  padding: 13px 28px;
+  cursor: pointer;
+  transition:
+    filter 0.2s,
+    transform 0.2s;
+}
+.cp25 .back-btn:hover {
+  filter: brightness(1.25);
+}
+.cp25 .back-btn:active {
+  transform: scale(0.98);
+}
+.cp25 .back-btn:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 4px;
+}
+.cp25 .status {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.cp25 .note {
+  margin: 0;
+  text-align: center;
+  font-size: max(13px, 1.39vw);
+  color: var(--fg);
+  max-width: 40em;
+  text-wrap: balance;
+}
+.cp25 .back-btn { display: inline-block; text-decoration: none; }
+.cp25 { min-height: 100svh; }
+@media (prefers-reduced-motion: reduce) { .cp25 { --dur: 0.01s; } }
+
+/* 折價券 50%（discount-50.html）：由提供的 style.css 加上 .cp50 範圍，避免和網站其他樣式衝突 */
+.cp50 {
+  --bg: #0b0b0b;
+  --card: #0a0a0b;
+  --card-back: #141417;
+  --line: #2e2e32;
+  --fg: #f6f6f4;
+  --muted: #a9a9b0;
+  --btn: #1f0a8f;
+  --btn-line: #3d3866;
+  --radius: 3.5cqw;
+  --font-text:
+    "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-num: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --ease: cubic-bezier(0.65, 0, 0.25, 1);
+  --dur: 0.95s;
+  color-scheme: dark;
+}
+.cp50 {
+  margin: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: max(24px, 19vh) max(24px, 6.5vh);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+  color: var(--fg);
+  font: 400 16px/1.5 var(--font-text);
+  overflow-x: hidden;
+}
+.cp50 .cp-main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: max(56px, 9vh);
+}
+.cp50 .stage {
+  position: relative;
+  width: min(100%, max(46.2vw, 340px));
+  container-type: inline-size;
+}
+.cp50 .unit {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 798 / 345;
+  perspective: 160cqw;
+  transition:
+    transform var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.cp50 .stage.is-folded .unit {
+  transform: translateX(-25cqw);
+  filter: drop-shadow(0 1.6cqw 2.4cqw rgba(0, 0, 0, 0.7));
+}
+.cp50 .half {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 50%;
+}
+.cp50 .half-l {
+  left: 0;
+  z-index: 2;
+  transform-origin: 100% 50%;
+  transform-style: preserve-3d;
+  transition: transform var(--dur) var(--ease);
+}
+.cp50 .half-r {
+  left: 50%;
+}
+.cp50 .stage.is-folded .half-l {
+  transform: rotateY(180deg);
+}
+.cp50 .face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.cp50 .half-l .back {
+  transform: rotateY(180deg);
+  background: var(--card-back);
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.cp50 .content {
+  position: absolute;
+  top: 0;
+  width: 200%;
+  height: 100%;
+}
+.cp50 .half-r .content {
+  left: -100%;
+}
+.cp50 .card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 76.4%;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.cp50 .title {
+  position: absolute;
+  left: 8.2%;
+  top: 11%;
+  font-size: 4cqw;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.cp50 .save {
+  position: absolute;
+  right: 9%;
+  bottom: 11%;
+  display: flex;
+  align-items: baseline;
+  gap: 1.5cqw;
+  line-height: 1;
+  white-space: nowrap;
+}
+.cp50 .save .lead {
+  font-size: 4.2cqw;
+  font-weight: 400;
+}
+.cp50 .save .pct {
+  font: 800 14cqw/1 var(--font-num);
+  letter-spacing: -0.02em;
+}
+.cp50 .tab {
+  position: absolute;
+  top: 0;
+  left: calc(76.4% - 1px);
+  width: calc(23.6% + 1px);
+  height: 100%;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cp50 .tab:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 4px;
+}
+.cp50 .tab svg {
+  width: 6.4cqw;
+  height: 6.4cqw;
+}
+.cp50 .tab .ic-done {
+  display: none;
+}
+.cp50 .tab[aria-pressed="true"] .ic-down {
+  display: none;
+}
+.cp50 .tab[aria-pressed="true"] .ic-done {
+  display: block;
+}
+.cp50 .back-label {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1cqw;
+  color: var(--muted);
+  text-align: center;
+}
+.cp50 .back-label strong {
+  font-size: 3.4cqw;
+  font-weight: 500;
+  color: var(--fg);
+  letter-spacing: 0.1em;
+}
+.cp50 .back-label span {
+  font-size: 2.3cqw;
+  letter-spacing: 0.08em;
+}
+.cp50 .shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.cp50 .half-r .shade {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0) 40%);
+}
+.cp50 .half-l .back .shade {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.45),
+    rgba(255, 255, 255, 0.03) 40%,
+    rgba(0, 0, 0, 0.12)
+  );
+}
+.cp50 .half-l .front .shade {
+  background: rgba(0, 0, 0, 0.6);
+}
+.cp50 .stage.is-folded .half-r .shade,
+.cp50 .stage.is-folded .half-l .front .shade {
+  opacity: 1;
+}
+.cp50 .hint {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  display: block;
+  margin: 1cqw 0 0;
+  padding: 6px 12px;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 8px;
+  font: 400 max(13px, 2cqw)/1.4 var(--font-text);
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.cp50 .hint:hover {
+  color: var(--fg);
+}
+.cp50 .hint:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 2px;
+}
+.cp50 .actions {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+.cp50 .back-btn {
+  appearance: none;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--fg);
+  background: var(--btn);
+  border: 1px solid var(--btn-line);
+  border-radius: 20px;
+  padding: 13px 28px;
+  cursor: pointer;
+  transition:
+    filter 0.2s,
+    transform 0.2s;
+}
+.cp50 .back-btn:hover {
+  filter: brightness(1.25);
+}
+.cp50 .back-btn:active {
+  transform: scale(0.98);
+}
+.cp50 .back-btn:focus-visible {
+  outline: 2px solid #8b7bff;
+  outline-offset: 4px;
+}
+.cp50 .status {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  margin: 12px 0 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+.cp50 .note {
+  margin: 0;
+  text-align: center;
+  font-size: max(13px, 1.39vw);
+  color: var(--fg);
+  max-width: 40em;
+  text-wrap: balance;
+}
+.cp50 .back-btn { display: inline-block; text-decoration: none; }
+.cp50 { min-height: 100svh; --radius: 3.5cqw; }
+@media (prefers-reduced-motion: reduce) { .cp50 { --dur: 0.01s; } }
+
+
+/* ---- 內嵌到定價頁時的覆蓋：取消整頁版面，改成隨欄寬縮放 ---- */
+.cp25.cp-inline,
+.cp50.cp-inline {
+  min-height: 0;
+  display: block;
+  padding: 0;
+  overflow: visible;
+  font-size: 16px;
+}
+.cp25.cp-inline .stage,
+.cp50.cp-inline .stage {
+  width: 100%;
+  margin-bottom: 0;
+}
